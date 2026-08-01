@@ -1,23 +1,215 @@
 aid: bolt-financial
 name: Bolt Financial
-description: 'Bolt Financial is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+description: 'Bolt Financial, Inc. is an American commerce technology company that gives
+  retailers a one-click, identity-powered checkout backed by a shopper account network,
+  payments processing, tokenization and fraud protection. Merchants integrate Bolt either
+  through platform plugins (Adobe Commerce/Magento, BigCommerce, Salesforce Commerce Cloud,
+  Shopify, WooCommerce) or directly against a REST API surface that covers shopper accounts,
+  order tokens, transaction authorize/capture/refund/void, subscriptions, product catalog,
+  merchant statements, webhooks and a hosted card tokenizer. Bolt publishes OpenAPI 3.0
+  definitions for its Bolt API, Embeddable Checkout v1 and v3, and Tokenizer endpoints,
+  ships first-party SDKs for TypeScript, Python, C#, Go, PHP, iOS/Swift, Android/Kotlin,
+  React Native, Unity and Unreal, and maintains an explicit agent-facing surface: an
+  llms.txt index, a hosted documentation MCP server and two published agent skills.'
+image: https://kinlane-productions2.s3.amazonaws.com/api-evangelist-site/company-images/bolt-financial.png
 url: https://raw.githubusercontent.com/api-evangelist/bolt-financial/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
 specificationVersion: '0.20'
 created: '2026-07-31'
 modified: '2026-07-31'
 tags:
 - Company
-apis: []
+- Payments
+- Checkout
+- eCommerce
+- Fintech
+- Subscriptions
+- Tokenization
+- Fraud
+- Identity
+- Webhooks
+apis:
+- aid: bolt-financial:bolt-api
+  name: Bolt API
+  description: 'The core Bolt merchant API. Covers Bolt shopper accounts (profile,
+    addresses, payment methods), merchant configuration and callbacks, order token
+    creation, shipment tracking, transaction authorize/capture/refund/review/void/update,
+    subscriptions with dunning settings, merchant statements, sandbox testing helpers
+    and webhook registration. Authenticated with an X-Api-Key header for server-side
+    calls, or OAuth 2.0 authorization-code tokens for shopper-scoped account access.'
+  humanURL: https://help.boltapp.com/api-bolt/
+  baseURL: https://api.boltapp.com
+  tags:
+  - Payments
+  - Checkout
+  - Transactions
+  - Accounts
+  - Subscriptions
+  - Webhooks
+  properties:
+  - type: OpenAPI
+    url: openapi/bolt-financial-bolt-api-openapi.yml
+  - type: Documentation
+    url: https://help.boltapp.com/api-bolt/
+  - type: Overlay
+    url: overlays/bolt-financial-bolt-api-overlay.yaml
+- aid: bolt-financial:embeddable-checkout-v1
+  name: Bolt Embeddable Checkout v1 API
+  description: 'The Embeddable Checkout v1 API used by merchants building their own
+    checkout UI on top of Bolt. Exposes shopper account lookup and management, address
+    and payment-method operations, OAuth token exchange, transaction authorize/capture/refund/void,
+    tokenizer proxying and sandbox testing helpers. Bolt documents v1 as the default
+    for custom checkout UI.'
+  humanURL: https://help.boltapp.com/api-embedded/
+  baseURL: https://api.boltapp.com
+  tags:
+  - Checkout
+  - Accounts
+  - Transactions
+  - OAuth
+  properties:
+  - type: OpenAPI
+    url: openapi/bolt-financial-embeddable-checkout-v1-openapi.yml
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded/
+  - type: Overlay
+    url: overlays/bolt-financial-embeddable-checkout-v1-overlay.yaml
+- aid: bolt-financial:embeddable-checkout-v3
+  name: Bolt Embeddable Checkout v3 API
+  description: 'The v3 generation of the Bolt Embeddable Checkout API, served under
+    a /v3 path with a templated environment server variable. Reorganises the surface
+    around Accounts, Payments (including guest payments), Orders, OAuth, merchant
+    Callbacks, Testing and Events. Bolt gates v3 behind explicit enablement and directs
+    most integrations to v1.'
+  humanURL: https://help.boltapp.com/api-embedded-v3/
+  baseURL: https://api.boltapp.com/v3
+  tags:
+  - Checkout
+  - Payments
+  - Orders
+  - Accounts
+  properties:
+  - type: OpenAPI
+    url: openapi/bolt-financial-embeddable-checkout-v3-openapi.yml
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded-v3/
+  - type: Overlay
+    url: overlays/bolt-financial-embeddable-checkout-v3-overlay.yaml
+- aid: bolt-financial:tokenizer
+  name: Bolt Tokenizer API
+  description: 'The Bolt Tokenizer endpoint, hosted on the separate bolttk.com domain
+    so raw card data never touches the merchant server. Publishes an RSA public key
+    for client-side encryption and exchanges an encrypted card payload for a Bolt
+    payment token that can be used with the transaction APIs.'
+  humanURL: https://help.boltapp.com/api-tokenizer/
+  baseURL: https://production.bolttk.com
+  tags:
+  - Tokenization
+  - Payments
+  - Security
+  properties:
+  - type: OpenAPI
+    url: openapi/bolt-financial-tokenizer-openapi.yml
+  - type: Documentation
+    url: https://help.boltapp.com/api-tokenizer/
+  - type: Overlay
+    url: overlays/bolt-financial-tokenizer-overlay.yaml
+- aid: bolt-financial:mcp
+  name: Bolt MCP Servers
+  description: 'Bolt exposes two Model Context Protocol surfaces: a hosted documentation
+    MCP server advertised at help.boltapp.com/mcp with search_docs, get_doc_page and
+    list_doc_sections tools, and a Speakeasy-generated API MCP server (boltcheckout)
+    published as source in the BoltApp GitHub organization with 22 tools bound to
+    Bolt API operations.'
+  humanURL: https://help.boltapp.com/ai-agents/mcp-server
+  baseURL: https://help.boltapp.com/mcp
+  tags:
+  - MCP
+  - Agents
+  properties:
+  - type: MCPServer
+    url: mcp/bolt-financial-mcp.yml
+  - type: ToolCrosswalk
+    url: mcp/bolt-financial-tool-crosswalk.yml
+  - type: Documentation
+    url: https://help.boltapp.com/ai-agents/mcp-server
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: DomainSecurity
+  url: security/bolt-financial-domain-security.yml
 - type: Website
-  url: https://forgeglobal.com/bolt-financial_stock/
+  url: https://www.bolt.com
+- type: DeveloperPortal
+  url: https://help.boltapp.com/developers/
+- type: Documentation
+  url: https://help.boltapp.com/
+- type: APIReference
+  url: https://help.boltapp.com/api-bolt/
+- type: GettingStarted
+  url: https://help.boltapp.com/getting-started/introduction/
+- type: Support
+  url: https://help.boltapp.com/support
+- type: Blog
+  url: https://boltapp.com/blog
+- type: GitHubOrganization
+  url: https://github.com/BoltApp
+- type: Postman
+  url: https://www.postman.com/bolt-inc/bolt-public
+- type: Pricing
+  url: https://help.boltapp.com/dashboard/billing/fees/
+- type: SignUp
+  url: https://merchant.boltapp.com/onboarding
+- type: TermsOfService
+  url: https://boltapp.com/end-user-terms
+- type: PrivacyPolicy
+  url: https://boltapp.com/privacy
+- type: StatusPage
+  url: https://status.bolt.com
+- type: ChangeLog
+  url: changelog/bolt-financial-changelog.yml
+- type: Packages
+  url: packages/bolt-financial-packages.yml
+- type: SDKs
+  url: packages/bolt-financial-packages.yml
+- type: WellKnown
+  url: well-known/bolt-financial-well-known.yml
+- type: LLMsTxt
+  url: llms/bolt-financial-llms.txt
+- type: Authentication
+  url: authentication/bolt-financial-authentication.yml
+- type: OAuthScopes
+  url: scopes/bolt-financial-scopes.yml
+- type: OpenIDConnect
+  url: well-known/bolt-financial-openid-configuration.json
+- type: Conventions
+  url: conventions/bolt-financial-conventions.yml
+- type: Idempotency
+  url: conventions/bolt-financial-conventions.yml
+- type: ErrorCatalog
+  url: errors/bolt-financial-error-codes.yml
+- type: Lifecycle
+  url: lifecycle/bolt-financial-lifecycle.yml
+- type: Conformance
+  url: conformance/bolt-financial-conformance.yml
+- type: Compliance
+  url: conformance/bolt-financial-conformance.yml
+- type: Sandbox
+  url: sandbox/bolt-financial-sandbox.yml
+- type: Components
+  url: components/bolt-financial-components.yml
+- type: DataModel
+  url: data-model/bolt-financial-data-model.yml
+- type: Webhooks
+  url: asyncapi/bolt-financial-webhooks.yml
+- type: AgentSkill
+  url: skills/_index.yml
+x-enrichment:
+  date: '2026-07-31'
+  status: enriched
+  artifacts_added: 34
+  pass: local-v1

@@ -1,0 +1,72 @@
+generated: '2026-07-31'
+method: searched
+source: https://help.boltapp.com/releases/ + https://status.bolt.com + openapi/
+versioning:
+  scheme: uri-path
+  versions:
+  - id: v1
+    status: current-default
+    apis:
+    - Bolt API
+    - Embeddable Checkout v1
+    - Tokenizer
+  - id: v3
+    status: gated
+    apis:
+    - Embeddable Checkout v3
+    note: Bolt's own published agent skill instructs "Default to Embeddable API v1 for custom
+      checkout UI. Do not use v3 unless your Bolt contact explicitly enables it."
+    source: https://help.boltapp.com/skills/bolt-api-verify/SKILL.md
+  docs: https://help.boltapp.com/api-bolt/
+deprecation:
+  policy_url: null
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  note: No RFC 8594 Sunset/Deprecation header contract and no written deprecation policy
+    were found. The Embeddable Checkout v1 surface is described in the documentation as
+    "Legacy" alongside v3, but with no announced end-of-life date. Three error codes are
+    marked deprecated in the error catalog (19 ErrorWeakPassword, 20 ServiceError,
+    23 ErrorMutuallyExclusive).
+deprecated_operations: []
+deprecated_error_codes:
+- code: 19
+  name: ErrorWeakPassword
+- code: 20
+  name: ServiceError
+- code: 23
+  name: ErrorMutuallyExclusive
+sla:
+  url: null
+  uptime_target: null
+  published: false
+status_page: https://status.bolt.com
+status_page_provider: Atlassian Statuspage
+status_page_alt: https://status.boltapp.com
+status_page_note: status.boltapp.com resolves to the same Statuspage customer host but did
+  not complete a TLS handshake at probe time; status.bolt.com returned HTTP 200.
+change_log: https://help.boltapp.com/releases/
+change_log_artifact: changelog/bolt-financial-changelog.yml
+key_rotation:
+  api_keys:
+    max_active: 5
+    rotatable: true
+  signing_secret:
+    rotatable: true
+    zero_downtime: true
+    pending_header: X-Bolt-Hmac-Sha256-Pending
+    revert_window: 48 hours
+  docs: https://help.boltapp.com/developers/tools/api-keys/
+token_lifetimes:
+  authorization_code: 5 minutes
+  access_token: 1 hour
+  refresh_token: 1 year, single use
+  idempotency_key: 24 hours
+  source: https://help.boltapp.com/developers/bolt-oauth/
+x-evidence:
+  fetched: '2026-07-31'
+  probes:
+  - url: https://status.bolt.com
+    http_status: 200
+  - url: https://help.boltapp.com/releases/
+    http_status: 200

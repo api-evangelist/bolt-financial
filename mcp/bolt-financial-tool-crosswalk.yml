@@ -1,0 +1,251 @@
+generated: '2026-07-31'
+method: derived
+source: mcp/bolt-financial-mcp.yml + openapi/bolt-financial-bolt-api-openapi.yml
+surfaces:
+  openapi:
+  - file: openapi/bolt-financial-bolt-api-openapi.yml
+    title: Bolt API Reference
+    version: 1.0.1
+    operations: 39
+  - file: openapi/bolt-financial-embeddable-checkout-v1-openapi.yml
+    title: Embedded API Reference
+    version: 1.0.1
+    operations: 20
+  - file: openapi/bolt-financial-embeddable-checkout-v3-openapi.yml
+    title: Bolt API Reference (v3)
+    version: 3.3.22
+    operations: 16
+  - file: openapi/bolt-financial-tokenizer-openapi.yml
+    title: Tokenizer Endpoint
+    version: 1.0.0
+    operations: 2
+  graphql: null
+  mcp:
+  - server: boltcheckout
+    kind: api
+    transport: stdio
+    repo: https://github.com/BoltApp/bolt-mcp-typescript
+    gated: false
+    note: Tool names read from repository source; tools/list not executed (stdio server,
+      requires an API key).
+  - server: bolt-docs
+    kind: documentation
+    transport: http
+    url: https://help.boltapp.com/mcp
+    gated: false
+    note: Documented by Bolt but returned HTTP 404 to a tools/list POST at probe time; its
+      three tools are documentation-search tools with no backing REST operation.
+crosswalk:
+- tool: account-create-account
+  category: accounts
+  rest:
+  - createAccount
+  binding: rest
+  confidence: high
+- tool: account-detect-account
+  category: accounts
+  rest:
+  - detectAccount
+  binding: rest
+  confidence: high
+- tool: configuration-get-merchant-callbacks
+  category: configuration
+  rest:
+  - getMerchantCallbacks
+  binding: rest
+  confidence: high
+- tool: configuration-set-merchant-callbacks
+  category: configuration
+  rest:
+  - setMerchantCallbacks
+  binding: rest
+  confidence: high
+- tool: configuration-get-merchant-identifiers
+  category: configuration
+  rest:
+  - getMerchantIdentifiers
+  binding: rest
+  confidence: high
+- tool: O-auth-O-auth-token
+  category: auth
+  rest:
+  - OAuthToken
+  binding: rest
+  confidence: high
+- tool: orders-create-order-token
+  category: orders
+  rest:
+  - createOrderToken
+  binding: rest
+  confidence: high
+- tool: orders-track-order
+  category: orders
+  rest:
+  - trackOrder
+  binding: rest
+  confidence: high
+- tool: statements-get-statements
+  category: financials
+  rest:
+  - getStatements
+  binding: rest
+  confidence: high
+- tool: testing-create-testing-shopper-account
+  category: testing
+  rest:
+  - createTestingShopperAccount
+  binding: rest
+  confidence: high
+- tool: testing-get-test-credit-card-token
+  category: testing
+  rest:
+  - getTestCreditCardToken
+  binding: rest
+  confidence: high
+- tool: testing-test-shipping
+  category: testing
+  rest:
+  - testShipping
+  binding: rest
+  confidence: high
+- tool: transactions-capture-transaction
+  category: transactions
+  rest:
+  - captureTransaction
+  binding: rest
+  confidence: high
+- tool: transactions-get-transaction-details
+  category: transactions
+  rest:
+  - getTransactionDetails
+  binding: rest
+  confidence: high
+- tool: transactions-refund-transaction
+  category: transactions
+  rest:
+  - refundTransaction
+  binding: rest
+  confidence: high
+- tool: transactions-review-transaction
+  category: transactions
+  rest:
+  - reviewTransaction
+  binding: rest
+  confidence: high
+- tool: transactions-update-transaction
+  category: transactions
+  rest:
+  - updateTransaction
+  binding: rest
+  confidence: high
+- tool: transactions-void-transaction
+  category: transactions
+  rest:
+  - voidTransaction
+  binding: rest
+  confidence: high
+- tool: webhooks-create-webhook
+  category: webhooks
+  rest:
+  - createWebhook
+  binding: rest
+  confidence: high
+- tool: webhooks-delete-webhook
+  category: webhooks
+  rest:
+  - deleteWebhook
+  binding: rest
+  confidence: high
+- tool: webhooks-get-webhook
+  category: webhooks
+  rest:
+  - getWebhook
+  binding: rest
+  confidence: high
+- tool: webhooks-query-webhooks
+  category: webhooks
+  rest:
+  - queryWebhooks
+  binding: rest
+  confidence: high
+mcp_only:
+- tool: search_docs
+  reason: Documentation-search tool on the hosted bolt-docs MCP server; no public REST
+    operation backs it.
+- tool: get_doc_page
+  reason: Documentation retrieval by path on the hosted bolt-docs MCP server; no public REST
+    operation backs it.
+- tool: list_doc_sections
+  reason: Documentation navigation listing on the hosted bolt-docs MCP server; no public
+    REST operation backs it.
+rest_only:
+- capability: Shopper account profile and stored instruments
+  operations:
+  - getAccount
+  - updateAccountProfile
+  - addAddress
+  - editAddress
+  - replaceAddress
+  - deleteAddress
+  - addPaymentMethod
+  - deletePaymentMethod
+- capability: Transaction authorization
+  operations:
+  - authorizeTransaction
+  note: The single highest-consequence operation in the spec has no MCP tool.
+- capability: Subscriptions and dunning
+  operations:
+  - getSubscriptions
+  - getSubscription
+  - getSubscriptionOrders
+  - cancelSubscription
+  - pauseSubscription
+  - unpauseSubscription
+  - getDunningSettings
+  - updateDunningSettings
+- capability: Card tokenization (separate bolttk.com host)
+  operations:
+  - tokenizerPublicKey
+  - tokenizerToken
+  source: openapi/bolt-financial-tokenizer-openapi.yml
+- capability: Embeddable Checkout v3 payments and orders
+  operations:
+  - paymentsInitialize
+  - paymentsAction
+  - guestPaymentsInitialize
+  - guestPaymentsAction
+  - ordersCreate
+  - accountGet
+  - accountAddressCreate
+  - accountAddressEdit
+  - accountAddressDelete
+  - accountAddPaymentMethod
+  - accountPaymentMethodDelete
+  - oauthGetToken
+  - callbackAccountUpsert
+  - testingAccountCreate
+  - testingAccountPhoneGet
+  - testingCreditCardGet
+  source: openapi/bolt-financial-embeddable-checkout-v3-openapi.yml
+  note: The MCP server was generated from the v1 Bolt API spec only; the entire v3 surface
+    is unrepresented in tools.
+- capability: Embeddable Checkout v1 tokenizer proxy
+  operations:
+  - proxyTransaction
+  source: openapi/bolt-financial-embeddable-checkout-v1-openapi.yml
+coverage:
+  tools_named: 25
+  tools_bound_to_rest: 22
+  mcp_only: 3
+  rest_operations_total: 77
+  rest_operations_with_tool: 22
+  rest_operations_without_tool: 55
+  bound_percent_of_bolt_api_spec: 56.4
+  bound_percent_of_all_specs: 28.6
+notes:
+- The boltcheckout MCP server is a Speakeasy projection of the Bolt API v1 spec only. Every
+  bound tool inherits its real inputSchema from that operation's parameters and requestBody.
+- authorizeTransaction, the operation that actually moves money, is deliberately or
+  incidentally absent from the tool set; refund, capture, void and review are all present.
+- The hosted documentation MCP server and the API MCP server are distinct products with no
+  overlapping tools.

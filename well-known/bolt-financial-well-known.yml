@@ -1,0 +1,91 @@
+generated: '2026-07-31'
+method: searched
+source: live probes of /.well-known/* on every Bolt API, docs and marketing host
+hosts:
+- host: https://api.boltapp.com
+  documents:
+  - path: /.well-known/openid-configuration
+    status: 200
+    content_type: application/json
+    file: bolt-financial-openid-configuration.json
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://api-sandbox.boltapp.com
+  documents:
+  - path: /.well-known/openid-configuration
+    status: 200
+    content_type: application/json
+    file: bolt-financial-openid-configuration-sandbox.json
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://help.boltapp.com
+  documents:
+  - path: /llms.txt
+    status: 200
+    content_type: text/plain
+    file: ../llms/bolt-financial-llms-provider.txt
+  - path: /.well-known/mcp
+    status: 404
+    note: Advertised on https://help.boltapp.com/ai-agents/mcp-server as the MCP discovery
+      document, but the path returned 404 at probe time.
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: https://www.bolt.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 429
+    note: The bolt.com / boltapp.com marketing origin returned HTTP 429 to every probe from
+      this network, for every path including the site root. No /.well-known/ result could
+      be observed on the marketing origin; this is a probe limitation, not an observed 404.
+  - path: /.well-known/agent-card.json
+    status: 429
+  - path: /.well-known/agent.json
+    status: 429
+- host: https://boltapp.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 429
+  - path: /.well-known/agent-card.json
+    status: 429
+  - path: /.well-known/agent.json
+    status: 429
+summary:
+  openid_configuration: true
+  oauth_authorization_server: false
+  security_txt: false
+  api_catalog: false
+  ai_plugin: false
+  agent_card: false
+  llms_txt: true
+x-evidence:
+  fetched: '2026-07-31'
+  issuer: https://api.bolt.com
+  note: The production discovery document is served from api.boltapp.com but declares its
+    issuer and all endpoints on the legacy api.bolt.com host; the sandbox document is
+    self-consistent on api-sandbox.boltapp.com.

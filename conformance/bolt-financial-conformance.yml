@@ -1,0 +1,95 @@
+generated: '2026-07-31'
+method: searched
+source: openapi/ + https://help.boltapp.com/developers/bolt-oauth/ +
+  https://help.bolt.com/add-ons/bolt-payments/
+standards:
+- id: openapi-3.0
+  conforms: true
+  evidence: Four published OpenAPI 3.0.0 documents (Bolt API 1.0.1, Embeddable Checkout v1
+    1.0.1, Embeddable Checkout v3 3.3.22, Tokenizer 1.0.0).
+- id: oauth2
+  conforms: true
+  evidence: oauth2 securityScheme with authorizationCode flow in three of four specs;
+    authorize/token endpoints documented at /v1/oauth/authorize and /v1/oauth/token.
+- id: oauth2-authorization-code
+  conforms: true
+  evidence: Documented authorization-code grant with refresh-token rotation; 5-minute code
+    TTL, 1-hour access token, single-use 1-year refresh token.
+- id: oidc
+  conforms: true
+  evidence: /.well-known/openid-configuration returns HTTP 200 on api.boltapp.com and
+    api-sandbox.boltapp.com, advertising id_token RS256, a jwks_uri, and openid/email scopes.
+- id: rfc8414-oauth-authorization-server-metadata
+  conforms: false
+  evidence: /.well-known/oauth-authorization-server returned 404 on both API hosts.
+- id: rfc9116-security-txt
+  conforms: false
+  evidence: /.well-known/security.txt returned 404 on api.boltapp.com and
+    api-sandbox.boltapp.com; the marketing origin could not be probed (HTTP 429).
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: Errors use a Bolt-specific numeric code/code-text/prompt envelope; no
+    application/problem+json media type appears in any spec.
+- id: idempotency-key
+  conforms: true
+  evidence: Documented Idempotency-Key header on all POST and PATCH endpoints, 24-hour
+    retention, Idempotent-Replayed response header, HTTP 409 on concurrent identical keys.
+  docs: https://help.boltapp.com/developers/references/idempotency/
+- id: rfc8594-sunset-header
+  conforms: false
+  evidence: No Sunset or Deprecation header contract is published and no operation in any
+    spec is marked deprecated.
+- id: pci-dss
+  conforms: true
+  level: Level 1
+  evidence: 'Bolt documents "PCI Level 1 compliance with tokenized payment data" and hosts
+    the checkout environment on the merchant''s behalf to reduce merchant compliance scope.'
+  docs: https://help.bolt.com/add-ons/bolt-payments/
+- id: 3d-secure
+  conforms: true
+  evidence: 3D Secure is a documented capability of the React Native SDK and the card
+    tokenization flow.
+  docs: https://help.boltapp.com/developers/sdks/react-native/credit-card/
+- id: mcp
+  conforms: true
+  evidence: A hosted documentation MCP server is documented at help.boltapp.com/mcp and a
+    Speakeasy-generated API MCP server (boltcheckout) with 22 tools is published as source
+    in the BoltApp GitHub organization.
+- id: llms-txt
+  conforms: true
+  evidence: https://help.boltapp.com/llms.txt returns HTTP 200 and indexes the agent
+    resources plus an llms-full.txt corpus.
+- id: a2a
+  conforms: false
+  evidence: /.well-known/agent-card.json and /.well-known/agent.json returned 404 on every
+    reachable Bolt host.
+- id: asyncapi
+  conforms: false
+  evidence: No AsyncAPI document is published; the webhook surface is documented in prose
+    only.
+- id: graphql
+  conforms: false
+  evidence: No GraphQL endpoint is documented or discoverable.
+- id: json-schema
+  conforms: true
+  evidence: 594 component schemas in the Bolt API spec, 588 in Embeddable Checkout v1 and
+    77 in v3.
+compliance_program:
+  published: true
+  certifications:
+  - PCI DSS Level 1
+  url: https://help.bolt.com/add-ons/bolt-payments/
+  trust_center: null
+  note: Bolt publishes a marketing security page at boltapp.com/security which could not be
+    fetched from this network (HTTP 429 on every request to the marketing origin), so no
+    trust-center artifact was written. PCI Level 1 is the only certification Bolt states in
+    its own documentation. Claims of ISO 27001 found in general web search belong to Bolt
+    Technology OU (bolt.eu, the ride-hailing company) and are NOT attributed here.
+x-evidence:
+  fetched: '2026-07-31'
+  derived_from:
+  - openapi/bolt-financial-bolt-api-openapi.yml
+  - openapi/bolt-financial-embeddable-checkout-v1-openapi.yml
+  - openapi/bolt-financial-embeddable-checkout-v3-openapi.yml
+  - openapi/bolt-financial-tokenizer-openapi.yml
+  - well-known/bolt-financial-well-known.yml

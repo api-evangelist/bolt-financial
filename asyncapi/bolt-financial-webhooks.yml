@@ -1,0 +1,119 @@
+generated: '2026-07-31'
+method: searched
+source: https://help.boltapp.com/developers/webhooks/webhooks/
+spec_type: Webhooks
+asyncapi_published: false
+asyncapi_note: Bolt publishes no AsyncAPI document. The event surface is real and documented
+  in prose plus webhook-management REST operations; it was captured as a webhook catalog
+  rather than fabricated as an AsyncAPI spec.
+docs:
+- https://help.boltapp.com/developers/webhooks/
+- https://help.boltapp.com/developers/webhooks/webhooks/
+- https://help.boltapp.com/developers/webhooks/hook-verification/
+- https://help.boltapp.com/developers/webhooks/webhook-failure-notifications/
+- https://help.boltapp.com/developers/webhooks/link-abandoned-transactions/
+transport: http-post
+management:
+  operations:
+  - operationId: createWebhook
+    path: POST /v1/webhooks
+  - operationId: queryWebhooks
+    path: GET /v1/webhooks
+  - operationId: getWebhook
+    path: GET /v1/webhooks/{webhook_id}
+  - operationId: deleteWebhook
+    path: DELETE /v1/webhooks/{webhook_id}
+  source: openapi/bolt-financial-bolt-api-openapi.yml
+  dashboard: Merchant Dashboard > Administration > API
+verification:
+  scheme: HMAC-SHA256
+  header: X-Bolt-Hmac-Sha256
+  rotation_header: X-Bolt-Hmac-Sha256-Pending
+  secret: Signing Secret from the Merchant Dashboard
+  docs: https://help.boltapp.com/developers/webhooks/hook-verification/
+suppression:
+  parameter: skip_hook_notification
+  note: Some transaction endpoints accept skip_hook_notification=true to suppress the
+    resulting webhook notification.
+object_types:
+- transaction
+events:
+- name: pending
+  group: authorization
+  transaction_status: Pending
+  description: The payment pre-authorization was successful and the transaction is now
+    pending fraud review.
+- name: failed_payment
+  group: authorization
+  transaction_status: Failed
+  description: The payment failed pre-authorization.
+- name: payment
+  group: authorization
+  transaction_status: Completed
+  description: With automatic capture, the transaction passed authorization and fraud review
+    and funds were captured.
+- name: auth
+  group: authorization
+  transaction_status: Authorized
+  description: With manual capture, the transaction passed authorization and fraud review
+    and capture can begin.
+- name: rejected_irreversible
+  group: authorization
+  transaction_status: Permanently Rejected
+  description: The transaction failed fraud review; the decision cannot be appealed.
+- name: rejected_reversible
+  group: authorization
+  transaction_status: Recently Rejected
+  description: The transaction was flagged during fraud review; a re-review can be
+    requested.
+- name: capture
+  group: merchant-initiated
+  transaction_status: Completed
+  description: A manual capture was successful.
+- name: credit
+  group: merchant-initiated
+  transaction_status: Refunded
+  description: A refund or credit was processed successfully.
+- name: void
+  group: merchant-initiated
+  transaction_status: Cancelled
+  description: The transaction was voided successfully.
+- name: newsletter_subscription
+  group: other
+  description: The customer subscribed to the merchant's newsletter.
+- name: risk_insights
+  group: other
+  description: Risk information about the transaction is available from fraud review.
+- name: credit_card_deleted
+  group: credit-card
+  status: beta
+  description: A customer removed a saved credit card from their account. Custom cart
+    implementations only, beta merchants only.
+triggering_operations:
+- operationId: authorizeTransaction
+  triggers: true
+  note: Emitted event type depends on the auto-capture setting.
+- operationId: captureTransaction
+  triggers: true
+- operationId: refundTransaction
+  triggers: true
+- operationId: voidTransaction
+  triggers: true
+limitations:
+- Virtual Terminal does not support webhooks; SMS or email notifications are used instead.
+summary:
+  events: 12
+  event_groups: 4
+  management_operations: 4
+  signed: true
+x-evidence:
+  fetched: '2026-07-31'
+  url: https://help.boltapp.com/developers/webhooks/webhooks/
+  http_status: 200
+  asyncapi_probes:
+  - url: https://help.boltapp.com/asyncapi.yaml
+    http_status: 404
+  - url: https://api.boltapp.com/asyncapi.json
+    http_status: 404
+  - url: https://assets.boltapp.com/external-api-references/asyncapi.yml
+    http_status: 403

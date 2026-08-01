@@ -1,0 +1,386 @@
+generated: '2026-07-31'
+method: searched
+source: https://help.boltapp.com/developers/error-codes/
+docs: https://help.boltapp.com/developers/error-codes/
+format: bolt-error-codes
+problem_json: false
+envelope:
+  code: numeric Bolt error code
+  code_text: symbolic code name
+  prompt: shopper-facing message string
+  usage: Merchants may return these codes in Merchant Callback API responses to trigger the
+    matching shopper message.
+classes:
+- id: application
+  range: 4001-4014
+  description: Merchant settings, key, file and nonce handling errors.
+- id: authentication
+  range: 1001-1015
+  description: Session, merchant key, nonce and role authentication errors.
+- id: basic
+  range: 1-51
+  description: General field validation, amount, rate-limit and entity-state errors.
+- id: create-order
+  range: 2001003-2001008
+  description: Cart, inventory, pricing and discount errors returned on order.create.
+- id: http
+  range: 400-504
+  description: Standard HTTP status semantics used by the Bolt API.
+http_statuses:
+- status: 400
+  description: Bad request.
+- status: 401
+  description: Unauthorized user.
+- status: 403
+  description: Forbidden by the server.
+- status: 404
+  description: Resource not found.
+- status: 409
+  description: Concurrent idempotent requests.
+- status: 429
+  description: User sent too many requests and was rate limited by the server.
+- status: 500
+  description: Internal server error.
+- status: 502
+  description: Bad gateway.
+- status: 503
+  description: Server was not ready to handle the request.
+- status: 504
+  description: Gateway cannot get a response and timed out.
+errors:
+- code: 4001
+  name: AppMerchantSettingsCreate
+  prompt: Failed to create merchant settings.
+  class: application
+- code: 4002
+  name: AppMerchantSettingsLoad
+  prompt: Failed to load merchant settings.
+  class: application
+- code: 4003
+  name: AppMerchantKeyCreate
+  class: application
+- code: 4004
+  name: AppMerchantKeyLoad
+  prompt: Unable to find the entity by key. Please check the key in the request.
+  class: application
+- code: 4005
+  name: AppInvalidJSON
+  prompt: Invalid JSON content.
+  class: application
+- code: 4006
+  name: AppUnknownContentType
+  class: application
+- code: 4007
+  name: AppFileUpload
+  prompt: Failed to upload the file. Please check the file contents and retry.
+  class: application
+- code: 4008
+  name: AppNonceInvalid
+  prompt: The provided nonce value is invalid. Please check the value and retry.
+  class: application
+- code: 4009
+  name: AppNonceExpired
+  prompt: The provided nonce value expired. Please retry the request by regenerating a new
+    nonce.
+  class: application
+- code: 4010
+  name: AppMerchantKeyUpdate
+  class: application
+- code: 4011
+  name: AppFileInvalidName
+  prompt: Invalid filename provided.
+  class: application
+- code: 4012
+  name: AppNotRightNow
+  class: application
+- code: 4013
+  name: CustomCheckboxLimitReached
+  prompt: Merchant division cannot have more than 3 active Checkboxes.
+  class: application
+- code: 1001
+  name: AuthGuestSessionRequired
+  prompt: Authentication error. A guest session is required.
+  class: authentication
+- code: 1002
+  name: AuthInvalidSessionType
+  prompt: Authentication error. The provided session type has no access to this resource.
+  class: authentication
+- code: 1003
+  name: AuthInvalidSessionLevel
+  prompt: Authentication error. The provided session level has no access to this resource.
+  class: authentication
+- code: 1004
+  name: AuthInvalidUserRole
+  prompt: Authentication error. Invalid user role.
+  class: authentication
+- code: 1005
+  name: AuthInvalidMerchantKey
+  prompt: Authentication error. Invalid merchant key.
+  class: authentication
+- code: 1006
+  name: AuthMerchantNotFound
+  prompt: Authentication error. Merchant not found.
+  class: authentication
+- code: 1007
+  name: AuthInvalidNonce
+  prompt: Authentication error. Invalid nonce value.
+  class: authentication
+- code: 1009
+  name: AuthInvalidSessionToken
+  prompt: Authentication error. Invalid session token.
+  class: authentication
+- code: 1010
+  name: AuthUserNotFound
+  prompt: Authentication error. User not found.
+  class: authentication
+- code: 1011
+  name: AuthMerchantKeyMerchantMismatch
+  prompt: Authentication error. Merchant key doesn't match merchant public id.
+  class: authentication
+- code: 1012
+  name: AuthMerchantKeyDivisionMismatch
+  prompt: Authentication error. Merchant key doesn't match division public id.
+  class: authentication
+- code: 1013
+  name: AuthUpdateExpirationFailed
+  class: authentication
+- code: 1014
+  name: AuthInvalidTwilioSignature
+  prompt: Authentication error. Invalid twilio signature.
+  class: authentication
+- code: 1015
+  name: AuthUnauthorized
+  prompt: Authentication error. Authorization required.
+  class: authentication
+- code: 1
+  name: EmptyValue
+  prompt: A required field is empty.
+  class: basic
+- code: 2
+  name: InvalidAmount
+  prompt: A valid amount is required.
+  class: basic
+- code: 3
+  name: InvalidAutocapture
+  prompt: Transaction must match the configured autocapture setting.
+  class: basic
+- code: 4
+  name: InvalidCountry
+  prompt: A valid country name or country code must be provided.
+  class: basic
+- code: 5
+  name: InvalidCreditCardNumber
+  prompt: A valid credit card number must be provided.
+  class: basic
+- code: 6
+  name: InvalidCurrency
+  prompt: A valid currency code must be provided.
+  class: basic
+- code: 7
+  name: InvalidEmail
+  prompt: A valid email address must be provided.
+  class: basic
+- code: 8
+  name: InvalidFormat
+  prompt: Invalid field format.
+  class: basic
+- code: 9
+  name: InvalidLength
+  prompt: Invalid field length.
+  class: basic
+- code: 10
+  name: InvalidNumber
+  prompt: A valid number must be provided.
+  class: basic
+- code: 11
+  name: InvalidPassword
+  prompt: The provided password doesn't match the required format.
+  class: basic
+- code: 12
+  name: InvalidPhone
+  prompt: A valid phone number must be provided.
+  class: basic
+- code: 13
+  name: InvalidPostalCode
+  prompt: A valid postal code must be provided.
+  class: basic
+- code: 14
+  name: InvalidURL
+  prompt: A valid URL string must be provided.
+  class: basic
+- code: 15
+  name: InvalidValue
+  prompt: A valid value must be provided.
+  class: basic
+- code: 16
+  name: NewLine
+  prompt: Unexpected new line character in input.
+  class: basic
+- code: 17
+  name: InvalidDate
+  prompt: A valid date value must be provided.
+  class: basic
+- code: 18
+  name: Forbidden
+  prompt: This action is forbidden.
+  class: basic
+- code: 19
+  name: ErrorWeakPassword
+  class: basic
+  deprecated: true
+- code: 20
+  name: ServiceError
+  class: basic
+  deprecated: true
+- code: 21
+  name: AmountTooLow
+  prompt: The provided amount is lower than required.
+  class: basic
+- code: 22
+  name: AmountTooHigh
+  prompt: The provided amount is higher than required.
+  class: basic
+- code: 23
+  name: ErrorMutuallyExclusive
+  class: basic
+  deprecated: true
+- code: 24
+  name: NotFound
+  prompt: The requested entity was not found.
+  class: basic
+- code: 25
+  name: MissingInputParameter
+  prompt: The input is missing a required parameter.
+  class: basic
+- code: 26
+  name: InvalidInputParameter
+  prompt: A parameter provided in the input is invalid.
+  class: basic
+- code: 27
+  name: InvalidSignature
+  prompt: Invalid signature.
+  class: basic
+- code: 28
+  name: ExpiredEntity
+  prompt: The entity has expired.
+  class: basic
+- code: 29
+  name: InactiveEntity
+  prompt: The entity is not active.
+  class: basic
+- code: 30
+  name: Unsupported
+  prompt: This feature is not supported.
+  class: basic
+- code: 31
+  name: ShippingCostTooHigh
+  prompt: The shipping cost is too high.
+  class: basic
+- code: 32
+  name: CodeAlreadyUsed
+  prompt: The code is already used.
+  class: basic
+- code: 33
+  name: NoApplicableItem
+  prompt: No applicable item found in the request.
+  class: basic
+- code: 34
+  name: AlreadyExists
+  prompt: The entity already exists.
+  class: basic
+- code: 35
+  name: RateLimited
+  prompt: Rate limit reached. Please retry after a while.
+  class: basic
+- code: 36
+  name: UserNotEligible
+  prompt: The user is not eligible for this action.
+  class: basic
+- code: 37
+  name: InvalidImageFormat
+  prompt: The format of the image is not valid.
+  class: basic
+- code: 38
+  name: CantChangeRoleOfPrimaryUser
+  class: basic
+- code: 39
+  name: NonMerchantRole
+  class: basic
+- code: 40
+  name: InvalidRole
+  class: basic
+- code: 41
+  name: TooManyRequests
+  prompt: Too many requests.
+  class: basic
+- code: 42
+  name: NonRetryableError
+  class: basic
+- code: 43
+  name: NoPoBoxAllowed
+  prompt: Shipment to PO Box is not allowed.
+  class: basic
+- code: 44
+  name: InvalidAddress
+  prompt: A valid address must be provided.
+  class: basic
+- code: 45
+  name: TransactionNotAuthorized
+  prompt: Transaction is not in authorized state. Transaction may not have been approved.
+  class: basic
+- code: 46
+  name: InternalServerError
+  prompt: Internal error.
+  class: basic
+- code: 47
+  name: BadGateway
+  class: basic
+- code: 48
+  name: NoShippingOptionAvailable
+  class: basic
+- code: 49
+  name: InvalidTokenType
+  class: basic
+- code: 50
+  name: BadRequest
+  class: basic
+- code: 51
+  name: BadResponse
+  class: basic
+- code: 2001003
+  name: CartHasExpired
+  prompt: Your session timed out due to inactivity. Please refresh your cart and try again.
+  class: create-order
+- code: 2001004
+  name: ItemPriceHasBeenUpdated
+  prompt: Item details were out-of-date and have been updated, please try again.
+  class: create-order
+- code: 2001005
+  name: OutOfInventory
+  prompt: An item in your cart is no longer available. Please refresh your cart and try
+    again.
+  class: create-order
+- code: 2001006
+  name: DiscountCannotApply
+  prompt: One or more items in the cart are not eligible for discount. Please refresh and
+    try again.
+  class: create-order
+- code: 2001008
+  name: ShippingPriceHasBeenUpdated
+  prompt: The shipping amount for your cart has changed. Please refresh your cart and try
+    again.
+  class: create-order
+decline_codes:
+  published: false
+  docs: https://help.boltapp.com/developers/payment-authorization/authorization-codes/
+  note: Bolt does not publish its own decline / authorization response code list. Its
+    Authorization Response Codes page directs merchants to the code reference of whichever
+    processor or gateway is configured (Adyen, Braintree, CyberSource, NMI, PayPal) and
+    tells Bolt Payments merchants to contact their customer success manager. No
+    errors/bolt-financial-decline-codes.yml artifact was written because there is nothing
+    published to capture.
+x-evidence:
+  fetched: '2026-07-31'
+  url: https://help.boltapp.com/developers/error-codes/
+  http_status: 200
+  error_count: 79

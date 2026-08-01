@@ -1,0 +1,112 @@
+generated: '2026-07-31'
+method: searched
+source: https://help.boltapp.com/releases/
+docs: https://help.boltapp.com/releases/
+scheme: dated
+categories:
+- id: Product
+  description: Feature releases, dashboard updates, and integration changes.
+- id: Resources
+  description: Documentation and guide updates.
+- id: Patches
+  description: Bug fixes and minor plugin corrections.
+- id: Announcements
+  description: Launches, GA notices, and strategic updates.
+archive_cutoff: '2026-07-01'
+archive_note: Posts before 2026-07-01 are behind a "Show Older Posts" control.
+current_versions:
+- api: Bolt API
+  version: 1.0.1
+  source: openapi/bolt-financial-bolt-api-openapi.yml
+- api: Embeddable Checkout v1
+  version: 1.0.1
+  source: openapi/bolt-financial-embeddable-checkout-v1-openapi.yml
+- api: Embeddable Checkout v3
+  version: 3.3.22
+  source: openapi/bolt-financial-embeddable-checkout-v3-openapi.yml
+- api: Tokenizer
+  version: 1.0.0
+  source: openapi/bolt-financial-tokenizer-openapi.yml
+entries:
+- date: '2026-07-09'
+  title: New release changelog experience
+  category: Resources
+  url: https://help.boltapp.com/releases/2026-07-09-new-changelog/
+  breaking: false
+  highlights:
+  - Tab filters (All, Product, Resources, Patches, Announcements).
+  - Infinite scroll with paginated loading.
+  - Archive cutoff at 2026-07-01 with a Show Older Posts control.
+  impact: No API or product behavior changes.
+- date: '2026-07-07'
+  title: Self-service merchant onboarding
+  category: Product
+  url: https://help.boltapp.com/releases/2026-07-07-self-service-onboarding/
+  breaking: false
+  highlights:
+  - Self-service signup at merchant.boltapp.com/onboarding.
+  - Sandbox account creation with API key provisioning.
+  - Platform selection and guided setup for common integrations.
+  impact: Existing merchant accounts unchanged; new merchants can onboard independently in
+    sandbox.
+- date: '2026-07-03'
+  title: New boltapp.com/developers developer portal
+  category: Announcements
+  url: https://help.boltapp.com/releases/2026-07-03-developers-site/
+  breaking: false
+  highlights:
+  - Centralized API reference, integration guides and SDK documentation.
+  - Links to Embeddable Checkout, Merchant API and platform-specific guides.
+  impact: No breaking API changes; help.boltapp.com remains the canonical integration
+    reference.
+- date: '2026-07-01'
+  title: New Bolt Help documentation site
+  category: Announcements
+  url: https://help.boltapp.com/releases/2026-07-01-new-bolt-docs-site/
+  breaking: false
+  highlights:
+  - Reorganized navigation across Get Started, Products, Platforms, API Reference and
+    Gaming.
+  - Mintlify-powered pages with improved search and code examples.
+  impact: No API or integration changes; existing links continue to work through redirects.
+- date: '2026-03-19'
+  title: Renaming Bolt Ignite to Embeddable Checkout
+  category: Announcements
+  url: https://help.boltapp.com/releases/2026-03-19/
+  breaking: false
+  highlights:
+  - Bolt Ignite renamed to Embeddable Checkout.
+  - Documentation split into Embeddable Checkout APIs (v3) and Embeddable Checkout APIs
+    (Legacy).
+  impact: No functional, API or integration changes; naming and documentation structure
+    only.
+- date: '2024-06-06'
+  title: SFRA order status mappings have changed
+  category: Product
+  url: https://help.boltapp.com/releases/2024-06-06-sfcc/
+  breaking: false
+  highlights:
+  - Salesforce Commerce Cloud SFRA order statuses remapped to Bolt transaction states.
+- date: '2024-03-05'
+  title: Abandoned Carts v2.0
+  category: Product
+  url: https://help.boltapp.com/releases/2024-03-05-abandoned-carts-v2/
+  breaking: false
+  highlights:
+  - Items pre-populated in checkout.
+  - Intelligent notification intervals.
+- date: '2023-05-30'
+  title: Idempotency
+  category: Product
+  url: https://help.boltapp.com/releases/2023-05-30-idempotency/
+  breaking: false
+  highlights:
+  - Idempotency-Key support announced for the Bolt API.
+observations:
+- The changelog is documentation- and platform-plugin-heavy; it does not enumerate
+  per-endpoint API changes, and no API version numbers appear in the recent window.
+- No breaking change was announced in the captured window.
+x-evidence:
+  fetched: '2026-07-31'
+  url: https://help.boltapp.com/releases/
+  http_status: 200

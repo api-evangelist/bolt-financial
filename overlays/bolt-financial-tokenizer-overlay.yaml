@@ -1,0 +1,21 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for Bolt Tokenizer API
+  version: 1.0.0
+extends: openapi/bolt-financial-tokenizer-openapi.yml
+x-generated: '2026-07-31'
+x-method: generated
+actions:
+- target: $.info
+  update:
+    x-apievangelist-provider: bolt-financial
+    x-apievangelist-source: https://assets.boltapp.com/external-api-references/tokenizer.yml
+    x-apievangelist-harvested: '2026-07-31'
+    x-apievangelist-operations: 2
+    x-apievangelist-artifacts:
+    - authentication/bolt-financial-authentication.yml
+    - conventions/bolt-financial-conventions.yml
+    - errors/bolt-financial-error-codes.yml
+    - lifecycle/bolt-financial-lifecycle.yml
+    - sandbox/bolt-financial-sandbox.yml
+    - data-model/bolt-financial-data-model.yml

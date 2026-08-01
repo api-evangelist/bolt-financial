@@ -1,0 +1,84 @@
+generated: '2026-07-31'
+method: searched
+source: https://help.boltapp.com/developers/sdks/ + https://help.boltapp.com/products/checkout/
+docs:
+- https://help.boltapp.com/developers/sdks/
+- https://help.boltapp.com/products/checkout/embeddable-checkout/
+- https://help.boltapp.com/developers/sdks/react-native/styling/
+families:
+- name: Bolt Checkout (hosted / managed)
+  kind: hosted-surface
+  description: Bolt hosts the entire checkout environment on the merchant's behalf, which
+    Bolt cites as the mechanism that reduces merchant PCI scope. Rendered as a modal over
+    the merchant storefront and driven by Bolt checkout buttons.
+  loader: https://connect.boltapp.com
+  loader_sandbox: https://connect-sandbox.boltapp.com
+  docs: https://help.boltapp.com/products/checkout/
+- name: Embeddable Checkout
+  kind: embedded-elements
+  description: Client-side checkout components the merchant embeds in its own UI, formerly
+    branded Bolt Ignite. Backed by the Embeddable Checkout v1 and v3 APIs.
+  docs: https://help.boltapp.com/products/checkout/embeddable-checkout/
+  renamed_from: Bolt Ignite
+  renamed_on: '2026-03-19'
+- name: BoltJS
+  kind: web-loader
+  description: Frontend JavaScript library that connects a merchant storefront to the Bolt
+    ecosystem.
+  package: '@boltpay/bolt-js'
+  repo: https://github.com/BoltApp/bolt-frontend-sdk
+  docs: https://help.boltapp.com/developers/sdks/
+- name: Bolt Tokenizer
+  kind: client-side-encryption
+  description: Client-side card tokenization against the separate bolttk.com host, so raw
+    PAN data never reaches the merchant server. Fetches an RSA public key, encrypts, and
+    exchanges for a Bolt payment token.
+  hosts:
+  - https://production.bolttk.com
+  - https://sandbox.bolttk.com
+  spec: openapi/bolt-financial-tokenizer-openapi.yml
+  docs: https://help.boltapp.com/api-tokenizer/
+- name: React Native components
+  kind: mobile-components
+  description: Credit card and 3D Secure entry, Apple Pay, Google Pay and styling components
+    for cross-platform mobile checkout.
+  package: '@boltpay/react-native'
+  repo: https://github.com/BoltApp/bolt-react-native-sdk
+  docs: https://help.boltapp.com/developers/sdks/react-native/
+  components:
+  - Credit Card & 3D Secure
+  - Apple Pay
+  - Google Pay
+  - Styling
+- name: iOS / Swift SDK
+  kind: mobile-components
+  description: Bolt Managed Checkout, SSO Login and Custom Checkout surfaces for iOS.
+  repo: https://github.com/BoltApp/bolt-ios-sdk
+  docs: https://help.boltapp.com/developers/sdks/ios-swift/
+- name: Android / Kotlin SDK
+  kind: mobile-components
+  description: Bolt Managed Checkout and SSO Login surfaces for Android.
+  docs: https://help.boltapp.com/developers/sdks/android-kotlin/
+- name: Bolt SSO Login client
+  kind: identity-widget
+  description: The hosted Bolt Login client the merchant storefront opens to authenticate a
+    Bolt Account shopper and obtain an OAuth authorization code. Merchants never call
+    /authorize directly.
+  docs: https://help.boltapp.com/developers/bolt-oauth/
+- name: Gaming payment links
+  kind: hosted-surface
+  description: In-game checkout links plus Unity and JavaScript SDK surfaces for gaming
+    storefronts and interactive ads.
+  docs: https://help.boltapp.com/gaming/guide/quickstart
+  repos:
+  - https://github.com/BoltApp/bolt-unity-sdk
+  - https://github.com/BoltApp/bolt-unreal-engine-sdk
+customization:
+- Modal styling
+- Dynamic customization options
+- Custom checkboxes (max 3 active per merchant division)
+docs_customization: https://help.boltapp.com/developers/references/modal-styling/
+x-evidence:
+  fetched: '2026-07-31'
+  url: https://help.boltapp.com/developers/sdks/
+  http_status: 200

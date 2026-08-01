@@ -1,0 +1,119 @@
+generated: '2026-07-31'
+method: searched
+status: published
+source: https://help.boltapp.com/ai-agents/mcp-server
+docs: https://help.boltapp.com/ai-agents/mcp-server
+servers:
+- name: bolt-docs
+  kind: documentation
+  status: advertised
+  transport: http
+  url: https://help.boltapp.com/mcp
+  discovery: https://help.boltapp.com/.well-known/mcp
+  install: npx add-mcp https://help.boltapp.com/mcp
+  clients:
+  - client: Claude Code
+    command: claude mcp add --transport http bolt-docs https://help.boltapp.com/mcp
+  - client: Cursor
+    config: '{"mcpServers":{"bolt-docs":{"url":"https://help.boltapp.com/mcp"}}}'
+  - client: VS Code
+    config: '{"servers":{"bolt-docs":{"type":"http","url":"https://help.boltapp.com/mcp"}}}'
+  tools:
+  - name: search_docs
+    description: Search titles and content; returns ranked snippets.
+  - name: get_doc_page
+    description: Full page markdown by path (e.g. /getting-started/api-keys).
+  - name: list_doc_sections
+    description: Documentation sections from navigation.
+  probe:
+    url: https://help.boltapp.com/mcp
+    method: POST tools/list
+    http_status: 404
+    observed: '2026-07-31'
+    note: The documented endpoint 308-redirects to /mcp/ which is served by the legacy Hugo
+      docs origin and returns an HTML 404. The server is documented by Bolt but did not
+      answer an MCP tools/list call from this network at probe time. Tool names and
+      descriptions above are transcribed from Bolt's own MCP server documentation page,
+      not from a live tools/list response.
+- name: boltcheckout
+  kind: api
+  status: source-published
+  transport: stdio
+  package: boltcheckout
+  repo: https://github.com/BoltApp/bolt-mcp-typescript
+  archived: true
+  generator: speakeasy
+  bundle: mcp-server.dxt
+  install: npx boltcheckout start --server-index ... --x-api-key ... --o-auth ...
+  auth:
+  - X-Api-Key
+  - OAuth
+  backing_spec: openapi/bolt-financial-bolt-api-openapi.yml
+  tools:
+  - name: account-create-account
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#createAccount
+  - name: account-detect-account
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#detectAccount
+  - name: configuration-get-merchant-callbacks
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#getMerchantCallbacks
+  - name: configuration-set-merchant-callbacks
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#setMerchantCallbacks
+  - name: configuration-get-merchant-identifiers
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#getMerchantIdentifiers
+  - name: O-auth-O-auth-token
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#OAuthToken
+  - name: orders-create-order-token
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#createOrderToken
+  - name: orders-track-order
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#trackOrder
+  - name: statements-get-statements
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#getStatements
+  - name: testing-create-testing-shopper-account
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#createTestingShopperAccount
+  - name: testing-get-test-credit-card-token
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#getTestCreditCardToken
+  - name: testing-test-shipping
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#testShipping
+  - name: transactions-capture-transaction
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#captureTransaction
+  - name: transactions-get-transaction-details
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#getTransactionDetails
+  - name: transactions-refund-transaction
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#refundTransaction
+  - name: transactions-review-transaction
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#reviewTransaction
+  - name: transactions-update-transaction
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#updateTransaction
+  - name: transactions-void-transaction
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#voidTransaction
+  - name: webhooks-create-webhook
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#createWebhook
+  - name: webhooks-delete-webhook
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#deleteWebhook
+  - name: webhooks-get-webhook
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#getWebhook
+  - name: webhooks-query-webhooks
+    source_operation: openapi/bolt-financial-bolt-api-openapi.yml#queryWebhooks
+planned:
+  name: '@boltapp/bolt-mcp'
+  status: not-published
+  source: https://help.boltapp.com/ai-agents/mcp-server
+  note: Bolt documents a future API MCP package "@boltapp/bolt-mcp" for orders, transactions
+    and webhooks as "not yet published". The name resolved 404 on npm at probe time.
+x-evidence:
+  fetched: '2026-07-31'
+  sources:
+  - url: https://help.boltapp.com/ai-agents/mcp-server
+    http_status: 200
+  - url: https://help.boltapp.com/mcp
+    http_status: 404
+    method: POST tools/list
+  - url: https://api.github.com/repos/BoltApp/bolt-mcp-typescript/contents/src/mcp-server/tools
+    http_status: 200
+    tool_files: 22
+  - url: https://registry.npmjs.org/@boltapp/bolt-mcp
+    http_status: 404
+  note: The 22 boltcheckout tool names were read verbatim from the `name:` field of each
+    tool source file in the BoltApp/bolt-mcp-typescript repository. Input schemas were not
+    transcribed; each tool inherits the parameters and requestBody of its backing OpenAPI
+    operation (see mcp/bolt-financial-tool-crosswalk.yml).

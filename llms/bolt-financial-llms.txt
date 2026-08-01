@@ -1,0 +1,77 @@
+# Bolt Financial
+
+> Bolt Financial, Inc. gives retailers a one-click, identity-powered checkout backed by a shopper account network, payments processing, card tokenization and fraud protection. Bolt publishes four OpenAPI 3.0 definitions covering 77 operations, first-party SDKs in nine languages, an llms.txt index, a hosted documentation MCP server and two published agent skills.
+
+## APIs
+
+- [Bolt API](https://help.boltapp.com/api-bolt/): Shopper accounts, merchant configuration, order tokens, transactions (authorize/capture/refund/review/void), subscriptions, statements, testing helpers and webhooks. Base URL https://api.boltapp.com — 39 operations.
+- [Embeddable Checkout v1 API](https://help.boltapp.com/api-embedded/): Custom checkout UI surface — accounts, addresses, payment methods, OAuth, transactions, tokenizer proxy. Base URL https://api.boltapp.com — 20 operations. Bolt's default for custom checkout.
+- [Embeddable Checkout v3 API](https://help.boltapp.com/api-embedded-v3/): The v3 generation under /v3 — Accounts, Payments, guest Payments, Orders, OAuth, Callbacks, Testing, Events. 16 operations. Gated; enabled per merchant.
+- [Tokenizer API](https://help.boltapp.com/api-tokenizer/): Client-side card tokenization on the separate bolttk.com host. Base URL https://production.bolttk.com — 2 operations.
+- [Merchant Callback API](https://help.boltapp.com/api-merchant/): Inbound calls Bolt makes to the merchant for cart, discount, shipping and tax. No OpenAPI published.
+- [Subscriptions API](https://help.boltapp.com/api-subscriptions/), [Bolt Connect Merchant Onboarding](https://help.boltapp.com/api-merchant-onboarding/), [Checkout Everywhere (beta)](https://help.boltapp.com/api-checkout-everywhere/): documented references without separately downloadable specs.
+
+## Specs
+
+- [Bolt API OpenAPI 3.0](https://assets.boltapp.com/external-api-references/bolt.yml)
+- [Embeddable Checkout v1 OpenAPI 3.0](https://assets.boltapp.com/external-api-references/embedded.yml)
+- [Embeddable Checkout v3 OpenAPI 3.0](https://api-docs.bolt.com/api.bundle.yaml)
+- [Tokenizer OpenAPI 3.0](https://assets.boltapp.com/external-api-references/tokenizer.yml)
+- [OpenID Connect discovery](https://api.boltapp.com/.well-known/openid-configuration)
+
+## Agents
+
+- [AI onboarding](https://help.boltapp.com/ai-agents/introduction): Bolt's own entry point for coding agents.
+- [Bolt docs llms.txt](https://help.boltapp.com/llms.txt)
+- [Bolt MCP server](https://help.boltapp.com/ai-agents/mcp-server): hosted documentation MCP with search_docs, get_doc_page and list_doc_sections.
+- [bolt-api-verify skill](https://help.boltapp.com/skills/bolt-api-verify/SKILL.md): verify endpoints and payloads against the OpenAPI specs before writing code.
+- [bolt-gaming-docs skill](https://help.boltapp.com/skills/bolt-gaming-docs/SKILL.md): gaming payment links, Unity and JavaScript SDKs, gaming webhooks.
+- [boltcheckout MCP server source](https://github.com/BoltApp/bolt-mcp-typescript): 22 tools generated from the Bolt API spec.
+
+## Conventions
+
+- Auth: `X-Api-Key` header plus a per-request `X-Nonce`; OAuth 2.0 authorization code for shopper-scoped account access, presented as a bearer token.
+- Idempotency: `Idempotency-Key` header on every POST and PATCH; 24-hour retention; replays carry `Idempotent-Replayed: true`; concurrent identical keys return HTTP 409.
+- Errors: numeric Bolt error codes with a code name and a shopper-facing prompt; not RFC 9457.
+- Webhooks: HMAC-SHA256 signed with `X-Bolt-Hmac-Sha256`; 12 documented transaction and account events.
+- Environments: sandbox `api-sandbox.boltapp.com`, production `api.boltapp.com`; keys and transactions never cross environments.
+
+## Docs
+
+- [Bolt Help](https://help.boltapp.com/)
+- [Developer resources](https://help.boltapp.com/developers/)
+- [Getting started](https://help.boltapp.com/getting-started/introduction/)
+- [API keys](https://help.boltapp.com/developers/tools/api-keys/)
+- [OAuth at Bolt](https://help.boltapp.com/developers/bolt-oauth/)
+- [Idempotent requests](https://help.boltapp.com/developers/references/idempotency/)
+- [Error codes](https://help.boltapp.com/developers/error-codes/)
+- [Webhooks](https://help.boltapp.com/developers/webhooks/)
+- [Test cards](https://help.boltapp.com/developers/production-readiness-guides/test-cards/)
+- [SDKs](https://help.boltapp.com/developers/sdks/)
+- [Postman collection](https://www.postman.com/bolt-inc/bolt-public)
+- [Release notes](https://help.boltapp.com/releases/)
+- [Status](https://status.bolt.com)
+- [GitHub organization](https://github.com/BoltApp)
+
+## API Evangelist artifacts
+
+- openapi/bolt-financial-bolt-api-openapi.yml
+- openapi/bolt-financial-embeddable-checkout-v1-openapi.yml
+- openapi/bolt-financial-embeddable-checkout-v3-openapi.yml
+- openapi/bolt-financial-tokenizer-openapi.yml
+- authentication/bolt-financial-authentication.yml
+- scopes/bolt-financial-scopes.yml
+- conventions/bolt-financial-conventions.yml
+- errors/bolt-financial-error-codes.yml
+- lifecycle/bolt-financial-lifecycle.yml
+- sandbox/bolt-financial-sandbox.yml
+- asyncapi/bolt-financial-webhooks.yml
+- mcp/bolt-financial-mcp.yml
+- mcp/bolt-financial-tool-crosswalk.yml
+- packages/bolt-financial-packages.yml
+- components/bolt-financial-components.yml
+- data-model/bolt-financial-data-model.yml
+- conformance/bolt-financial-conformance.yml
+- well-known/bolt-financial-well-known.yml
+- changelog/bolt-financial-changelog.yml
+- skills/_index.yml

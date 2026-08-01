@@ -1,0 +1,143 @@
+generated: '2026-07-31'
+method: searched
+source: https://help.boltapp.com/developers/production-readiness-guides/test-cards/
+docs:
+- https://help.boltapp.com/developers/production-readiness-guides/test-cards/
+- https://help.boltapp.com/developers/production-readiness-guides/test-orders/
+- https://help.boltapp.com/developers/tools/api-keys/
+environments:
+- name: sandbox
+  api: https://api-sandbox.boltapp.com
+  cdn: https://connect-sandbox.boltapp.com
+  dashboard: https://merchant-sandbox.boltapp.com
+  tokenizer: https://sandbox.bolttk.com
+- name: staging
+  api: https://api-staging.boltapp.com
+  tokenizer: https://staging.bolttk.com
+- name: production
+  api: https://api.boltapp.com
+  cdn: https://connect.boltapp.com
+  dashboard: https://merchant.boltapp.com
+  tokenizer: https://production.bolttk.com
+isolation: Keys and transactions do not cross environments.
+self_service_signup:
+  available: true
+  url: https://merchant.boltapp.com/onboarding
+  since: '2026-07-07'
+  provides:
+  - Sandbox account creation with API key provisioning
+  source: https://help.boltapp.com/releases/2026-07-07-self-service-onboarding/
+credentials:
+  model: dashboard-issued
+  keys:
+  - API Key
+  - Signing Secret
+  - Publishable Key
+  prefixes: null
+  note: Bolt does not publish a test-vs-live key prefix convention; separation is by
+    environment and dashboard, not by key prefix.
+test_cards:
+  matching_rule: The full card number must match for post-authorization processes. Only the
+    last 4 digits are used in pre-authorization rejections. Any card that ends in 0001 is
+    rejected in pre-authorization.
+  generic:
+    expiration: any month/year in the future
+    cvv: any 3 digits
+    type: Visa
+    cards:
+    - scenario: Pre-auth irreversibly rejected
+      number: '4100200300030001'
+      behavior: Shopper receives an error and does not proceed to order confirmation. No
+        authorization call made. Not available for re-review or force approval.
+    - scenario: Approved
+      number: '4111111111111111'
+      behavior: Payment is accepted.
+    - scenario: Declined
+      number: '4111111111111012'
+      behavior: Payment is declined by payment processor.
+  by_processor:
+  - processor: Bolt Payments
+    expiration: 03/30
+    cvv: '737'
+    type: Visa
+    note: Merchants who onboarded with Bolt Payments after 2022-11-01 should use the
+      alternate numbers.
+    cards:
+    - scenario: Pre-auth irreversibly rejected
+      number: '4100200300030001'
+      alternate: '4100200300110001'
+    - scenario: Review
+      number: '4457000200000008'
+      alternate: '4400000000000008'
+    - scenario: Approved
+      number: '4111111111111111'
+      alternate: '4111111111111111'
+    - scenario: Reviewed and reversibly rejected
+      number: '4457010200000247'
+      alternate: '4646464646464644'
+    - scenario: Reviewed and irreversibly rejected
+      number: '4457010140000141'
+      alternate: '4457010140000141'
+  - processor: Stripe
+    cards:
+    - scenario: Pre-auth irreversibly rejected
+      number: '4100200310000001'
+    - scenario: Review
+      number: '4000004840000008'
+    - scenario: Approved
+      number: '4111111111111111'
+    - scenario: Reviewed and reversibly rejected
+      number: '5200828282828210'
+    - scenario: Reviewed and irreversibly rejected
+      number: '4457010140000141'
+  third_party_note: Bolt links to Adyen, Authorize.net, Braintree, CardConnect, Checkout.com,
+    CyberSource, NMI, PayPal, Payflow Pro, Radial and Stripe test-card references but does
+    not guarantee third-party test cards.
+test_order_amounts:
+  currency: USD
+  docs: https://help.boltapp.com/developers/production-readiness-guides/test-orders/
+  amounts:
+  - outcome: Reviewed & Approved
+    total: 8017.01
+  - outcome: Irreversibly Rejected
+    total: 8017.02
+  - outcome: Reversibly Rejected
+    total: 8017.03
+  - outcome: Declined
+    total: 8017.04
+  - outcome: Auto-Approved (No Review)
+    total: 8017.05
+test_fixtures_api:
+  operations:
+  - operationId: createTestingShopperAccount
+    path: POST /v1/testing/shopper/create
+    source: openapi/bolt-financial-bolt-api-openapi.yml
+  - operationId: getTestCreditCardToken
+    path: GET /v1/testing/card_token
+    source: openapi/bolt-financial-bolt-api-openapi.yml
+  - operationId: testShipping
+    path: POST /v1/shipments/mock_bolt_shipping
+    source: openapi/bolt-financial-bolt-api-openapi.yml
+  - operationId: testingAccountCreate
+    path: POST /testing/accounts
+    source: openapi/bolt-financial-embeddable-checkout-v3-openapi.yml
+  - operationId: testingAccountPhoneGet
+    path: GET /testing/accounts/phones
+    source: openapi/bolt-financial-embeddable-checkout-v3-openapi.yml
+  - operationId: testingCreditCardGet
+    path: POST /testing/credit-cards
+    source: openapi/bolt-financial-embeddable-checkout-v3-openapi.yml
+  note: Bolt ships a first-class Testing tag in both spec generations, so sandbox fixtures
+    are created through the API rather than only through published magic values.
+test_clocks:
+  supported: false
+  note: No time-simulation / test-clock facility is documented.
+x-evidence:
+  fetched: '2026-07-31'
+  urls:
+  - url: https://help.boltapp.com/developers/production-readiness-guides/test-cards/
+    http_status: 200
+  - url: https://help.boltapp.com/developers/production-readiness-guides/test-orders/
+    http_status: 200
+  note: All card numbers and order amounts above are published verbatim by Bolt as sandbox
+    test values. None were invented.

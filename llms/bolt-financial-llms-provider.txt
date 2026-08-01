@@ -1,0 +1,7 @@
+# Bolt Help
+
+## For AI agents
+- [AI Onboarding](https://help.boltapp.com/ai-agents/introduction): Start here
+- [MCP server](https://help.boltapp.com/mcp): Search and read docs from any MCP client
+- [FAQ](https://help.boltapp.com/ai-agents/faq): Common integration questions
+- [Docs index](https://help.boltapp.com/llms-full.txt): Full corpus

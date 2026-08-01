@@ -1,0 +1,46 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for Bolt Embeddable Checkout v1 API
+  version: 1.0.0
+extends: openapi/bolt-financial-embeddable-checkout-v1-openapi.yml
+x-generated: '2026-07-31'
+x-method: generated
+actions:
+- target: $.info
+  update:
+    x-apievangelist-provider: bolt-financial
+    x-apievangelist-source: https://assets.boltapp.com/external-api-references/embedded.yml
+    x-apievangelist-harvested: '2026-07-31'
+    x-apievangelist-operations: 20
+    x-apievangelist-artifacts:
+    - authentication/bolt-financial-authentication.yml
+    - conventions/bolt-financial-conventions.yml
+    - errors/bolt-financial-error-codes.yml
+    - lifecycle/bolt-financial-lifecycle.yml
+    - sandbox/bolt-financial-sandbox.yml
+    - data-model/bolt-financial-data-model.yml
+- target: $.info
+  update:
+    x-idempotency:
+      supported: true
+      header: Idempotency-Key
+      methods:
+      - POST
+      - PATCH
+      retention: 24h
+      replay_header: Idempotent-Replayed
+      conflict_status: 409
+      docs: https://help.boltapp.com/developers/references/idempotency/
+- target: $.info
+  update:
+    x-required-headers:
+    - name: X-Api-Key
+      description: Merchant API key.
+    - name: X-Nonce
+      description: Unique 12-16 digit value per request; UUID recommended.
+    x-required-headers-source: https://help.boltapp.com/developers/tools/api-keys/
+- target: $.info
+  update:
+    x-webhooks-catalog: asyncapi/bolt-financial-webhooks.yml
+    x-error-catalog: errors/bolt-financial-error-codes.yml
+    x-sandbox: sandbox/bolt-financial-sandbox.yml

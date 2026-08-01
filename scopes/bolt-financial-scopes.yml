@@ -1,0 +1,81 @@
+generated: '2026-07-31'
+method: searched
+docs: https://help.boltapp.com/developers/bolt-oauth/
+discovery: https://api.boltapp.com/.well-known/openid-configuration
+source: openapi/bolt-financial-bolt-api-openapi.yml, openapi/bolt-financial-embeddable-checkout-v1-openapi.yml,
+  openapi/bolt-financial-embeddable-checkout-v3-openapi.yml
+schemes:
+- name: OAuth
+  source: openapi/bolt-financial-bolt-api-openapi.yml
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://api.boltapp.com/v1/oauth/authorize
+    tokenUrl: https://api.boltapp.com/v1/oauth/token
+  description: |-
+    Bolt utilizes the OAuth flow that developers can use to attain access to Bolt Account data via APIs.
+    For all APIs that require authorization, please provide your `access_token` returned from `/v1/oauth/token` via the basic auth bearer header `Authorization: bearer ${TOKEN}`.
+    [Read more about the OAuth token endpoint.](/api-bolt/#tag/OAuth)
+- name: OAuth
+  source: openapi/bolt-financial-embeddable-checkout-v1-openapi.yml
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://api.boltapp.com/v1/oauth/authorize
+    tokenUrl: https://api.boltapp.com/v1/oauth/token
+  description: |-
+    Bolt utilizes the OAuth flow that developers can use to attain access to Bolt Account data via APIs.
+    For all APIs that require authorization, please provide your `access_token` returned from `/v1/oauth/token` via the basic auth bearer header `Authorization: bearer ${TOKEN}`.
+    [Read more about the OAuth token endpoint.](/api-bolt/#tag/OAuth)
+- name: oauth
+  source: openapi/bolt-financial-embeddable-checkout-v3-openapi.yml
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: /v1/oauth/authorize
+    tokenUrl: /v1/oauth/token
+scopes:
+- scope: bolt.account.manage
+  description: This scope grants permissions to perform read/edit/delete actions on Bolt Account
+    data
+  flows:
+  - authorizationCode
+  sources:
+  - openapi/bolt-financial-bolt-api-openapi.yml
+  - openapi/bolt-financial-embeddable-checkout-v1-openapi.yml
+  - openapi/bolt-financial-embeddable-checkout-v3-openapi.yml
+- scope: bolt.account.view
+  description: This scope grants permissions to perform read only actions on Bolt Account data
+  flows:
+  - authorizationCode
+  sources:
+  - openapi/bolt-financial-bolt-api-openapi.yml
+  - openapi/bolt-financial-embeddable-checkout-v1-openapi.yml
+  - openapi/bolt-financial-embeddable-checkout-v3-openapi.yml
+- scope: openid
+  description: This scope grants permissions that enable Bolt SSO by granting an id token JWT
+    that stores account data. Not used in v1/account endpoints
+  flows:
+  - authorizationCode
+  sources:
+  - openapi/bolt-financial-bolt-api-openapi.yml
+  - openapi/bolt-financial-embeddable-checkout-v1-openapi.yml
+  - openapi/bolt-financial-embeddable-checkout-v3-openapi.yml
+
+- scope: email
+  description: Advertised by the Bolt OIDC discovery document; not declared in any published
+    OpenAPI security scheme.
+  flows:
+  - authorizationCode
+  sources:
+  - https://api.boltapp.com/.well-known/openid-configuration
+
+x-evidence:
+  fetched: '2026-07-31'
+  openid_configuration:
+    url: https://api.boltapp.com/.well-known/openid-configuration
+    http_status: 200
+    scopes_supported:
+    - openid
+    - email
+    - bolt.account.manage
+    - bolt.account.view
+  note: The OIDC discovery document advertises an `email` scope that the OpenAPI security
+    schemes do not declare; the three spec-declared scopes are listed above.

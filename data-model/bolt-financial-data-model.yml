@@ -1,0 +1,216 @@
+generated: '2026-07-31'
+method: derived
+source: openapi/bolt-financial-bolt-api-openapi.yml +
+  openapi/bolt-financial-embeddable-checkout-v3-openapi.yml
+docs: https://help.boltapp.com/api-bolt/
+scale:
+  bolt_api_schemas: 594
+  embeddable_v1_schemas: 588
+  embeddable_v3_schemas: 77
+  tokenizer_schemas: 4
+entities:
+- name: account
+  description: A Bolt shopper account — the identity network that makes one-click checkout
+    possible across merchants.
+  schemas:
+  - account_details
+  - account_details_address_view
+  - account_login_status
+  operations:
+  - getAccount
+  - createAccount
+  - updateAccountProfile
+  - detectAccount
+- name: address
+  description: A shipping or billing address stored on a Bolt account, with its own change /
+    review lifecycle.
+  schemas:
+  - address
+  - address_view
+  - address_change
+  - address_change_status
+  operations:
+  - addAddress
+  - editAddress
+  - replaceAddress
+  - deleteAddress
+- name: payment_method
+  description: A stored instrument on a Bolt account, dominantly a tokenized credit card.
+  schemas:
+  - credit_card
+  - credit_card_view
+  - credit_card_account
+  operations:
+  - addPaymentMethod
+  - deletePaymentMethod
+- name: cart
+  description: The merchant-supplied cart that Bolt prices, ships, taxes and discounts before
+    an order token is minted.
+  schemas:
+  - cart
+  - cart_create
+  - cart_item
+  - cart_shipment
+  - cart_discount
+  - cart_fee
+  - cart_order
+- name: order
+  description: A Bolt order, created from a cart via an order token and tracked through
+    shipment.
+  operations:
+  - createOrderToken
+  - trackOrder
+  - ordersCreate
+- name: transaction
+  description: The money movement record. Moves through authorize, fraud review, capture,
+    refund and void, and is the object every webhook carries.
+  schemas:
+  - credit_card_transaction
+  - credit_card_transaction_stage
+  - credit_card_authorization_view
+  - credit_card_capture_view
+  - credit_card_credit_view
+  - credit_card_void_view
+  operations:
+  - authorizeTransaction
+  - captureTransaction
+  - refundTransaction
+  - voidTransaction
+  - reviewTransaction
+  - updateTransaction
+  - getTransactionDetails
+  key: REFERENCE
+- name: subscription
+  description: A recurring billing agreement with pause / unpause / cancel controls and
+    merchant-level dunning settings.
+  operations:
+  - getSubscriptions
+  - getSubscription
+  - getSubscriptionOrders
+  - cancelSubscription
+  - pauseSubscription
+  - unpauseSubscription
+  - getDunningSettings
+  - updateDunningSettings
+- name: webhook
+  description: A merchant-registered HTTP endpoint that receives signed transaction events.
+  operations:
+  - createWebhook
+  - queryWebhooks
+  - getWebhook
+  - deleteWebhook
+- name: merchant
+  description: The merchant and its divisions, callback URLs and identifiers.
+  operations:
+  - getMerchantCallbacks
+  - setMerchantCallbacks
+  - getMerchantIdentifiers
+- name: statement
+  description: Merchant financial statements pulled from the Bolt Merchant Dashboard.
+  operations:
+  - getStatements
+- name: payment_token
+  description: A tokenized card produced by the Tokenizer host so raw PAN data never reaches
+    the merchant server.
+  operations:
+  - tokenizerPublicKey
+  - tokenizerToken
+  source: openapi/bolt-financial-tokenizer-openapi.yml
+relationships:
+- from: account
+  to: address
+  kind: has_many
+  via: addresses
+- from: account
+  to: payment_method
+  kind: has_many
+  via: payment_methods
+- from: address
+  to: account
+  kind: belongs_to
+  via: account
+  evidence: schema address_account / address_view_account
+- from: payment_method
+  to: account
+  kind: belongs_to
+  via: account
+  evidence: schema credit_card_account
+- from: cart
+  to: cart_item
+  kind: has_many
+  via: items
+- from: cart
+  to: cart_shipment
+  kind: has_many
+  via: shipments
+- from: cart
+  to: cart_discount
+  kind: has_many
+  via: discounts
+- from: cart
+  to: order
+  kind: has_one
+  via: order
+  evidence: schema cart_order / cart_order_generated
+- from: order
+  to: transaction
+  kind: has_many
+  via: transactions
+- from: transaction
+  to: cart
+  kind: belongs_to
+  via: cart
+  evidence: schema cart_transaction_authorize
+- from: transaction
+  to: payment_method
+  kind: belongs_to
+  via: credit_card
+  evidence: schema credit_card_transaction
+- from: transaction
+  to: account
+  kind: belongs_to
+  via: from_credit_card.user
+  evidence: schema credit_card_user
+- from: subscription
+  to: order
+  kind: has_many
+  via: subscription orders
+  evidence: operation getSubscriptionOrders
+- from: subscription
+  to: transaction
+  kind: has_many
+  via: recharge
+  evidence: schema cart_transaction_recharge
+- from: webhook
+  to: transaction
+  kind: has_many
+  via: object_type transaction
+  evidence: asyncapi/bolt-financial-webhooks.yml
+- from: merchant
+  to: webhook
+  kind: has_many
+  via: webhooks
+- from: merchant
+  to: statement
+  kind: has_many
+  via: statements
+- from: payment_token
+  to: transaction
+  kind: has_one
+  via: token
+  evidence: tokenizer token is supplied to authorizeTransaction
+id_conventions:
+  transaction_key: REFERENCE (path parameter on getTransactionDetails / updateTransaction)
+  webhook_key: webhook_id
+  subscription_key: subscription_id
+  address_key: id
+  payment_method_key: payment_method_id
+  id_prefixes: null
+  note: Bolt does not publish typed id prefixes; ids are opaque and per-resource path
+    parameters carry the type.
+render: null
+x-evidence:
+  fetched: '2026-07-31'
+  method_note: Entities and relationships were derived from schema names, $ref-typed
+    properties and operation paths in the published specs. Where a relationship rests on a
+    schema name it is recorded under `evidence`.

@@ -1,0 +1,107 @@
+generated: '2026-07-31'
+method: searched
+source: https://help.boltapp.com/developers/references/idempotency/
+docs:
+- https://help.boltapp.com/developers/references/idempotency/
+- https://help.boltapp.com/developers/tools/api-keys/
+- https://help.boltapp.com/developers/bolt-oauth/
+- https://help.boltapp.com/developers/error-codes/
+authentication:
+  style: api-key-header
+  header: X-Api-Key
+  additional_required_headers:
+  - header: X-Nonce
+    value: unique 12-16 digit value per request; a UUID is recommended
+  - header: Content-Type
+    value: application/json
+  shopper_scoped: "OAuth 2.0 authorization code, presented as 'Authorization: Bearer ${TOKEN}'"
+  webhook_signature: HMAC-SHA256 in X-Bolt-Hmac-Sha256 (rotation pair X-Bolt-Hmac-Sha256-Pending)
+  artifact: authentication/bolt-financial-authentication.yml
+idempotency:
+  supported: true
+  header: Idempotency-Key
+  applies_to:
+  - POST
+  - PATCH
+  key_format: merchant-generated, UUID recommended, max 255 characters
+  retention: 24 hours
+  replay_header: Idempotent-Replayed
+  replay_value: 'true'
+  scope: identical URL, method, body and all API/Publishable key headers
+  concurrent_conflict_status: 409
+  retriable_header: Idempotent-Retriable
+  covers_error_responses: true
+  docs: https://help.boltapp.com/developers/references/idempotency/
+  notes:
+  - Bolt states PUT, GET and DELETE are idempotent by nature and need no key.
+  - Retried requests with the same key and body return the same response and status code,
+    including 4xx and 5xx.
+  - Reusing a key on a semantically different request is an error.
+  - Content errors must be fixed and retried with a NEW key; rate-limit, network and
+    Idempotent-Retriable errors are retried with the SAME key.
+pagination:
+  documented: false
+  note: No cross-cutting pagination contract is published. Collection endpoints in the Bolt
+    API spec (queryWebhooks, getSubscriptions, getSubscriptionOrders) expose their own
+    filter parameters rather than a shared cursor/offset envelope.
+error_envelope:
+  style: bolt-error-codes
+  shape: numeric Bolt error code plus code text and a shopper-facing prompt string
+  problem_json: false
+  docs: https://help.boltapp.com/developers/error-codes/
+  artifact: errors/bolt-financial-error-codes.yml
+  note: Merchants may echo Bolt error codes back to Bolt in Merchant Callback API responses
+    to trigger the matching shopper message.
+rate_limiting:
+  documented_signal: false
+  error_codes:
+  - code: 429
+    meaning: User sent too many requests and was rate limited by the server.
+  - code: 35
+    name: RateLimited
+    meaning: Rate limit reached. Please retry after a while.
+  - code: 41
+    name: TooManyRequests
+    meaning: Too many requests.
+  note: Bolt documents rate-limit errors and instructs retry-with-the-same-idempotency-key,
+    but publishes no numeric quota or RateLimit-* response header contract.
+versioning:
+  scheme: uri-path
+  versions:
+  - v1
+  - v3
+  default: v1
+  note: Bolt's own bolt-api-verify skill instructs agents to default to Embeddable API v1
+    and not to use v3 unless explicitly enabled by a Bolt contact.
+  artifact: lifecycle/bolt-financial-lifecycle.yml
+environments:
+- name: sandbox
+  api: https://api-sandbox.boltapp.com
+  cdn: https://connect-sandbox.boltapp.com
+  dashboard: https://merchant-sandbox.boltapp.com
+- name: production
+  api: https://api.boltapp.com
+  cdn: https://connect.boltapp.com
+  dashboard: https://merchant.boltapp.com
+- name: staging
+  api: https://api-staging.boltapp.com
+  source: openapi servers[]
+environment_isolation: Keys and transactions do not cross environments.
+metadata:
+  supported: true
+  docs: https://help.boltapp.com/developers/references/embedded-metadata/
+request_tracing:
+  header: X-Nonce
+  note: Bolt requires a caller-generated per-request nonce rather than returning a
+    server-issued request id.
+webhook_suppression:
+  parameter: skip_hook_notification
+  note: Some transaction endpoints accept skip_hook_notification=true to suppress the
+    resulting webhook.
+cross_links:
+  errors: errors/bolt-financial-error-codes.yml
+  lifecycle: lifecycle/bolt-financial-lifecycle.yml
+  authentication: authentication/bolt-financial-authentication.yml
+  scopes: scopes/bolt-financial-scopes.yml
+  sandbox: sandbox/bolt-financial-sandbox.yml
+  webhooks: asyncapi/bolt-financial-webhooks.yml
