@@ -1,0 +1,314 @@
+{
+  "item": [
+    {
+      "id": "fec79ca1-ed8a-4dc7-919a-fc776059bf3a",
+      "name": "Tokenizer",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "5f290d8c-4134-4386-805b-479d9b76ee99",
+          "name": "Get Public Key",
+          "request": {
+            "name": "Get Public Key",
+            "description": {
+              "content": "Returns current `public_key` to be used to sign `/token` requests. There is no need for authorization or authentication with this endpoint, nor headers.\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "public_key"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "fbcc97e4-850c-45d3-b296-a47404a7e061",
+              "name": "SUCCESS.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "public_key"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "\"/v7FsRGXEErA7f9y1uyMW0ApMUnC32RenDPpueLcYV8=\"",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "9c92c4eb-53c9-4042-b935-d6d1831b9a17",
+              "name": "Internal service error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "public_key"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Internal server error",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "a8b1c81d-9827-4e24-aacd-b1bb61704dcd",
+          "name": "Post Token",
+          "request": {
+            "name": "Post Token",
+            "description": {
+              "content": "Collects and stores the credit card information and returns a token representing the stored card. \n\nAlternatively, Bolt also provides an [NPM package](https://help.boltapp.com/developers/references/bolt-tokenizer/) for ease of use. \n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "token"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nonce\": \"<base64>\",\n  \"payload\": \"<base64>\",\n  \"public_key\": \"<base64>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "c74da399-f74c-40ab-8b85-170ddefd534f",
+              "name": "SUCCESS. The token was generated and added to the encrypted payload.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "token"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nonce\": \"enKobp7uZhgDk96Kjp8pjpX+qeWHW9yE\",\n  \"payload\": \"hoNo0xogjmcOVzTB+Fg6tY7v/ZBp3VBQE4XxMcJMApZU3cANjui5KLI7oYpDBuP+ejop2oU=\",\n  \"public_key\": \"/v7FsRGXEErA7f9y1uyMW0ApMUnC32RenDPpueLcYV8=\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"nonce\": \"ObJS+95BqxwqGgPMrvg//XAogXeBsMdP\",\n  \"payload\": \"T5m0ig7ROC/6WVJ9f8NcKRPhjEmn9833i3T4lZiTTNbZgOXM8gRXKeNDSH9BrzicqgjEXNriuZn9E8/xL5mb3lpIPAtX0L0dBDpojb/xa/QNi9/zEiZ6+MmBa6EQCEfKZxiOG9l9BMi3gS+UZxGcF18yfra/UXdhnvQW7PGk0Ex2F6MggwjdJOWoPgKG8UROTBMstoL23plFwfGScyZ+g0uo\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b928fbf1-520f-48f7-a73e-eca6a0d5b876",
+              "name": "Unprocessable entity",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "token"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nonce\": \"enKobp7uZhgDk96Kjp8pjpX+qeWHW9yE\",\n  \"payload\": \"hoNo0xogjmcOVzTB+Fg6tY7v/ZBp3VBQE4XxMcJMApZU3cANjui5KLI7oYpDBuP+ejop2oU=\",\n  \"public_key\": \"/v7FsRGXEErA7f9y1uyMW0ApMUnC32RenDPpueLcYV8=\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Unprocessable entity",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "e191bcd7-a55d-4c7f-b8f0-236c991f4b41",
+              "name": "Internal service error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "token"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nonce\": \"enKobp7uZhgDk96Kjp8pjpX+qeWHW9yE\",\n  \"payload\": \"hoNo0xogjmcOVzTB+Fg6tY7v/ZBp3VBQE4XxMcJMApZU3cANjui5KLI7oYpDBuP+ejop2oU=\",\n  \"public_key\": \"/v7FsRGXEErA7f9y1uyMW0ApMUnC32RenDPpueLcYV8=\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "Internal server error",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://staging.bolttk.com",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "47830d73-4e0d-4246-95da-17b17bacd2a4",
+    "name": "Tokenizer Endpoint",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "## About\nThe Tokenizer API provides an alternative to our [public npm package](https://www.npmjs.com/package/@boltpay/tokenizer). If you would prefer to use that, you can follow our [Tokenizer documentation](/developers/references/bolt-tokenizer). \n\n## How It Works\nThis API uses two endpoints to implement custom back-office integrations such as direct payment processing.\n\nThe `/public_key` endpoint returns a key used in the `/token` endpoint, used to encrypt and decrypt the payload containing credit card information.\n",
+      "type": "text/plain"
+    }
+  }
+}

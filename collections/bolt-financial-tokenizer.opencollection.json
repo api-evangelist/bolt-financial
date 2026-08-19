@@ -1,0 +1,44 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Tokenizer Endpoint",
+    "version": "1.0.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Tokenizer",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Public Key",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://staging.bolttk.com/public_key"
+          },
+          "docs": "Returns current `public_key` to be used to sign `/token` requests. There is no need for authorization or authentication with this endpoint, nor headers.\n"
+        },
+        {
+          "info": {
+            "name": "Post Token",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://staging.bolttk.com/token",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Collects and stores the credit card information and returns a token representing the stored card. \n\nAlternatively, Bolt also provides an [NPM package](https://help.boltapp.com/developers/references/bolt-tokenizer/) for ease of use. \n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

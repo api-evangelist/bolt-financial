@@ -30,11 +30,10 @@ servers:
     method: POST tools/list
     http_status: 404
     observed: '2026-07-31'
-    note: The documented endpoint 308-redirects to /mcp/ which is served by the legacy Hugo
-      docs origin and returns an HTML 404. The server is documented by Bolt but did not
-      answer an MCP tools/list call from this network at probe time. Tool names and
-      descriptions above are transcribed from Bolt's own MCP server documentation page,
-      not from a live tools/list response.
+    note: The documented endpoint 308-redirects to /mcp/ which is served by the legacy Hugo docs origin
+      and returns an HTML 404. The server is documented by Bolt but did not answer an MCP tools/list call
+      from this network at probe time. Tool names and descriptions above are transcribed from Bolt's own
+      MCP server documentation page, not from a live tools/list response.
 - name: boltcheckout
   kind: api
   status: source-published
@@ -98,8 +97,8 @@ planned:
   name: '@boltapp/bolt-mcp'
   status: not-published
   source: https://help.boltapp.com/ai-agents/mcp-server
-  note: Bolt documents a future API MCP package "@boltapp/bolt-mcp" for orders, transactions
-    and webhooks as "not yet published". The name resolved 404 on npm at probe time.
+  note: Bolt documents a future API MCP package "@boltapp/bolt-mcp" for orders, transactions and webhooks
+    as "not yet published". The name resolved 404 on npm at probe time.
 x-evidence:
   fetched: '2026-07-31'
   sources:
@@ -113,7 +112,15 @@ x-evidence:
     tool_files: 22
   - url: https://registry.npmjs.org/@boltapp/bolt-mcp
     http_status: 404
-  note: The 22 boltcheckout tool names were read verbatim from the `name:` field of each
-    tool source file in the BoltApp/bolt-mcp-typescript repository. Input schemas were not
-    transcribed; each tool inherits the parameters and requestBody of its backing OpenAPI
-    operation (see mcp/bolt-financial-tool-crosswalk.yml).
+  note: The 22 boltcheckout tool names were read verbatim from the `name:` field of each tool source file
+    in the BoltApp/bolt-mcp-typescript repository. Input schemas were not transcribed; each tool inherits
+    the parameters and requestBody of its backing OpenAPI operation (see mcp/bolt-financial-tool-crosswalk.yml).
+deployment:
+  mode: none
+  endpoint: https://help.boltapp.com/mcp
+  verified: probed
+  probe: dead
+  note: the endpoint this manifest claimed did not answer; recorded as none rather than deleted so the
+    claim stays auditable
+  checked: '2026-08-12'
+  source: catalog MCP census

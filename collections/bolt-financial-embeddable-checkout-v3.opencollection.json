@@ -1,0 +1,566 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Bolt API Reference",
+    "version": "3.3.22"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Account",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Retrieve account details",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://{environment}.boltapp.com/v3/account",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              },
+              {
+                "name": "X-Merchant-Client-Id",
+                "value": ""
+              }
+            ],
+            "auth": {
+              "type": "oauth2",
+              "flow": "authorization_code",
+              "authorizationUrl": "/v1/oauth/authorize",
+              "accessTokenUrl": "/v1/oauth/token",
+              "credentials": {
+                "clientId": "{{clientId}}",
+                "clientSecret": "{{clientSecret}}"
+              }
+            }
+          },
+          "docs": "Retrieve a shopper's account details, such as addresses and payment information. The account's details are filtered to be relevant to your merchant account, and some fields may be missing for some accounts. See the schema for details."
+        },
+        {
+          "info": {
+            "name": "Add an address",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://{environment}.boltapp.com/v3/account/addresses",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              },
+              {
+                "name": "X-Merchant-Client-Id",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "oauth2",
+              "flow": "authorization_code",
+              "authorizationUrl": "/v1/oauth/authorize",
+              "accessTokenUrl": "/v1/oauth/token",
+              "credentials": {
+                "clientId": "{{clientId}}",
+                "clientSecret": "{{clientSecret}}"
+              }
+            }
+          },
+          "docs": "Add an address to the shopper's account"
+        },
+        {
+          "info": {
+            "name": "Edit an existing address",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://{environment}.boltapp.com/v3/account/addresses/:id",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              },
+              {
+                "name": "X-Merchant-Client-Id",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the address to edit"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "oauth2",
+              "flow": "authorization_code",
+              "authorizationUrl": "/v1/oauth/authorize",
+              "accessTokenUrl": "/v1/oauth/token",
+              "credentials": {
+                "clientId": "{{clientId}}",
+                "clientSecret": "{{clientSecret}}"
+              }
+            }
+          },
+          "docs": "Edit an existing address on the shopper's account. This does not edit addresses that are already associated with other resources, such as transactions or shipments."
+        },
+        {
+          "info": {
+            "name": "Delete an existing address",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://{environment}.boltapp.com/v3/account/addresses/:id",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              },
+              {
+                "name": "X-Merchant-Client-Id",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the address to delete"
+              }
+            ],
+            "auth": {
+              "type": "oauth2",
+              "flow": "authorization_code",
+              "authorizationUrl": "/v1/oauth/authorize",
+              "accessTokenUrl": "/v1/oauth/token",
+              "credentials": {
+                "clientId": "{{clientId}}",
+                "clientSecret": "{{clientSecret}}"
+              }
+            }
+          },
+          "docs": "Delete an existing address. Deleting an address does not invalidate or remove the address from transactions or shipments that are associated with it."
+        },
+        {
+          "info": {
+            "name": "Add a payment method",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://{environment}.boltapp.com/v3/account/payment-methods",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              },
+              {
+                "name": "X-Merchant-Client-Id",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "oauth2",
+              "flow": "authorization_code",
+              "authorizationUrl": "/v1/oauth/authorize",
+              "accessTokenUrl": "/v1/oauth/token",
+              "credentials": {
+                "clientId": "{{clientId}}",
+                "clientSecret": "{{clientSecret}}"
+              }
+            }
+          },
+          "docs": "Add a payment method to a shopper's Bolt Account Wallet. For security purposes, this request must come from your backend. <br/> **Note**: Before using this API, the credit card details must be tokenized by Bolt's credit card tokenization service. Please review our [Bolt Payment Field Component](https://help.boltapp.com/products/ignite/api-implementation/#enhance-payments) or [Install the Bolt Tokenizer](https://help.boltapp.com/developers/references/bolt-tokenizer) documentation."
+        },
+        {
+          "info": {
+            "name": "Delete an existing payment method",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://{environment}.boltapp.com/v3/account/payment-methods/:id",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              },
+              {
+                "name": "X-Merchant-Client-Id",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the payment method to delete"
+              }
+            ],
+            "auth": {
+              "type": "oauth2",
+              "flow": "authorization_code",
+              "authorizationUrl": "/v1/oauth/authorize",
+              "accessTokenUrl": "/v1/oauth/token",
+              "credentials": {
+                "clientId": "{{clientId}}",
+                "clientSecret": "{{clientSecret}}"
+              }
+            }
+          },
+          "docs": "Delete an existing payment method. Deleting a payment method does not invalidate or remove it from transactions or orders that are associated with it."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Payments",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Initialize a Bolt payment for logged in shoppers",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://{environment}.boltapp.com/v3/payments",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              },
+              {
+                "name": "X-Merchant-Client-Id",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "oauth2",
+              "flow": "authorization_code",
+              "authorizationUrl": "/v1/oauth/authorize",
+              "accessTokenUrl": "/v1/oauth/token",
+              "credentials": {
+                "clientId": "{{clientId}}",
+                "clientSecret": "{{clientSecret}}"
+              }
+            }
+          },
+          "docs": "Initialize a Bolt logged-in shopper's intent to pay for a cart, using the specified payment method. Payments must be finalized before indicating the payment result to the shopper. Some payment methods will finalize automatically after initialization. For these payments, they will transition directly to \"finalized\" and the response from Initialize Payment will contain a finalized payment.\n"
+        },
+        {
+          "info": {
+            "name": "Finalize a pending payment",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://{environment}.boltapp.com/v3/payments/:id",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              },
+              {
+                "name": "X-Merchant-Client-Id",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the payment to operate on"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "oauth2",
+              "flow": "authorization_code",
+              "authorizationUrl": "/v1/oauth/authorize",
+              "accessTokenUrl": "/v1/oauth/token",
+              "credentials": {
+                "clientId": "{{clientId}}",
+                "clientSecret": "{{clientSecret}}"
+              }
+            }
+          },
+          "docs": "Finalize a pending payment being made by a Bolt logged-in shopper. Upon receipt of a finalized payment result, payment success should be communicated to the shopper."
+        },
+        {
+          "info": {
+            "name": "Initialize a Bolt payment for guest shoppers",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://{environment}.boltapp.com/v3/guest/payments",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              },
+              {
+                "name": "X-Merchant-Client-Id",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "X-API-Key",
+              "value": "{{X-API-Key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Initialize a Bolt guest shopper's intent to pay for a cart, using the specified payment method. Payments must be finalized before indicating the payment result to the shopper. Some payment methods will finalize automatically after initialization. For these payments, they will transition directly to \"finalized\" and the response from Initialize Payment will contain a finalized payment."
+        },
+        {
+          "info": {
+            "name": "Finalize a pending guest payment",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://{environment}.boltapp.com/v3/guest/payments/:id",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              },
+              {
+                "name": "X-Merchant-Client-Id",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID of the guest payment to operate on"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "X-API-Key",
+              "value": "{{X-API-Key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Finalize a pending payment being made by a Bolt guest shopper. Upon receipt of a finalized payment result, payment success should be communicated to the shopper."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Orders",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create an order that was prepared outside the Bolt ecosystem.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://{environment}.boltapp.com/v3/orders",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              },
+              {
+                "name": "X-Merchant-Client-Id",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "X-API-Key",
+              "value": "{{X-API-Key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Create an order that was prepared outside the Bolt ecosystem. Some Bolt-powered flows automatically manage order creation - in those flows the order ID will be provided separately and not through this API."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "OAuth",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get OAuth token",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://{environment}.boltapp.com/v3/oauth/token",
+            "body": {
+              "type": "form-urlencoded",
+              "data": []
+            }
+          },
+          "docs": "Retrieve a new or refresh an existing OAuth token."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Callbacks",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Callback to update or create a full shopper account",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://{environment}.boltapp.com/v3/callbacks/accounts",
+            "headers": [
+              {
+                "name": "X-Bolt-Hmac-Sha256",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create or update a shopper account with profile information, payment and addresses. This is also known as the \"upsert account\" API, a combination of update and insert."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Testing",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create a test account",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://{environment}.boltapp.com/v3/testing/accounts",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "X-API-Key",
+              "value": "{{X-API-Key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Create a Bolt shopper account for testing purposes."
+        },
+        {
+          "info": {
+            "name": "Get a random phone number",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://{environment}.boltapp.com/v3/testing/accounts/phones",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "X-API-Key",
+              "value": "{{X-API-Key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Get a random, fictitious phone number that is not assigned to any existing Bolt account."
+        },
+        {
+          "info": {
+            "name": "Retrieve a tokenized test credit card",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://{environment}.boltapp.com/v3/testing/credit-cards",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "X-API-Key",
+              "value": "{{X-API-Key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Retrieve a test credit card that can be used to process payments in your Bolt testing environment. The response includes the card's Bolt credit card token."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

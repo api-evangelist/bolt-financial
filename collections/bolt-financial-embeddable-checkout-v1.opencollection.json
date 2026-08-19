@@ -1,0 +1,674 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Embedded API Reference",
+    "version": "1.0.1"
+  },
+  "request": {
+    "auth": {
+      "type": "apikey",
+      "key": "X-API-Key",
+      "value": "{{X-API-Key}}",
+      "placement": "header"
+    }
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Account",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Get Account Details",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.boltapp.com/v1/account",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              }
+            ],
+            "auth": {
+              "type": "oauth2",
+              "flow": "authorization_code",
+              "authorizationUrl": "https://api.boltapp.com/v1/oauth/authorize",
+              "accessTokenUrl": "https://api.boltapp.com/v1/oauth/token",
+              "credentials": {
+                "clientId": "{{clientId}}",
+                "clientSecret": "{{clientSecret}}"
+              }
+            }
+          },
+          "docs": "Fetch a shopper's account details to pre-fill checkout fields. This request must come from your backend for security purposes, as it requires the use of your private key to authenticate. For PCI compliance, only limited information is returned for each credit card available in the shopper’s wallet."
+        },
+        {
+          "info": {
+            "name": "Create Bolt Account",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.boltapp.com/v1/account",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              },
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "X-API-Key",
+              "value": "{{X-API-Key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Create a Bolt shopping account."
+        },
+        {
+          "info": {
+            "name": "Update Profile",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://api.boltapp.com/v1/account/profile",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "oauth2",
+              "flow": "authorization_code",
+              "authorizationUrl": "https://api.boltapp.com/v1/oauth/authorize",
+              "accessTokenUrl": "https://api.boltapp.com/v1/oauth/token",
+              "credentials": {
+                "clientId": "{{clientId}}",
+                "clientSecret": "{{clientSecret}}"
+              }
+            }
+          },
+          "docs": "Update the identifiers for a shopper's profile (first name or last name)."
+        },
+        {
+          "info": {
+            "name": "Add Address",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.boltapp.com/v1/account/addresses",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              },
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "oauth2",
+              "flow": "authorization_code",
+              "authorizationUrl": "https://api.boltapp.com/v1/oauth/authorize",
+              "accessTokenUrl": "https://api.boltapp.com/v1/oauth/token",
+              "credentials": {
+                "clientId": "{{clientId}}",
+                "clientSecret": "{{clientSecret}}"
+              }
+            }
+          },
+          "docs": "Add an address to a shopper's account address book."
+        },
+        {
+          "info": {
+            "name": "Replace Address",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.boltapp.com/v1/account/addresses/:id",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              },
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID for an address in the shopper's Address Book."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "oauth2",
+              "flow": "authorization_code",
+              "authorizationUrl": "https://api.boltapp.com/v1/oauth/authorize",
+              "accessTokenUrl": "https://api.boltapp.com/v1/oauth/token",
+              "credentials": {
+                "clientId": "{{clientId}}",
+                "clientSecret": "{{clientSecret}}"
+              }
+            }
+          },
+          "docs": "Replace an existing address in a shopper's address book.\nThese changes delete the existing address and create a new one.\n"
+        },
+        {
+          "info": {
+            "name": "Edit Address",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://api.boltapp.com/v1/account/addresses/:id",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID for an address in the shopper's Address Book."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "oauth2",
+              "flow": "authorization_code",
+              "authorizationUrl": "https://api.boltapp.com/v1/oauth/authorize",
+              "accessTokenUrl": "https://api.boltapp.com/v1/oauth/token",
+              "credentials": {
+                "clientId": "{{clientId}}",
+                "clientSecret": "{{clientSecret}}"
+              }
+            }
+          },
+          "docs": "Edit an existing address in a shopper's address book.\nThis endpoint fully replaces the information for an existing address while retaining the same address ID.\n"
+        },
+        {
+          "info": {
+            "name": "Delete Address",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.boltapp.com/v1/account/addresses/:id",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "The ID for an address in the shopper's Address Book."
+              }
+            ],
+            "auth": {
+              "type": "oauth2",
+              "flow": "authorization_code",
+              "authorizationUrl": "https://api.boltapp.com/v1/oauth/authorize",
+              "accessTokenUrl": "https://api.boltapp.com/v1/oauth/token",
+              "credentials": {
+                "clientId": "{{clientId}}",
+                "clientSecret": "{{clientSecret}}"
+              }
+            }
+          },
+          "docs": "Deletes an existing address in a shopper's address book.\n"
+        },
+        {
+          "info": {
+            "name": "Detect Account",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.boltapp.com/v1/account/exists",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "email",
+                "value": "",
+                "type": "query",
+                "description": "The shopper's email address is the primary mechanism for detecting an account. You **must** provide either a value for this parameter or for `sha256_email`."
+              },
+              {
+                "name": "sha256_email",
+                "value": "",
+                "type": "query",
+                "description": "The sha256 hash of the shopper's normalized email address can be used to detect an account instead of `email`."
+              },
+              {
+                "name": "phone",
+                "value": "",
+                "type": "query",
+                "description": "The shopper's phone number. Includes country code (e.g. +1); does not include dashes or spaces. Can be used to detect an account instead of `sha256_email` or `email`."
+              }
+            ]
+          },
+          "docs": "Check whether an account exists using one of `email`, `phone`, or `sha256_email` as the unique identifier."
+        },
+        {
+          "info": {
+            "name": "Add Payment Method",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.boltapp.com/v1/account/payment_methods",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              },
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "oauth2",
+              "flow": "authorization_code",
+              "authorizationUrl": "https://api.boltapp.com/v1/oauth/authorize",
+              "accessTokenUrl": "https://api.boltapp.com/v1/oauth/token",
+              "credentials": {
+                "clientId": "{{clientId}}",
+                "clientSecret": "{{clientSecret}}"
+              }
+            }
+          },
+          "docs": "Add a payment method to a shopper's Bolt account Wallet. For security purposes, this request must come from your backend because authentication requires the use of your private key.\n\n**Note**: Before using this API, the credit card details must be tokenized using Bolt's JavaScript library function, which is documented in [Install the Bolt Tokenizer](https://help.boltapp.com/developers/references/bolt-tokenizer).\n"
+        },
+        {
+          "info": {
+            "name": "Delete Payment Method",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://api.boltapp.com/v1/account/payment_methods/:payment_method_id",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "payment_method_id",
+                "value": "",
+                "type": "path",
+                "description": "The ID for a payment method in the shopper's Bolt account Wallet. This ID can be obtained using [Get Account Details](#tag/Account/operation/GetAccountDetails)."
+              }
+            ],
+            "auth": {
+              "type": "oauth2",
+              "flow": "authorization_code",
+              "authorizationUrl": "https://api.boltapp.com/v1/oauth/authorize",
+              "accessTokenUrl": "https://api.boltapp.com/v1/oauth/token",
+              "credentials": {
+                "clientId": "{{clientId}}",
+                "clientSecret": "{{clientSecret}}"
+              }
+            }
+          },
+          "docs": "Delete a saved payment method from a shopper's Bolt account Wallet."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "OAuth",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "OAuth Token Endpoint",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.boltapp.com/v1/oauth/token",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "form-urlencoded",
+              "data": []
+            }
+          },
+          "docs": "Endpoint for receiving access, ID, and refresh tokens from Bolt's OAuth server. \n\nTo use this endpoint, first use the Authorization Code Request flow by using the `authorization_code` Grant Type (`grant_type`). Then, in the event that you would need a second or subsequent code, use the `refresh_token` value returned from a successful request as the `refresh_token` input value in your subsequent `refresh_token` Grant Type (`grant_type`) request.\n\n **Reminder - the Content-Type of this request mus"
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Transactions",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Authorize a Card",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.boltapp.com/v1/merchant/transactions/authorize",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              },
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "oauth2",
+              "flow": "authorization_code",
+              "authorizationUrl": "https://api.boltapp.com/v1/oauth/authorize",
+              "accessTokenUrl": "https://api.boltapp.com/v1/oauth/token",
+              "credentials": {
+                "clientId": "{{clientId}}",
+                "clientSecret": "{{clientSecret}}"
+              }
+            }
+          },
+          "docs": "This endpoint authorizes card payments and has three main use cases:\n* • Authorize a payment using an unsaved payment method for a guest or logged-in shopper.\n* • Authorize a payment using a saved payment method for a logged-in shopper.\n*  • Re-charge a previous transaction using the `credit_card_id` of the transaction.\n"
+        },
+        {
+          "info": {
+            "name": "Capture a Transaction",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.boltapp.com/v1/merchant/transactions/capture",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "X-API-Key",
+              "value": "{{X-API-Key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "This captures funds for the designated transaction. A capture can be done for any partial amount or for the total authorized amount.\n\nAlthough the response returns the standard `transaction_view` object, only `captures` and either `id` or `reference` are needed.\n"
+        },
+        {
+          "info": {
+            "name": "Refund a Transaction",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.boltapp.com/v1/merchant/transactions/credit",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "X-API-Key",
+              "value": "{{X-API-Key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "This refunds a captured transaction. Refunds can be done for any partial amount or for the total authorized amount. These refunds are processed synchronously and return information about the refunded transaction in the standard `transaction_view` object."
+        },
+        {
+          "info": {
+            "name": "Void a Transaction",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.boltapp.com/v1/merchant/transactions/void",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "X-API-Key",
+              "value": "{{X-API-Key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "This voids the authorization for a given transaction. Voids must be completed before the authorization is captured.\nIn the request, either `transaction_id` or `transaction_reference` is required.\nAlthough the response returns the standard `transaction_view` object, only `status` and either `id` or `reference` are needed.\n"
+        },
+        {
+          "info": {
+            "name": "Transaction Details",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.boltapp.com/v1/merchant/transactions/:REFERENCE",
+            "params": [
+              {
+                "name": "REFERENCE",
+                "value": "",
+                "type": "path",
+                "description": "This is the Bolt transaction reference. (ex. N7Y3-NFKC-VFRF)"
+              }
+            ],
+            "auth": {
+              "type": "apikey",
+              "key": "X-API-Key",
+              "value": "{{X-API-Key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "This allows you to pull the full transaction details for a given transaction.\n\n **Note**: All objects and fields marked `required` in the Transaction Details response are also **nullable**. This includes any sub-components (objects or fields) also marked `required`.\n"
+        },
+        {
+          "info": {
+            "name": "Update a Transaction",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://api.boltapp.com/v1/merchant/transactions/:REFERENCE",
+            "headers": [
+              {
+                "name": "Idempotency-Key",
+                "value": ""
+              }
+            ],
+            "params": [
+              {
+                "name": "REFERENCE",
+                "value": "",
+                "type": "path",
+                "description": "This is the Bolt transaction reference. (ex. N7Y3-NFKC-VFRF)"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "X-API-Key",
+              "value": "{{X-API-Key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "This allows you to update certain transaction properties post-authorization."
+        },
+        {
+          "info": {
+            "name": "Authorize a Card using TaaS",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.boltapp.com/v1/tokenizer/proxy",
+            "headers": [
+              {
+                "name": "X-Bolt-Forward-To",
+                "value": ""
+              },
+              {
+                "name": "X-Bolt-Taas-Id",
+                "value": ""
+              },
+              {
+                "name": "X-Bolt-Forward-Verb",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "X-API-Key",
+              "value": "{{X-API-Key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "The `POST  /v1/tokenizer/proxy` endpoint allows enterprise merchants to **securely authorize transactions with their  preferred payment processors (PSPs)** by proxying requests through Bolt's PCI-compliant infrastructure. This API is part of Bolt's Tokenization-as-a-Service (TaaS) platform, enabling merchants to inject sensitive card data (e.g., PAN, CVV) into PSP-native request formats without directly handling raw card data.\nThe proxy replaces placeholders in the merchant-defined request body "
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Testing",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Create Testing Shopper Account",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://api.boltapp.com/v1/testing/shopper/create",
+            "headers": [
+              {
+                "name": "X-Publishable-Key",
+                "value": ""
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            },
+            "auth": {
+              "type": "apikey",
+              "key": "X-API-Key",
+              "value": "{{X-API-Key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "Create a Bolt shopper account for testing purposes. Available for sandbox use only and the created account will be recycled after a certain time."
+        },
+        {
+          "info": {
+            "name": "Fetch a Test Credit Card Token",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://api.boltapp.com/v1/testing/card_token",
+            "auth": {
+              "type": "apikey",
+              "key": "X-API-Key",
+              "value": "{{X-API-Key}}",
+              "placement": "header"
+            }
+          },
+          "docs": "This endpoint fetches a new credit card token for Bolt's universal test credit card number `4111 1111 1111 1004`. This is for testing and is available only in sandbox."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
