@@ -22,6 +22,17 @@ tags:
 - Company
 - Payments
 - Checkout
+- E-Commerce
+- Fintech
+- Subscription
+- Tokenization
+- Fraud
+- Identity
+- Webhook
+tags_raw:
+- Company
+- Payments
+- Checkout
 - eCommerce
 - Fintech
 - Subscriptions
@@ -41,6 +52,13 @@ apis:
   humanURL: https://help.boltapp.com/api-bolt/
   baseURL: https://api.boltapp.com
   tags:
+  - Payments
+  - Checkout
+  - Transaction
+  - Account
+  - Subscription
+  - Webhook
+  tags_raw:
   - Payments
   - Checkout
   - Transactions
@@ -65,6 +83,11 @@ apis:
   baseURL: https://api.boltapp.com
   tags:
   - Checkout
+  - Account
+  - Transaction
+  - Authentication
+  tags_raw:
+  - Checkout
   - Accounts
   - Transactions
   - OAuth
@@ -85,6 +108,11 @@ apis:
   humanURL: https://help.boltapp.com/api-embedded-v3/
   baseURL: https://api.boltapp.com/v3
   tags:
+  - Checkout
+  - Payments
+  - Order
+  - Account
+  tags_raw:
   - Checkout
   - Payments
   - Orders
