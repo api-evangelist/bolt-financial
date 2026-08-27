@@ -41,115 +41,13 @@ tags_raw:
 - Identity
 - Webhooks
 apis:
-- aid: bolt-financial:bolt-api
-  name: Bolt API
-  description: 'The core Bolt merchant API. Covers Bolt shopper accounts (profile,
-    addresses, payment methods), merchant configuration and callbacks, order token
-    creation, shipment tracking, transaction authorize/capture/refund/review/void/update,
-    subscriptions with dunning settings, merchant statements, sandbox testing helpers
-    and webhook registration. Authenticated with an X-Api-Key header for server-side
-    calls, or OAuth 2.0 authorization-code tokens for shopper-scoped account access.'
-  humanURL: https://help.boltapp.com/api-bolt/
-  baseURL: https://api.boltapp.com
-  tags:
-  - Payments
-  - Checkout
-  - Transaction
-  - Account
-  - Subscription
-  - Webhook
-  tags_raw:
-  - Payments
-  - Checkout
-  - Transactions
-  - Accounts
-  - Subscriptions
-  - Webhooks
-  properties:
-  - type: OpenAPI
-    url: openapi/bolt-financial-bolt-api-openapi.yml
-  - type: Documentation
-    url: https://help.boltapp.com/api-bolt/
-  - type: Overlay
-    url: overlays/bolt-financial-bolt-api-overlay.yaml
-- aid: bolt-financial:embeddable-checkout-v1
-  name: Bolt Embeddable Checkout v1 API
-  description: 'The Embeddable Checkout v1 API used by merchants building their own
-    checkout UI on top of Bolt. Exposes shopper account lookup and management, address
-    and payment-method operations, OAuth token exchange, transaction authorize/capture/refund/void,
-    tokenizer proxying and sandbox testing helpers. Bolt documents v1 as the default
-    for custom checkout UI.'
-  humanURL: https://help.boltapp.com/api-embedded/
-  baseURL: https://api.boltapp.com
-  tags:
-  - Checkout
-  - Account
-  - Transaction
-  - Authentication
-  tags_raw:
-  - Checkout
-  - Accounts
-  - Transactions
-  - OAuth
-  properties:
-  - type: OpenAPI
-    url: openapi/bolt-financial-embeddable-checkout-v1-openapi.yml
-  - type: Documentation
-    url: https://help.boltapp.com/api-embedded/
-  - type: Overlay
-    url: overlays/bolt-financial-embeddable-checkout-v1-overlay.yaml
-- aid: bolt-financial:embeddable-checkout-v3
-  name: Bolt Embeddable Checkout v3 API
-  description: 'The v3 generation of the Bolt Embeddable Checkout API, served under
-    a /v3 path with a templated environment server variable. Reorganises the surface
-    around Accounts, Payments (including guest payments), Orders, OAuth, merchant
-    Callbacks, Testing and Events. Bolt gates v3 behind explicit enablement and directs
-    most integrations to v1.'
-  humanURL: https://help.boltapp.com/api-embedded-v3/
-  baseURL: https://api.boltapp.com/v3
-  tags:
-  - Checkout
-  - Payments
-  - Order
-  - Account
-  tags_raw:
-  - Checkout
-  - Payments
-  - Orders
-  - Accounts
-  properties:
-  - type: OpenAPI
-    url: openapi/bolt-financial-embeddable-checkout-v3-openapi.yml
-  - type: Documentation
-    url: https://help.boltapp.com/api-embedded-v3/
-  - type: Overlay
-    url: overlays/bolt-financial-embeddable-checkout-v3-overlay.yaml
-- aid: bolt-financial:tokenizer
-  name: Bolt Tokenizer API
-  description: 'The Bolt Tokenizer endpoint, hosted on the separate bolttk.com domain
-    so raw card data never touches the merchant server. Publishes an RSA public key
-    for client-side encryption and exchanges an encrypted card payload for a Bolt
-    payment token that can be used with the transaction APIs.'
-  humanURL: https://help.boltapp.com/api-tokenizer/
-  baseURL: https://production.bolttk.com
-  tags:
-  - Tokenization
-  - Payments
-  - Security
-  properties:
-  - type: OpenAPI
-    url: openapi/bolt-financial-tokenizer-openapi.yml
-  - type: Documentation
-    url: https://help.boltapp.com/api-tokenizer/
-  - type: Overlay
-    url: overlays/bolt-financial-tokenizer-overlay.yaml
 - aid: bolt-financial:mcp
   name: Bolt MCP Servers
-  description: 'Bolt exposes two Model Context Protocol surfaces: a hosted documentation
-    MCP server advertised at help.boltapp.com/mcp with search_docs, get_doc_page and
-    list_doc_sections tools, and a Speakeasy-generated API MCP server (boltcheckout)
-    published as source in the BoltApp GitHub organization with 22 tools bound to
-    Bolt API operations.'
+  description: >-
+    Bolt exposes two Model Context Protocol surfaces: a hosted documentation MCP server advertised at
+    help.boltapp.com/mcp with search_docs, get_doc_page and list_doc_sections tools, and a Speakeasy-generated
+    API MCP server (boltcheckout) published as source in the BoltApp GitHub organization with 22 tools
+    bound to Bolt API operations.
   humanURL: https://help.boltapp.com/ai-agents/mcp-server
   baseURL: https://help.boltapp.com/mcp
   tags:
@@ -162,12 +60,270 @@ apis:
     url: mcp/bolt-financial-tool-crosswalk.yml
   - type: Documentation
     url: https://help.boltapp.com/ai-agents/mcp-server
+- aid: bolt-financial:bolt-financial-account-api
+  name: Bolt Financial Account API
+  description: >-
+    Use the Account endpoint to view and manage customer accounts. Perform actions such as creating an
+    account, updating an address, or adding a payment method. This endpoint is for merchants using the
+    Accounts Package. See our related guide on [Bolt OAuth](https://help.boltapp.com/developers/bolt-oauth/).
+  humanURL: https://help.boltapp.com/api-bolt/
+  baseURL: https://api.boltapp.com
+  tags:
+  - Account
+  properties:
+  - type: OpenAPI
+    url: openapi/bolt-financial-account-api-openapi.yml
+  - type: Documentation
+    url: https://help.boltapp.com/api-bolt/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded-v3/
+  - type: Documentation
+    url: https://help.boltapp.com/api-tokenizer/
+- aid: bolt-financial:bolt-financial-callbacks-api
+  name: Bolt Financial Callbacks API
+  description: >-
+    Implement Callback endpoints on your servers to power Bolt experiences. Different Bolt packages require
+    different callbacks to be implemented. Consult your relevant product documentation for a list of required
+    callbacks.
+  humanURL: https://help.boltapp.com/api-bolt/
+  baseURL: https://api.boltapp.com
+  tags:
+  - Callbacks
+  properties:
+  - type: OpenAPI
+    url: openapi/bolt-financial-callbacks-api-openapi.yml
+  - type: Documentation
+    url: https://help.boltapp.com/api-bolt/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded-v3/
+  - type: Documentation
+    url: https://help.boltapp.com/api-tokenizer/
+- aid: bolt-financial:bolt-financial-configuration-api
+  name: Bolt Financial Configuration API
+  description: >-
+    Use this resource to retrieve and set Merchant Callback URLs. Bolt uses these URLs to exchange information
+    with your commerce server. See our related guide [About the Merchant Callback API](https://help.boltapp.com/products/checkout/how-to-integrate/merchant-api-new/).
+  humanURL: https://help.boltapp.com/api-bolt/
+  baseURL: https://api.boltapp.com
+  tags:
+  - Configuration
+  properties:
+  - type: OpenAPI
+    url: openapi/bolt-financial-configuration-api-openapi.yml
+  - type: Documentation
+    url: https://help.boltapp.com/api-bolt/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded-v3/
+  - type: Documentation
+    url: https://help.boltapp.com/api-tokenizer/
+- aid: bolt-financial:bolt-financial-oauth-api
+  name: Bolt Financial O Auth API
+  description: >-
+    Use this endpoint to retrieve an OAuth token. Use the token to allow your ecommerce server to make
+    calls to the Account endpoint and create a one-click checkout experience for shoppers. See related
+    guide [Fetch OAuth Token](https://help.boltapp.com/products/ignite/api-implementation/endpoints/oauth-guide/).
+  humanURL: https://help.boltapp.com/api-bolt/
+  baseURL: https://api.boltapp.com
+  tags:
+  - OAuth
+  properties:
+  - type: OpenAPI
+    url: openapi/bolt-financial-oauth-api-openapi.yml
+  - type: Documentation
+    url: https://help.boltapp.com/api-bolt/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded-v3/
+  - type: Documentation
+    url: https://help.boltapp.com/api-tokenizer/
+- aid: bolt-financial:bolt-financial-orders-api
+  name: Bolt Financial Orders API
+  description: >-
+    Use the Orders API to interact with the customer's cart throughout the checkout process. Pre-checkout,
+    perform actions such as validating inventory, verifying discounts, and calculating taxes. Post-checkout,
+    share shipping information so your customer can track their order. You'll interact with the [Merchant
+    API](https://help.boltapp.com/api-merchant/) to keep the servers in sync with any changes the customer
+    makes to their cart. See our related guide [Create a Bolt Order Token](https://help.boltapp.com/products/checkout/how-to-integrate/create-bolt-order-token-new/).
+  humanURL: https://help.boltapp.com/api-bolt/
+  baseURL: https://api.boltapp.com
+  tags:
+  - Orders
+  properties:
+  - type: OpenAPI
+    url: openapi/bolt-financial-orders-api-openapi.yml
+  - type: Documentation
+    url: https://help.boltapp.com/api-bolt/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded-v3/
+  - type: Documentation
+    url: https://help.boltapp.com/api-tokenizer/
+- aid: bolt-financial:bolt-financial-payments-api
+  name: Bolt Financial Payments API
+  description: Use the Payments API to process credit card and alternative payment methods with Bolt.
+  humanURL: https://help.boltapp.com/api-bolt/
+  baseURL: https://api.boltapp.com
+  tags:
+  - Payments
+  properties:
+  - type: OpenAPI
+    url: openapi/bolt-financial-payments-api-openapi.yml
+  - type: Documentation
+    url: https://help.boltapp.com/api-bolt/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded-v3/
+  - type: Documentation
+    url: https://help.boltapp.com/api-tokenizer/
+- aid: bolt-financial:bolt-financial-statements-api
+  name: Bolt Financial Statements API
+  description: >-
+    [Statements](/merchants/references/financials/statements/) are available in the Merchant Dashboard
+    for merchants who use Bolt Payments as their processor. Merchants using other processors do not receive
+    these statements.
+  humanURL: https://help.boltapp.com/api-bolt/
+  baseURL: https://api.boltapp.com
+  tags:
+  - Statements
+  properties:
+  - type: OpenAPI
+    url: openapi/bolt-financial-statements-api-openapi.yml
+  - type: Documentation
+    url: https://help.boltapp.com/api-bolt/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded-v3/
+  - type: Documentation
+    url: https://help.boltapp.com/api-tokenizer/
+- aid: bolt-financial:bolt-financial-subscriptions-api
+  name: Bolt Financial Subscriptions API
+  description: >-
+    Use the Subscriptions endpoint to manage merchant-side recurring subscriptions created through Bolt
+    Charge: list and retrieve subscriptions, cancel or pause/unpause them, view generated orders, and
+    configure dunning (failed payment recovery) settings for a division.
+  humanURL: https://help.boltapp.com/api-bolt/
+  baseURL: https://api.boltapp.com
+  tags:
+  - Subscriptions
+  properties:
+  - type: OpenAPI
+    url: openapi/bolt-financial-subscriptions-api-openapi.yml
+  - type: Documentation
+    url: https://help.boltapp.com/api-bolt/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded-v3/
+  - type: Documentation
+    url: https://help.boltapp.com/api-tokenizer/
+- aid: bolt-financial:bolt-financial-testing-api
+  name: Bolt Financial Testing API
+  description: >-
+    The testing endpoint allows you to test various functionality within Bolt. Create a test credit card
+    to process a test payment in your store. You can also simulate tracking an order’s shipment and programmatically
+    create customer accounts to use as dummy data. See our related guide on [Testing](https://help.boltapp.com/developers/production-readiness-guides/test-cards/).
+  humanURL: https://help.boltapp.com/api-bolt/
+  baseURL: https://api.boltapp.com
+  tags:
+  - Testing
+  properties:
+  - type: OpenAPI
+    url: openapi/bolt-financial-testing-api-openapi.yml
+  - type: Documentation
+    url: https://help.boltapp.com/api-bolt/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded-v3/
+  - type: Documentation
+    url: https://help.boltapp.com/api-tokenizer/
+- aid: bolt-financial:bolt-financial-tokenizer-api
+  name: Bolt Financial Tokenizer API
+  description: The Tokenizer API from Bolt Financial — 2 operation(s) for tokenizer.
+  humanURL: https://help.boltapp.com/api-bolt/
+  baseURL: https://api.boltapp.com
+  tags:
+  - Tokenizer
+  properties:
+  - type: OpenAPI
+    url: openapi/bolt-financial-tokenizer-api-openapi.yml
+  - type: Documentation
+    url: https://help.boltapp.com/api-bolt/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded-v3/
+  - type: Documentation
+    url: https://help.boltapp.com/api-tokenizer/
+- aid: bolt-financial:bolt-financial-transactions-api
+  name: Bolt Financial Transactions API
+  description: >-
+    Use the Transactions endpoint to authorize payments when the shopper checks out and handle post authorization
+    actions such as captures and refunds. You can use a shopper's existing saved payment information or
+    tokenize new payment information with the [Bolt Tokenizer](https://help.boltapp.com/api-tokenizer/).
+    Bolt Authorize Transaction types fall into one of three categories: a logged-in shopper checking out
+    with a saved payment method, any type of shopper checking out with a new payment method, and a logged-in
+    shopper checking out with a new payment method. The new payment method will be saved to the shopper's
+    account.
+  humanURL: https://help.boltapp.com/api-bolt/
+  baseURL: https://api.boltapp.com
+  tags:
+  - Transactions
+  properties:
+  - type: OpenAPI
+    url: openapi/bolt-financial-transactions-api-openapi.yml
+  - type: Documentation
+    url: https://help.boltapp.com/api-bolt/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded-v3/
+  - type: Documentation
+    url: https://help.boltapp.com/api-tokenizer/
+- aid: bolt-financial:bolt-financial-webhooks-api
+  name: Bolt Financial Webhooks API
+  description: >-
+    Set up webhooks to notify your backend of events within Bolt. These webhooks can communicate with
+    your OMS or other systems to keep them up to date with Bolt. See our related guide on [Webhooks](https://help.boltapp.com/get-started/during-checkout/webhooks/).
+  humanURL: https://help.boltapp.com/api-bolt/
+  baseURL: https://api.boltapp.com
+  tags:
+  - Webhooks
+  properties:
+  - type: OpenAPI
+    url: openapi/bolt-financial-webhooks-api-openapi.yml
+  - type: Documentation
+    url: https://help.boltapp.com/api-bolt/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded-v3/
+  - type: Documentation
+    url: https://help.boltapp.com/api-tokenizer/
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Overlay
+  url: overlays/bolt-financial-bolt-api-overlay.yaml
+- type: Overlay
+  url: overlays/bolt-financial-embeddable-checkout-v1-overlay.yaml
+- type: Overlay
+  url: overlays/bolt-financial-embeddable-checkout-v3-overlay.yaml
+- type: Overlay
+  url: overlays/bolt-financial-tokenizer-overlay.yaml
 - type: DomainSecurity
   url: security/bolt-financial-domain-security.yml
 - type: Website
