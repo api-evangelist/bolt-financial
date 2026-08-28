@@ -11,6 +11,18 @@ description: 'Bolt Financial, Inc. is an American commerce technology company th
   ships first-party SDKs for TypeScript, Python, C#, Go, PHP, iOS/Swift, Android/Kotlin,
   React Native, Unity and Unreal, and maintains an explicit agent-facing surface: an
   llms.txt index, a hosted documentation MCP server and two published agent skills.'
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: true
+  label: Hosted service · you call their endpoint
+  confidence: high
+  source:
+  - openapi
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 image: https://kinlane-productions2.s3.amazonaws.com/api-evangelist-site/company-images/bolt-financial.png
 url: https://raw.githubusercontent.com/api-evangelist/bolt-financial/refs/heads/main/apis.yml
 x-type: company
