@@ -1,0 +1,4568 @@
+openapi: 3.2.0
+info:
+  title: Bolt Financial Transactions API
+  version: 1.0.1
+  description: 'Operations tagged Transactions across 2 of this provider''s published API definitions: bolt-financial-bolt-api-openapi.yml, bolt-financial-embeddable-checkout-v1-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.boltapp.com
+  description: The Production URL (Live Data).
+- url: https://api-sandbox.boltapp.com
+  description: The Sandbox URL (Test Data).
+- url: https://api-staging.boltapp.com
+  description: The Staging URL (Staged Data).
+security:
+- X-API-Key: []
+- OAuth:
+  - bolt.account.manage
+  - bolt.account.view
+tags:
+- name: Transactions
+  description: 'Use the Transactions endpoint to authorize payments when the shopper checks out and handle post authorization actions such as captures and refunds. You can use a shopper''s existing saved payment information or tokenize new payment information with the [Bolt Tokenizer](https://help.boltapp.com/api-tokenizer/). Bolt Authorize Transaction types fall into one of three categories: a logged-in shopper checking out with a saved payment method, any type of shopper checking out with a new payment method, and a logged-in shopper checking out with a new payment method. The new payment method will be saved to the shopper''s account.
+
+    '
+paths:
+  /v1/merchant/transactions/authorize:
+    post:
+      description: 'This endpoint authorizes card payments and has three main use cases:
+
+        * • Authorize a payment using an unsaved payment method for a guest or logged-in shopper.
+
+        * • Authorize a payment using a saved payment method for a logged-in shopper.
+
+        *  • Re-charge a previous transaction using the `credit_card_id` of the transaction.
+
+        '
+      operationId: authorizeTransaction
+      parameters:
+      - $ref: '#/components/parameters/x-publishable-key'
+      - $ref: '#/components/parameters/idempotency_key'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: '#/components/schemas/merchant_credit_card_authorization'
+              - $ref: '#/components/schemas/merchant_credit_card_authorization_recharge'
+        description: '**Authorize a Transaction**
+
+          * • `merchant_credit_card_authorization`: For authorizing with a new, unsaved card. This can be for a guest checkout flow, one-time payment, or an existing Bolt shopper.
+
+          * • `merchant_credit_card_authorization_recharge`: For authorizing a card using a shoppers saved payment methods.
+
+          * • **Anytime the shopper is paying while logged-in attach their OAuth `access_token` to the request.**
+
+          '
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/i_authorize_result_view'
+          description: Authorization Successful
+      security:
+      - OAuth: []
+        X-API-Key: []
+      summary: Authorize a Card
+      tags:
+      - Transactions
+    servers:
+    - url: https://api.boltapp.com
+      description: The Production URL (Live Data).
+    - url: https://api-sandbox.boltapp.com
+      description: The Sandbox URL (Test Data).
+    - url: https://api-staging.boltapp.com
+      description: The Staging URL (Staged Data).
+  /v1/merchant/transactions/capture:
+    post:
+      description: 'This captures funds for the designated transaction. A capture can be done for any partial amount or for the total authorized amount.
+
+
+        Although the response returns the standard `transaction_view` object, only `captures` and either `id` or `reference` are needed.
+
+        '
+      operationId: captureTransaction
+      parameters:
+      - $ref: '#/components/parameters/idempotency_key'
+      requestBody:
+        $ref: '#/components/requestBodies/capture_transaction'
+        description: Capture a Transaction
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/transaction_view'
+          description: Capture Successful
+        '403':
+          $ref: '#/components/responses/transaction_capture_error_403'
+        '404':
+          $ref: '#/components/responses/transaction_capture_error_404'
+        '422':
+          content:
+            application/json:
+              schema:
+                properties:
+                  errors:
+                    items:
+                      properties:
+                        code:
+                          example: 1000001
+                          type: number
+                        field:
+                          example: transaction_id
+                          type: string
+                        message:
+                          example: '`TA8hLkJh4db4JJ` must be a valid public id of type transaction'
+                          type: string
+                      type: object
+                    type: array
+                  result:
+                    type: object
+                type: object
+          description: Unprocessable Entity
+      security:
+      - X-API-Key: []
+      summary: Capture a Transaction
+      tags:
+      - Transactions
+    servers:
+    - url: https://api.boltapp.com
+      description: The Production URL (Live Data).
+    - url: https://api-sandbox.boltapp.com
+      description: The Sandbox URL (Test Data).
+    - url: https://api-staging.boltapp.com
+      description: The Staging URL (Staged Data).
+  /v1/merchant/transactions/credit:
+    post:
+      description: This refunds a captured transaction. Refunds can be done for any partial amount or for the total authorized amount. These refunds are processed synchronously and return information about the refunded transaction in the standard `transaction_view` object.
+      operationId: refundTransaction
+      parameters:
+      - $ref: '#/components/parameters/idempotency_key'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/transaction_credit'
+        description: Refund a Transaction
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/transaction_view'
+          description: Refund Successful
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors_bolt_api_response'
+          description: Generic Error Schema
+      security:
+      - X-API-Key: []
+      summary: Refund a Transaction
+      tags:
+      - Transactions
+    servers:
+    - url: https://api.boltapp.com
+      description: The Production URL (Live Data).
+    - url: https://api-sandbox.boltapp.com
+      description: The Sandbox URL (Test Data).
+    - url: https://api-staging.boltapp.com
+      description: The Staging URL (Staged Data).
+  /v1/merchant/transactions/review:
+    post:
+      description: This endpoint is used to manually approve or reject orders for a specified transaction.
+      operationId: reviewTransaction
+      parameters:
+      - $ref: '#/components/parameters/idempotency_key'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/merchant_credit_card_review'
+        description: Review a Transaction
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/transaction_details_view'
+          description: Transaction Details Received
+        '403':
+          $ref: '#/components/responses/transaction_review_error_403'
+        '404':
+          $ref: '#/components/responses/transaction_review_error_404'
+        '422':
+          $ref: '#/components/responses/transaction_review_error_422'
+      security:
+      - X-API-Key: []
+      summary: Review Transaction
+      tags:
+      - Transactions
+    servers:
+    - url: https://api.boltapp.com
+      description: The Production URL (Live Data).
+    - url: https://api-sandbox.boltapp.com
+      description: The Sandbox URL (Test Data).
+    - url: https://api-staging.boltapp.com
+      description: The Staging URL (Staged Data).
+  /v1/merchant/transactions/void:
+    post:
+      description: 'This voids the authorization for a given transaction. Voids must be completed before the authorization is captured.
+
+        In the request, either `transaction_id` or `transaction_reference` is required.
+
+        Although the response returns the standard `transaction_view` object, only `status` and either `id` or `reference` are needed.
+
+        '
+      operationId: voidTransaction
+      parameters:
+      - $ref: '#/components/parameters/idempotency_key'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/credit_card_void'
+        description: Void a Transaction
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/transaction_view'
+          description: Void Successful
+        '403':
+          $ref: '#/components/responses/transaction_void_error_403'
+        '404':
+          $ref: '#/components/responses/transaction_void_error_404'
+      security:
+      - X-API-Key: []
+      summary: Void a Transaction
+      tags:
+      - Transactions
+    servers:
+    - url: https://api.boltapp.com
+      description: The Production URL (Live Data).
+    - url: https://api-sandbox.boltapp.com
+      description: The Sandbox URL (Test Data).
+    - url: https://api-staging.boltapp.com
+      description: The Staging URL (Staged Data).
+  /v1/merchant/transactions/{REFERENCE}:
+    get:
+      description: "This allows you to pull the full transaction details for a given transaction.\n\n **Note**: All objects and fields marked `required` in the Transaction Details response are also **nullable**. This includes any sub-components (objects or fields) also marked `required`.\n"
+      operationId: getTransactionDetails
+      parameters:
+      - $ref: '#/components/parameters/transaction_reference_path_param'
+      responses:
+        '200':
+          $ref: '#/components/responses/transaction_details'
+        '403':
+          $ref: '#/components/responses/transaction_details_error_403'
+        '422':
+          $ref: '#/components/responses/transaction_details_error_422'
+      security:
+      - X-API-Key: []
+      summary: Transaction Details
+      tags:
+      - Transactions
+    patch:
+      description: This allows you to update certain transaction properties post-authorization.
+      operationId: updateTransaction
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/transaction_update_input'
+              description: Update a Transaction
+      parameters:
+      - $ref: '#/components/parameters/transaction_reference_path_param'
+      - $ref: '#/components/parameters/idempotency_key'
+      responses:
+        '200':
+          $ref: '#/components/responses/transaction_details'
+        '403':
+          $ref: '#/components/responses/transaction_details_error_403'
+        '404':
+          $ref: '#/components/responses/transaction_details_error_404'
+      security:
+      - X-API-Key: []
+      summary: Update a Transaction
+      tags:
+      - Transactions
+    servers:
+    - url: https://api.boltapp.com
+      description: The Production URL (Live Data).
+    - url: https://api-sandbox.boltapp.com
+      description: The Sandbox URL (Test Data).
+    - url: https://api-staging.boltapp.com
+      description: The Staging URL (Staged Data).
+  /v1/tokenizer/proxy:
+    post:
+      summary: Authorize a Card using TaaS
+      description: 'The `POST  /v1/tokenizer/proxy` endpoint allows enterprise merchants to **securely authorize transactions with their  preferred payment processors (PSPs)** by proxying requests through Bolt''s PCI-compliant infrastructure. This API is part of Bolt''s Tokenization-as-a-Service (TaaS) platform, enabling merchants to inject sensitive card data (e.g., PAN, CVV) into PSP-native request formats without directly handling raw card data.
+
+        The proxy replaces placeholders in the merchant-defined request body with actual card data retrieved securely using the provided `x-bolt-taas-id`, and forwards the complete request to the specified `x-bolt-forward-to` URL using the HTTP method specified in `x-bolt-forward-verb`.
+
+        '
+      operationId: proxyTransaction
+      tags:
+      - Transactions
+      security:
+      - X-API-Key: []
+      parameters:
+      - $ref: '#/components/parameters/x-bolt-forward-to'
+      - $ref: '#/components/parameters/x-bolt-taas-id'
+      - $ref: '#/components/parameters/x-bolt-forward-verb'
+      requestBody:
+        description: "Use this API to proxy an authorization request to a third-party PSP endpoint using Bolt's secure infrastructure.\n\n  - Replace raw card fields (e.g., card[number]) with placeholders like `{{tk:cc}}`, `{{tk:cvv}}`, `{{tk:exp_month}}`, etc.\n  - The placeholders will be securely replaced by Bolt using the identifier from `x-bolt-taas-id`.\n  - The `x-bolt-forward-to` header must point to a whitelisted PSP URL.\n  - The `x-bolt-forward-verb` header specifies the HTTP method (POST, PUT, or PATCH) for the PSP request.\n\n**Never submit raw PAN, CVV, or expiration directly. Use placeholders.**\nSupported placeholders:\n  - `{{tk:cc}}` – Full card number  \n  - `{{tk:cvv}}` – Card CVV  \n  - `{{tk:exp_month}}` – Expiration month  \n  - `{{tk:exp_year}}` – Expiration year\n"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+            example:
+              type: card
+              card:
+                number: '{{tk:cc}}'
+                exp_month: '{{tk:exp_month}}'
+                exp_year: '{{tk:exp_year}}'
+                cvc: '{{tk:cvv}}'
+              billing_details:
+                name: Jane Doe
+                address:
+                  postal_code: '94107'
+      responses:
+        '200':
+          description: Successful proxy to the PSP. Returns the PSP's response along with a unique proxy operation ID for tracking.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                    description: HTTP status code returned by the PSP
+                    example: 200
+                  body:
+                    type: string
+                    description: Response body from the PSP (JSON string)
+                    example: '{"id":"pm_1NQzWT2eZvKYlo2C","object":"payment_method","type":"card","card":{"last4":"4242","brand":"visa","exp_month":12,"exp_year":2026}}'
+                  header:
+                    type: object
+                    description: Response headers from the PSP
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+                    example:
+                      Content-Type:
+                      - application/json
+                  proxy_operation_id:
+                    type: string
+                    description: Unique identifier for this proxy operation
+                    example: PROXY-ABC123-DEF456-GHI789
+              example:
+                status_code: 200
+                body: '{"id":"pm_1NQzWT2eZvKYlo2C","object":"payment_method","type":"card","card":{"last4":"4242","brand":"visa","exp_month":12,"exp_year":2026}}'
+                header:
+                  Content-Type:
+                  - application/json
+                proxy_operation_id: PROXY-ABC123-DEF456-GHI789
+        '400':
+          description: Missing required headers or invalid request body
+          content:
+            application/json:
+              example:
+                error: Missing required headers (x-bolt-forward-to, x-bolt-taas-id, x-bolt-forward-verb) or invalid JSON body
+        '401':
+          description: Unauthorized - missing or invalid merchant API key
+          content:
+            application/json:
+              example:
+                error: Invalid or missing merchant API key
+        '422':
+          description: Invalid TaaS ID or credit card/token not found
+          content:
+            application/json:
+              example:
+                error: Invalid x-bolt-taas-id. Credit card not found or expired.
+        '502':
+          description: Upstream PSP error during proxy forwarding
+          content:
+            application/json:
+              example:
+                error: Stripe returned 402 - Card declined
+    servers:
+    - url: https://api.boltapp.com
+      description: The Production URL (Live Data).
+    - url: https://api-sandbox.boltapp.com
+      description: The Sandbox URL (Test Data).
+    - url: https://api-staging.boltapp.com
+      description: The Staging URL (Staged Data).
+components:
+  schemas:
+    cost:
+      description: The cost in cents.
+      example: 770
+      type: integer
+    processing_initiator:
+      description: Defines which payment method was used to initiate the transaction.
+      enum:
+      - initial_card_on_file
+      - initial_recurring
+      - stored_cardholder_initiated
+      - stored_merchant_initiated
+      - following_recurring
+      - cardholder_initiated
+      - recurring
+      example: stored_cardholder_initiated
+      type: string
+    merchant_status:
+      description: "The merchant's status:\n  * `1` - Active\n  * `2` - Inactive\n  * `3` - Offboarding\n"
+      enum:
+      - 1
+      - 2
+      - 3
+      type: integer
+    merchant_product_id:
+      description: The merchant's unique ID for the product.
+      example: '881'
+      type: string
+    merchant_order_number:
+      description: The merchant's internal order number for this transaction.
+      example: O-1234567
+      type: string
+    chargeback_representment_result:
+      description: The result of the chargeback representment.
+      enum:
+      - none
+      - open
+      - lost
+      - won
+      example: won
+      type: string
+    depth:
+      description: The depth.
+      example: 90
+      type: integer
+    authorization_id:
+      description: The authorization's id.
+      example: T1c3p4yBuVYJ9
+      type: string
+    cart_shipment:
+      description: A cart that is being prepared for shipment
+      properties:
+        carrier:
+          $ref: '#/components/schemas/carrier'
+        cost:
+          $ref: '#/components/schemas/cost'
+        discounted_by_membership:
+          $ref: '#/components/schemas/discount_membership'
+        estimated_delivery_date:
+          $ref: '#/components/schemas/estimated_delivery_date'
+        expedited:
+          $ref: '#/components/schemas/expedited'
+        package_depth:
+          $ref: '#/components/schemas/depth'
+        package_dimension_unit:
+          $ref: '#/components/schemas/dimension_unit'
+        package_height:
+          $ref: '#/components/schemas/height'
+        package_type:
+          $ref: '#/components/schemas/package_type'
+        package_weight_unit:
+          $ref: '#/components/schemas/weight_unit'
+        package_width:
+          $ref: '#/components/schemas/width'
+        service:
+          $ref: '#/components/schemas/service'
+        shipping_address:
+          $ref: '#/components/schemas/address'
+        shipping_address_id:
+          $ref: '#/components/schemas/shipping_address_id'
+        shipping_method:
+          $ref: '#/components/schemas/shipping_method'
+        signature:
+          $ref: '#/components/schemas/signature'
+        tax_amount:
+          $ref: '#/components/schemas/tax_amount'
+        tax_code:
+          $ref: '#/components/schemas/tax_code'
+        total_weight:
+          description: The total weight.
+          example: 55
+          type: integer
+        total_weight_unit:
+          $ref: '#/components/schemas/weight_unit'
+        type:
+          $ref: '#/components/schemas/cart_shipment_type'
+      type: object
+    transaction_timeline_view:
+      properties:
+        address_change:
+          $ref: '#/components/schemas/address_change_view'
+        amount:
+          $ref: '#/components/schemas/amount_view'
+        consumer:
+          $ref: '#/components/schemas/consumer_summary_view'
+        date:
+          type: number
+        note:
+          type: string
+        review:
+          $ref: '#/components/schemas/transaction_review_view'
+        transaction:
+          $ref: '#/components/schemas/transaction_view'
+        type:
+          enum:
+          - completed
+          - authorized
+          - review
+          - note
+          - voided
+          - captured
+          - credited
+          - address_change
+          type: string
+        visibility:
+          type: string
+      type: object
+    transaction_details_view:
+      allOf:
+      - $ref: '#/components/schemas/transaction_view'
+      - properties:
+          address_change_request_metadata:
+            $ref: '#/components/schemas/address_change_request_metadata_view'
+          adjust_transactions:
+            items:
+              $ref: '#/components/schemas/transaction_view'
+            type: array
+          auth_verification_status:
+            enum:
+            - ''
+            - new
+            example: new
+            type: string
+          authorization_id:
+            type: string
+          chargeback_details:
+            $ref: '#/components/schemas/chargeback_details_view'
+          custom_fields:
+            items:
+              $ref: '#/components/schemas/custom_field_full_response_view'
+            type: array
+          customer_list_status:
+            $ref: '#/components/schemas/customer_list_status'
+          manual_disputes:
+            items:
+              $ref: '#/components/schemas/manual_dispute_view'
+            type: array
+          order:
+            $ref: '#/components/schemas/order_view'
+          refund_transaction_ids:
+            items:
+              type: string
+            type: array
+          refund_transactions:
+            $ref: '#/components/schemas/refund_transactions_view'
+          refunded_amount:
+            $ref: '#/components/schemas/amount_view'
+          source_transaction:
+            $ref: '#/components/schemas/transaction_view'
+          timeline:
+            items:
+              $ref: '#/components/schemas/transaction_timeline_view'
+            type: array
+          transaction_rejection_details:
+            properties:
+              auth_rejection_details:
+                $ref: '#/components/schemas/auth_rejection_details_view'
+            type: object
+          void_cause:
+            description: Determines why the transaction was voided.
+            enum:
+            - merchant_action
+            - shopify_sync
+            - paypal_sync
+            - amazon_pay_sync
+            - irreversible_reject
+            - auth_expire
+            - auth_verification_expired
+            - payment_method_updater
+            example: irreversible_reject
+            type: string
+        type: object
+    merchant_oauth_logout_url:
+      description: The endpoint URL provided by the merchant for logging out of OAuth accounts.
+      example: https://example.com/api/v1/oauth_logout
+      type: string
+    postal_code:
+      description: The postal code.
+      example: '11209'
+      type: string
+    cart_discount:
+      properties:
+        amount:
+          example: 100
+          type: number
+        code:
+          example: SUMMER10DISCOUNT
+          maxLength: 1024
+          type: string
+        description:
+          description: Used to define the discount offering.
+          example: 10% off our summer collection
+          maxLength: 1024
+          type: string
+        details_url:
+          description: Used to provide a link to additional details, such as a landing page, associated with the discount offering.
+          example: https://boltswagstore.com/SUMMERSALE
+          maxLength: 8192
+          type: string
+        discount_category:
+          enum:
+          - coupon
+          - giftcard
+          - managed_giftcard
+          - store_credit
+          - automatic_promotion
+          - membership_discount
+          - membership_giftcard
+          - subscription_discount
+          - rewards_discount
+          - shipping_discount
+          - unknown
+          type: string
+        reference:
+          description: Used to define the reference ID associated with the discount available.
+          example: DISC-1234
+          maxLength: 1024
+          type: string
+        type:
+          description: The type of discount.
+          enum:
+          - fixed_amount
+          - percentage
+          - free_shipping
+          example: percentage
+          type: string
+      type: object
+    credit_card_capture_view:
+      properties:
+        amount:
+          $ref: '#/components/schemas/amount_view'
+        id:
+          $ref: '#/components/schemas/capture_id'
+        merchant_event_id:
+          $ref: '#/components/schemas/transaction_merchant_event_id'
+        metadata:
+          additionalProperties:
+            example:
+              key1: value1
+              key2: value2
+            type: string
+          type: object
+        splits:
+          $ref: '#/components/schemas/transaction_splits_view'
+        status:
+          $ref: '#/components/schemas/capture_status'
+      type: object
+    gift_option_view:
+      description: Defines which gift options are hidden.
+      properties:
+        hide_gift_message:
+          example: false
+          type: boolean
+        hide_gift_wrap:
+          example: false
+          type: boolean
+      type: object
+    customer_list_status:
+      properties:
+        auto_approved:
+          type: boolean
+        block_listed:
+          type: boolean
+      type: object
+    first_name:
+      description: The person's first name.
+      example: Charlotte
+      type: string
+    carrier:
+      description: The name of the carrier selected.
+      example: FedEx
+      type: string
+    user_identifier:
+      description: The object containing key lookup IDs associated with the shopper's account, such as the unique email address and phone number.
+      properties:
+        artifact:
+          example: null
+          type: string
+        email:
+          description: The Shopper's email address that is used as a unique ID for the account. This email can be used to detect an account using the `/v1/account/exists` endpoint.
+          $ref: '#/components/schemas/email'
+        email_id:
+          description: The ID associated with the identifying email address for this account.
+          example: null
+          type: string
+        phone:
+          description: The Shopper's phone number that is used to help identify the account owner. This can be passed with the `user_identifier.email` to find and match accounts.
+          $ref: '#/components/schemas/phone'
+        phone_id:
+          description: The ID associated with the identifying phone number for this account.
+          example: null
+          type: string
+      required:
+      - phone
+      type: object
+    cart_loyalty_rewards:
+      properties:
+        amount:
+          description: The reward amount in cents (1/100).
+          format: int64
+          type: number
+        coupon_code:
+          description: The loyalty reward's coupon code.
+          type: string
+        description:
+          description: A description of the loyalty reward that will be shown to the shopper.
+          type: string
+          example: $5 off (100 Points)
+        details:
+          description: Internal-facing metadata for the Loyalty Rewards. Ideal for adding any other identifying information about the reward, including a duplication of the original loyalty reward json response from the loyalty provider as shown in the example provided. If you choose to use this field to hold json, enclose the content in single quotes to force a string value.
+          type: string
+          example: '{"id": 123456, "icon": "fa-dollar", "name": "$15.00 Off", "type": "Coupon", "amount": 100, "duration": "single_use", "cost_text": "150 Points", "description": "Get $15 off your next purchase for 150 points", "discount_type": "fixed_amount", "unrendered_name": "$15.00 Off", "discount_percentage": null, "discount_rate_cents": null, "discount_value_cents": null, "discount_amount_cents": 1500, "unrendered_description": "Get $15 off your next purchase for 150 points", "applies_to_product_type": "ALL"}'
+        points:
+          description: The number of points needed for this reward.
+          format: int64
+          type: number
+        source:
+          description: The loyalty rewards provider.
+          type: string
+        type:
+          description: The type of loyalty reward.
+          type: string
+      type: object
+    phone_country_code:
+      description: A phone number's country code.
+      example: '1'
+      type: string
+    cart_loyalty_rewards_view:
+      properties:
+        amount:
+          $ref: '#/components/schemas/amount_view'
+        coupon_code:
+          type: string
+        description:
+          type: string
+        details:
+          type: string
+        points:
+          format: int64
+          type: integer
+        source:
+          type: string
+        type:
+          type: string
+      type: object
+    chargeback_reason_code:
+      description: Bolt's [standardized reason codes](https://help.boltapp.com/merchants/references/policies/disputes/dispute-codes/).
+      enum:
+      - authorization_failed
+      - cancelled_recurring
+      - cardholder_dispute
+      - currency_error
+      - duplicate
+      - fraud_general
+      - fraud_no_authorization
+      - incorrect_amount
+      - late_presentment
+      - processing_error
+      - processor_general
+      - product_defective
+      - product_not_received
+      - product_returned
+      - request_for_information
+      example: product_not_received
+      type: string
+    card_token:
+      description: The Bolt token associated to the credit card. Required for new, unsaved cards.
+      example: a1B2c3D4e5F6G7H8i9J0k1L2m3N4o5P6Q7r8S9t0
+      type: string
+    consumer_self_view:
+      allOf:
+      - $ref: '#/components/schemas/consumer_summary_view'
+      - properties:
+          authentication:
+            $ref: '#/components/schemas/login_view'
+          email_verified:
+            type: boolean
+          emails:
+            items:
+              $ref: '#/components/schemas/email_view'
+            type: array
+          first_name:
+            type: string
+          id:
+            type: string
+          last_name:
+            type: string
+          phones:
+            items:
+              $ref: '#/components/schemas/phone_view'
+            type: array
+          platform_account_status:
+            enum:
+            - none
+            - linked
+            - unlinked
+            type: string
+        type: object
+    estimated_delivery_date:
+      description: The estimated delivery date.
+      example: 08-30-2022
+      type: string
+    digital_delivery:
+      properties:
+        email:
+          type: string
+        phone:
+          type: string
+      type: object
+    billing_address_id:
+      description: The unique Bolt ID associated with a previously saved billing address. Not applicable to new, unsaved addresses.
+      example: address-1
+      type:
+      - string
+      - 'null'
+    request_status:
+      enum:
+      - reviewed
+      - needs_review
+      - unknown
+      type: string
+    request_id:
+      description: The unique ID for the request ticket.
+      example: 2d34a56
+      type: string
+    transaction_update_input:
+      type: object
+      properties:
+        display_id:
+          description: This field corresponds to the merchant's order reference associated with this Bolt transaction.
+          type: string
+          example: order-123
+        metadata:
+          additionalProperties:
+            type: string
+          description: Custom metadata associated with this Bolt transaction.
+          example:
+            key1: value1
+            key2: value2
+          type: object
+    chargeback_event_view:
+      properties:
+        content:
+          type: string
+        time:
+          type: number
+      type: object
+    region:
+      description: A state, province, or similar region type.
+      example: Quebec
+      type: string
+    i_weight:
+      properties:
+        unit:
+          type: string
+        weight:
+          format: int64
+          type: number
+      type: object
+    merchant_debug_url:
+      description: The endpoint URL provided by the merchant for debugging.
+      example: https://example.com/v1/debug
+      type: string
+    credit_card_authorization_view:
+      properties:
+        auth:
+          type: string
+        avs_response:
+          enum:
+          - '00'
+          - '01'
+          - '02'
+          - '10'
+          - '11'
+          - '12'
+          - '13'
+          - '14'
+          - '20'
+          - '30'
+          - '31'
+          - '32'
+          - '33'
+          - '34'
+          - '40'
+          - adyen_
+          - adyen_A
+          - adyen_N
+          - adyen_U
+          - adyen_S
+          - adyen_R
+          - adyen_W
+          - adyen_T
+          - adyen_Z
+          - adyen_D
+          - adyen_F
+          - adyen_M
+          - adyen_X
+          - adyen_Y
+          - adyen_B
+          - adyen_P
+          - adyen_C
+          - adyen_G
+          - adyen_I
+          - adyen_K
+          type: string
+        cvv_response:
+          enum:
+          - M
+          - N
+          - P
+          - S
+          - U
+          - D
+          - X
+          - Y
+          - '1'
+          - '2'
+          - '3'
+          - pass
+          - fail
+          - unavailable
+          - unchecked
+          - braintree_M
+          - braintree_N
+          - braintree_U
+          - braintree_B
+          - braintree_A
+          - braintree_I
+          - braintree_S
+          - CVV2
+          type: string
+        merchant_event_id:
+          $ref: '#/components/schemas/transaction_merchant_event_id'
+        metadata:
+          additionalProperties:
+            type: string
+          type: object
+        processor:
+          enum:
+          - vantiv
+          - adyen_payfac
+          - adyen_gateway
+          - stripe
+          - braintree
+          - cybersource
+          - nmi
+          - authorize_net
+          - radial
+          - shopify_payments
+          - rocketgate
+          type: string
+        reason:
+          $ref: '#/components/schemas/credit_card_authorization_reason'
+        status:
+          $ref: '#/components/schemas/credit_card_authorization_status'
+      type: object
+    card_status:
+      description: The card's status. **Nullable** for Transactions Details.
+      enum:
+      - active
+      - created
+      - inactive
+      - transient
+      example: active
+      type: string
+    default:
+      example: false
+      type: boolean
+    email_id:
+      description: This is the ID for the email address associated with the shopper.
+      example: '123'
+      type: string
+    merchant_division_domain:
+      description: The URL of the merchant division.
+      example: mystore-staging.boltapp.com
+      type: string
+    phone_view:
+      properties:
+        country_code:
+          description: Used for the 2-digit ISO 3166-1 alpha 2 country code associated with this address.
+          example: US
+          type: string
+        id:
+          type: string
+        number:
+          type: string
+        priority:
+          enum:
+          - primary
+          - listed
+          type: string
+        status:
+          type: string
+      type: object
+    consumer_membership_status:
+      description: True if user has an AllPass membership associated to their Bolt Account. **Nullable** for Transactions Details.
+      enum:
+      - active
+      - cancelled
+      - disabled
+      - free_trial
+      type: string
+    adjust_transactions:
+      description: '**Nullable** for Transactions Details.
+
+        '
+      items:
+        $ref: '#/components/schemas/transaction_view'
+      type: array
+    authorization_verification_status:
+      description: 'Used to track the status of micro-authorizations. **Nullable** for Transactions Details. '
+      enum:
+      - new
+      - verified
+      - failed
+      - expired
+      example: new
+      type: string
+    transaction_status:
+      description: The transaction's status.
+      enum:
+      - in_progress
+      - completed
+      - cancelled
+      - failed
+      - pending
+      - created
+      - authorized
+      - rejected_reversible
+      - rejected_irreversible
+      example: cancelled
+      type: string
+    credit_card:
+      description: The credit_card object is used to to pay for guest-checkout transactions or save payment method details to an account. Once saved, you can reference the credit card with the associated `credit_card_id` for future transactions. Add `billing_address` to this if storing a billing address for a returning shopper.
+      properties:
+        billing_address:
+          $ref: '#/components/schemas/address'
+        bin:
+          description: The Bank Identification Number for the credit card; this is typically the first 4-6 digits of the credit card number.
+          maxLength: 6
+          minLength: 4
+          type: string
+          example: '411111'
+        expiration:
+          description: The expiration date of the credit card.
+          example: 2025-11
+          type: string
+        last4:
+          description: The last 4 digits of the credit card number.
+          example: '1234'
+          maxLength: 4
+          minLength: 4
+          type: string
+        postal_code:
+          description: Used for the postal or zip code associated with the credit card.
+          example: '10044'
+          maxLength: 32
+          type: string
+        priority:
+          description: Used to indicate the card's priority. '1' indicates primary, while '2' indicates a secondary card.
+          enum:
+          - 1
+          - 2
+          type: integer
+        save:
+          description: Determines whether or not the credit card will be saved to the shopper's account. Defaults to `true`.
+          type: boolean
+        token:
+          description: The Bolt token associated to the credit card.
+          example: a1B2c3D4e5F6G7H8i9J0k1L2m3N4o5P6Q7r8S9t0
+          type: string
+        token_type:
+          description: Used to define which payment processor generated the token for this credit card; for those using Bolt's tokenizer, the value must be `bolt`.
+          enum:
+          - bolt
+          example: bolt
+          type: string
+        affirm_vcn_token:
+          description: The checkout token associated with Affirm VCN credit cards.
+          example: a1B2c3D4e5F6G7H8i9J0k1L2m3N4o5P6Q7r8S9t0
+          type:
+          - string
+          - 'null'
+      required:
+      - token
+      - last4
+      - bin
+      - expiration
+      - postal_code
+      - token_type
+      type: object
+    request_result:
+      description: Custom-defined Bolt result object.
+      properties:
+        success:
+          $ref: '#/components/schemas/request_failed'
+      type: object
+    capture_id:
+      description: The unique ID for the capture. **Nullable** for Transactions Details.
+      example: BcDE4fafd2a4
+      type: string
+    chargeback_details:
+      properties:
+        amt_won:
+          $ref: '#/components/schemas/amount_view'
+        chargeback_amt:
+          $ref: '#/components/schemas/amount_view'
+        chargeback_fee:
+          $ref: '#/components/schemas/amount_view'
+        chargeback_id:
+          $ref: '#/components/schemas/chargeback_id'
+        event_views:
+          items:
+            $ref: '#/components/schemas/chargeback_event_view'
+          type: array
+        net_amt:
+          $ref: '#/components/schemas/amount_view'
+        reason:
+          $ref: '#/components/schemas/chargeback_reason'
+        reason_code:
+          $ref: '#/components/schemas/chargeback_reason_code'
+        representment_reply_by_date:
+          $ref: '#/components/schemas/chargeback_representment_reply_by_date'
+        representment_result:
+          $ref: '#/components/schemas/chargeback_representment_result'
+      type: object
+    credit_card_credit_view:
+      allOf:
+      - $ref: '#/components/schemas/credit_card_credit_status'
+      - properties:
+          merchant_event_id:
+            $ref: '#/components/schemas/transaction_merchant_event_id'
+    chargeback_id:
+      description: The unique ID of the chargeback.
+      example: a3ad4d56fd7
+      type: string
+    credit_card_void_cause:
+      description: Specifies why this particular transaction is voided.
+      enum:
+      - merchant_action
+      - paypal_sync
+      - amazon_pay_sync
+      - irreversible_reject
+      - auth_expire
+      - auth_verification_expired
+      - payment_method_updater
+      - null
+      type: string
+    cart_item_property:
+      properties:
+        color:
+          maxLength: 1024
+          type: string
+        display:
+          type: boolean
+        name:
+          maxLength: 1024
+          type: string
+        name_id:
+          format: int64
+          type: number
+        value:
+          maxLength: 1024
+          type: string
+        value_id:
+          format: int64
+          type: number
+      type: object
+    consumer_id:
+      description: The shopper's unique ID.
+      example: b2vghjk2v4c5fgdh3jak
+      type: string
+    door_code:
+      description: The building door code or community gate code.
+      example: '123456'
+      maxLength: 1024
+      type:
+      - string
+      - 'null'
+    login_view:
+      properties:
+        actions:
+          items:
+            enum:
+            - set_password
+            - rotate_password
+            type: string
+          type: array
+        methods:
+          items:
+            enum:
+            - code
+            - code_password
+            - password
+            - rotate_password
+            type: string
+          type: array
+        sso_authorization_url:
+          type: string
+      type: object
+    icon_asset_path:
+      description: The asset link for displayed icons. This link varies depending on payment method used.  **Nullable** for Transactions Details.
+      example: img/issuer-logos/visa.png
+      type: string
+    country:
+      description: The country's name.
+      example: Canada
+      type: string
+    expedited:
+      description: True if shipment is expedited.
+      example: false
+      type: boolean
+    transaction_splits_view:
+      properties:
+        amount:
+          $ref: '#/components/schemas/amount_view'
+        type:
+          enum:
+          - net
+          - processing_fee
+          - float
+          - reserve
+          - adjustment
+          - bolt_fee
+          type: string
+      type: object
+    capture_transaction_with_reference:
+      properties:
+        amount:
+          $ref: '#/components/schemas/amount'
+        currency:
+          $ref: '#/components/schemas/currency_iso'
+        merchant_event_id:
+          $ref: '#/components/schemas/transaction_merchant_event_id'
+        skip_hook_notification:
+          $ref: '#/components/schemas/transaction_skip_hook_notification'
+        transaction_reference:
+          $ref: '#/components/schemas/transaction_reference'
+      required:
+      - transaction_reference
+      - amount
+      - currency
+      type: object
+    cart_item_property_view:
+      properties:
+        color:
+          type: string
+        display:
+          type: boolean
+        name:
+          type: string
+        value:
+          type: string
+      type: object
+    custom_field_view:
+      properties:
+        checkout_step:
+          enum:
+          - SHIPPING_STEP
+          - DELIVERY_STEP
+          - PAYMENT_STEP
+          - ACCOUNT_REGISTRATION_SSO
+          type: string
+        dynamic:
+          type: boolean
+        context:
+          enum:
+          - CHECKOUT
+          - SSO
+          type: string
+        external_id:
+          type: string
+        field_setup:
+          type: string
+        label:
+          type: string
+        position:
+          format: int64
+          type: number
+        public_id:
+          type: string
+        required:
+          type: boolean
+        subscribeToNewsletter:
+          type: boolean
+      type: object
+    review_ticket_view:
+      properties:
+        id:
+          type: string
+        request_deadline:
+          format: int64
+          type: number
+        status:
+          type: string
+      type: object
+    phone_priority:
+      description: This is the priority of the contact method. This field's contents are not displayed in the transaction details view.
+      enum:
+      - primary
+      - listed
+      example: primary
+      type: string
+    cart_item:
+      properties:
+        brand:
+          example: Bolt
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        category:
+          description: Used to define a product category associated with the item.
+          example: bags
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        collections:
+          $ref: '#/components/schemas/collections'
+        color:
+          description: Used to define the color of the item.
+          example: Bolt Blue
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        customizations:
+          items:
+            $ref: '#/components/schemas/cart_item_customization'
+          type: array
+        description:
+          example: Large tote with Bolt logo.
+          type:
+          - string
+          - 'null'
+        details_url:
+          description: Used to provide a link to the item's product page.
+          example: https://boltswagstore.com/products/123456
+          maxLength: 8192
+          type: string
+        external_inputs:
+          $ref: '#/components/schemas/i_cart_item_external_inputs'
+        gift_option:
+          $ref: '#/components/schemas/cart_item_gift_option'
+        image_url:
+          description: Used to provide a link to the image associated with the item.
+          example: https://boltswagstore.com/products/123456/images/1.png
+          maxLength: 8192
+          type: string
+        isbn:
+          description: Used to define the International Standard Book Number associated with the book.
+          example: '9780091347314'
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        item_group:
+          type:
+          - string
+          - 'null'
+        manufacturer:
+          description: Used to define the organization that manufactured the item.
+          example: Bolt Textiles USA
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        merchant_product_id:
+          $ref: '#/components/schemas/merchant_product_id'
+        merchant_variant_id:
+          $ref: '#/components/schemas/merchant_variant_id'
+        msrp:
+          format: int64
+          type:
+          - number
+          - 'null'
+        name:
+          example: Bolt Swag Bag
+          maxLength: 1024
+          minLength: 1
+          type: string
+        options:
+          example: Special Edition
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        properties:
+          items:
+            $ref: '#/components/schemas/cart_item_property'
+          type: array
+        quantity:
+          example: 1
+          format: int64
+          maximum: 15000
+          type: number
+        reference:
+          example: item_100
+          maxLength: 1024
+          type: string
+        shipment:
+          $ref: '#/components/schemas/cart_shipment'
+        shipment_type:
+          enum:
+          - unknown
+          - door_delivery
+          - ship_to_store
+          - in_store_pickup
+          type: string
+        size:
+          description: Used to define the size of the item.
+          example: Large
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        sku:
+          description: Used to define the alpha-numberic Stock Keeping Unit associated with the item as it is mapped to your internal product catalogue.
+          example: BOLT-SKU_100
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        source:
+          type:
+          - string
+          - 'null'
+        seller_id:
+          description: The unique identifier for the seller within the marketplace ecosystem. This field ensures deterministic multi-party payout calculations.
+          example: seller-1234
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        tags:
+          description: Used to define a comma-separated list of tags associated with the item.
+          example: tote, blue, linen, eco-friendly
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        tax_amount:
+          description: The tax amount for the item; this value should scale with the quantity of units selected.
+          example: 0
+          format: int64
+          type:
+          - number
+          - 'null'
+        tax_code:
+          maxLength: 32
+          type:
+          - string
+          - 'null'
+        taxable:
+          type:
+          - boolean
+          - 'null'
+        total_amount:
+          description: The total amount, in cents, of the item including its taxes if applicable.
+          example: 1000
+          format: int64
+          type: number
+        type:
+          enum:
+          - unknown
+          - digital
+          - physical
+          - bundled
+          type: string
+        unit_price:
+          description: The price of one unit of the item; for example, the price of one pack of socks.
+          example: 1000
+          format: int64
+          type: number
+        uom:
+          description: Used to define the unit of measure used to describe the item.
+          example: inches
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        upc:
+          description: Used to define the 12-digit Universal Product Code (a barcode) associated with the item worldwide.
+          example: 0825764603119
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        weight:
+          example: 10
+          format: int64
+          maximum: 10000
+          type:
+          - number
+          - 'null'
+        weight_unit:
+          example: pounds
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+      required:
+      - reference
+      - name
+      - total_amount
+      - unit_price
+      - quantity
+      type: object
+    risk_insights.yml:
+      description: 'Displays fraud decisioning insights based on key factors. This information can either be forwarded via a `risk_insights` transaction webhook type or be polled by sending a `GET` request to Bolt''s [transactions endpoint](/api-bolt/#operation/transaction-details).
+
+        '
+      properties:
+        available:
+          $ref: '#/components/schemas/risk_insight_availability.yml'
+        decision_factors:
+          $ref: '#/components/schemas/risk_decision_factors.yml'
+        fraud_probability:
+          $ref: '#/components/schemas/risk_fraud_probability.yml'
+        payment_instrument_factors:
+          additionalProperties:
+            type: string
+          type: object
+      type: object
+    credit_card_void:
+      properties:
+        merchant_event_id:
+          $ref: '#/components/schemas/transaction_merchant_event_id'
+        skip_hook_notification:
+          $ref: '#/components/schemas/transaction_skip_hook_notification'
+        transaction_reference:
+          $ref: '#/components/schemas/transaction_reference'
+      required:
+      - transaction_reference
+      type: object
+    currency_iso:
+      description: The 3-digit ISO code for the currency. **Nullable** for Transactions Details.
+      example: USD
+      type: string
+    cart_view:
+      description: This is the cart object returned in a successful response.
+      properties:
+        billing_address:
+          $ref: '#/components/schemas/address_view'
+        cart_url:
+          description: Used to provide a link to the cart ID.
+          example: https://boltswagstore.com/orders/123456765432
+          maxLength: 8192
+          type: string
+        currency:
+          $ref: '#/components/schemas/i_currency'
+        discount_amount:
+          $ref: '#/components/schemas/amount_view'
+        discounts:
+          items:
+            $ref: '#/components/schemas/i_cart_discount_view'
+          type: array
+        display_id:
+          example: displayid_100
+          type: string
+        fee_amount:
+          $ref: '#/components/schemas/amount_view'
+        fees:
+          items:
+            $ref: '#/components/schemas/i_cart_item_view'
+          type: array
+        fulfillments:
+          items:
+            $ref: '#/components/schemas/fulfillment_view'
+          type: array
+        in_store_shipments:
+          $ref: '#/components/schemas/in_store_shipment2'
+        items:
+          items:
+            $ref: '#/components/schemas/i_cart_item_view'
+          type: array
+        loyalty_rewards:
+          items:
+            $ref: '#/components/schemas/cart_loyalty_rewards_view'
+          type: array
+        loyalty_rewards_amount:
+          $ref: '#/components/schemas/amount_view'
+        merchant_order_url:
+          type: string
+        metadata:
+          additionalProperties:
+            type: string
+          type: object
+        msrp:
+          $ref: '#/components/schemas/amount_view'
+        order_description:
+          description: Used optionally to pass additional information like order numbers or other IDs as needed.
+          example: 'Order #1234567890'
+          maxLength: 1024
+          type: string
+        order_reference:
+          description: This value is used by Bolt as an external reference to a given order. This reference must be unique per successful transaction.
+          example: order_100
+          type: string
+        shipments:
+          items:
+            $ref: '#/components/schemas/i_cart_shipment_view'
+          type: array
+        shipping_amount:
+          $ref: '#/components/schemas/amount_view'
+        subtotal_amount:
+          $ref: '#/components/schemas/amount_view'
+        tax_amount:
+          $ref: '#/components/schemas/amount_view'
+        total_amount:
+          $ref: '#/components/schemas/amount_view'
+        transaction_reference:
+          description: The 12 digit reference ID associated to a given transaction webhook for an order.
+          example: 6CEA-ZME1-DACE
+          maxLength: 12
+          minLength: 12
+          type: string
+      type: object
+    i_order_dynamic_content:
+      properties:
+        custom_fields:
+          items:
+            $ref: '#/components/schemas/i_custom_field_view'
+          type: array
+        eligible_payment_methods:
+          items:
+            $ref: '#/components/schemas/eligible_payment_method'
+          type: array
+        gift_option_view:
+          $ref: '#/components/schemas/i_gift_option_view'
+        hide_apm:
+          items:
+            enum:
+            - PAYPAL
+            - AFFIRM
+            - AFTERPAY
+            - AMAZONPAY
+            - KLARNA
+            - RADIALPAYPAL
+            - SEZZLE
+            - RADIALKLARNA
+            - CREDOVA
+            - GOOGLEPAY
+            type: string
+          type: array
+        order_notice:
+          type: string
+        payment_notice:
+          type: string
+        shipping_info_notice:
+          type: string
+        shipping_notice:
+          type: string
+      type: object
+    order_decision:
+      description: Decision and score for an order.
+      properties:
+        decision_factors:
+          $ref: '#/components/schemas/risk_decision_factors.yml'
+        score:
+          $ref: '#/components/schemas/order_decision_score'
+      type: object
+    refund_transactions_view:
+      description: '**Nullable** for Transactions Details.
+
+        '
+      items:
+        $ref: '#/components/schemas/transaction_view'
+      type: array
+    merchant_shopper_custom_fields_updated_url:
+      description: The endpoint URL provided by the merchant to be notified whenever shopper respond to the custom fields for creating merchant platform account.
+      example: https://example.com/api/v1/shopper_custom_fields_updated
+      type: string
+    message:
+      description: Human-readable description of the error for developers. Should not be shown to users and is not localized.
+      example: The input is missing a required parameter.
+      type: string
+    base_cart:
+      description: The base_cart object contains the core details typically found in most cart objects, including items, discounts, amount totals, shipments, and in-store pickups.
+      properties:
+        add_ons:
+          items:
+            $ref: '#/components/schemas/cart_add_on'
+          type: array
+        billing_address:
+          $ref: '#/components/schemas/address'
+        discounts:
+          items:
+            $ref: '#/components/schemas/cart_discount'
+          type: array
+        fees:
+          items:
+            $ref: '#/components/schemas/cart_fee'
+          type: array
+        fulfillments:
+          items:
+            $ref: '#/components/schemas/fulfillment'
+          type: array
+        in_store_cart_shipments:
+          items:
+            $ref: '#/components/schemas/in_store_cart_shipment'
+          type: array
+        items:
+          description: The list of items associated with the cart.
+          items:
+            $ref: '#/components/schemas/cart_item'
+          type: array
+        loyalty_rewards:
+          items:
+            $ref: '#/components/schemas/cart_loyalty_rewards'
+          type: array
+        shipments:
+          items:
+            $ref: '#/components/schemas/cart_shipment'
+          type: array
+        tax_amount:
+          description: The total tax amount for all of the items associated with the cart.
+          format: int64
+          type: number
+        total_amount:
+          description: The total amount, in cents, of the cart including its items and taxes (if applicable), e.g. $9.00 is 900. This total must match the sum of all other amounts.
+          example: 900
+          format: int64
+          type: number
+      required:
+      - total_amount
+      type: object
+    merchant_credit_card_review:
+      properties:
+        decision:
+          enum:
+          - approve
+          - reject
+          type: string
+        transaction_reference:
+          $ref: '#/components/schemas/transaction_reference'
+      required:
+      - decision
+      - transaction_reference
+      type: object
+    credit_card_view:
+      description: Contains details about the credit card transaction.
+      properties:
+        billing_address:
+          $ref: '#/components/schemas/address_view'
+        bin:
+          $ref: '#/components/schemas/card_bin'
+        display_network:
+          $ref: '#/components/schemas/card_display_network'
+        expiration:
+          $ref: '#/components/schemas/card_expiration'
+        icon_asset_path:
+          $ref: '#/components/schemas/icon_asset_path'
+        id:
+          $ref: '#/components/schemas/card_id'
+        last4:
+          $ref: '#/components/schemas/card_last4'
+        network:
+          $ref: '#/components/schemas/card_network'
+        priority:
+          $ref: '#/components/schemas/priority'
+        status:
+          $ref: '#/components/schemas/card_status'
+        token:
+          $ref: '#/components/schemas/card_token'
+        token_type:
+          $ref: '#/components/schemas/card_token_type'
+      type: object
+    phone_status:
+      description: This is the status of the contact method.
+      enum:
+      - active
+      - pending
+      - inactive
+      example: active
+      type: string
+    transaction_reference:
+      description: The transaction's 12-digit Bolt reference ID. **Nullable** for Transactions Details.
+      example: LBLJ-TWW7-R9VC
+      maxLength: 12
+      minLength: 12
+      type: string
+    i_free_shipping_discount_view:
+      properties:
+        is_free_shipping:
+          type: boolean
+        maximum_cost_allowed:
+          format: int64
+          type: number
+      type: object
+    review_ticket:
+      description: Internal use only.
+      properties:
+        id:
+          $ref: '#/components/schemas/request_id'
+        request_deadline:
+          $ref: '#/components/schemas/request_deadline'
+        status:
+          $ref: '#/components/schemas/request_status'
+      type: object
+    phone_id:
+      description: This is the ID for the phone number associated with the shopper.
+      example: '123'
+      type: string
+    merchant_terms_of_service_url:
+      description: The endpoint URL provided by the merchant for providing unique terms of service.
+      example: https://example.com/api/v1/terms
+      type: string
+    merchant_platform:
+      description: The type of platform being used for this merchant division.
+      enum:
+      - none
+      - big_commerce
+      - shopify
+      - magento
+      - magento2
+      - woo_commerce
+      - drupal
+      - volusion
+      - prestashop
+      - netsuite
+      - miva
+      - commerce_cloud
+      example: big_commerce
+      type: string
+    company:
+      description: The company's name
+      example: ACME Corp.
+      type: string
+    code:
+      description: Custom-defined Bolt error code. This can be used to programmatically react to specific errors.
+      example: 2001005
+      format: int64
+      type: integer
+    merchant_account_page_url:
+      description: The URL provided by the merchant for the account page.
+      example: https://example.com/account
+      type: string
+    country_code:
+      description: The 2-digit country code.
+      example: US
+      type: string
+    splits_view:
+      description: A list of splits. **Nullable** for Transactions Details.
+      items:
+        description: A split of fees by type and amount.
+        properties:
+          amount:
+            $ref: '#/components/schemas/amount_view'
+          type:
+            description: '**Nullable** for Transactions Details.
+
+              '
+            enum:
+            - net
+            - processing_fee
+            - bolt_fee
+            - adjustment
+            - float
+            - reserve
+            example: processing_fee
+            type: string
+        type: object
+      type: array
+    order_view:
+      properties:
+        cart:
+          $ref: '#/components/schemas/cart_view'
+        dynamic_content:
+          $ref: '#/components/schemas/i_order_dynamic_content'
+        external_data:
+          $ref: '#/components/schemas/order_external_data_view'
+        platform_user_id:
+          type: string
+        requires_action:
+          type: string
+        token:
+          type: string
+        user_note:
+          description: Used by shoppers to make extra requests or provide details for gift messages.
+          type: string
+      type: object
+    transaction_processor:
+      description: The processor used. **Nullable** for Transactions Details.
+      enum:
+      - adyen_gateway
+      - adyen_payfac
+      - affirm
+      - afterpay
+      - alliance_data
+      - amazon_pay
+      - authorize_net
+      - braintree
+      - checkout_com
+      - cybersource
+      - first_data
+      - klarna
+      - nmi
+      - orbital
+      - paypal
+      - radial
+      - radial_klarna
+      - radial_paypal
+      - rocketgate
+      - sezzle
+      - shopify_payments
+      - stripe
+      - vantiv
+      example: adyen_gateway
+      type: string
+    street_address:
+      description: You can use up to 4 street address fields.
+      example: 42 Wallaby Way
+      type: string
+    i_currency:
+      properties:
+        currency:
+          example: USD
+          type: string
+        currency_symbol:
+          example: $
+          type: string
+      type: object
+    gift_options_wrap:
+      description: Defines whether gift wrapping was requested.
+      example: false
+      type: boolean
+    card_expiration:
+      description: The card's expiration. **Nullable** for Transactions Details.
+      example: 1654041600000
+      type: integer
+    merchant_division:
+      properties:
+        account_page_url:
+          $ref: '#/components/schemas/merchant_account_page_url'
+        api_base_domain_url:
+          type: string
+          example: https://apibasedomainurl.com
+        create_order_url:
+          description: The endpoint URL provided by the merchant to Bolt for creating orders. **Nullable** for Transactions Details.
+          example: https://example.com/api/v1/create_order
+          type: string
+        debug_url:
+          $ref: '#/components/schemas/merchant_debug_url'
+        description:
+          $ref: '#/components/schemas/merchant_division_description'
+        get_account_url:
+          $ref: '#/components/schemas/merchant_get_account_url'
+        shopper_custom_fields_updated_url:
+          $ref: '#/components/schemas/merchant_shopper_custom_fields_updated_url'
+        hook_type:
+          $ref: '#/components/schemas/webhooks_type'
+        hook_url:
+          $ref: '#/components/schemas/merchant_hook_url'
+        id:
+          $ref: '#/components/schemas/merchant_division_id'
+        is_universal_merchant_api:
+          description: Defines whether or not the Universal API method is in use. **Nullable** for Transactions Details.
+          example: true
+          type: boolean
+        is_webhooks_v2:
+          description: Defines whether or not the second version of Bolt's webhooks is in use. **Nullable** for Transactions Details.
+          example: true
+          type: boolean
+        logo:
+          $ref: '#/components/schemas/merchant_logo'
+        merchant_id:
+          $ref: '#/components/schemas/merchant_id'
+        oauth_logout_url:
+          $ref: '#/components/schemas/merchant_oauth_logout_url'
+        oauth_redirect_url:
+          $ref: '#/components/schemas/merchant_oauth_redirect_url'
+        platform:
+          $ref: '#/components/schemas/merchant_platform'
+        plugin_config_url:
+          $ref: '#/components/schemas/merchant_plugin_config_url'
+        privacy_policy_url:
+          $ref: '#/components/schemas/merchant_privacy_policy_url'
+        product_info_url:
+          $ref: '#/components/schemas/merchant_product_info_url'
+        public_id:
+          $ref: '#/components/schemas/merchant_division_public_id'
+        shipping_and_tax_url:
+          description: The endpoint URL provided by the merchant to Bolt for shipping and tax calculations.
+          example: https://example.com/api/v1/shipping_and_tax
+          type: string
+        shipping_url:
+          description: The endpoint URL provided by the merchant to Bolt for shipping calculations. **Nullable** for Transactions Details.
+          example: https://example.com/api/v1/shipping
+          type: string
+        tax_url:
+          description: The endpoint URL provided by the merchant to Bolt for tax calculations. **Nullable** for Transactions Details.
+          example: https://example.com/api/v1/tax
+          type: string
+        terms_of_service_url:
+          $ref: '#/components/schemas/merchant_terms_of_service_url'
+        universal_merchant_api_url:
+          $ref: '#/components/schemas/merchant_universal_merchant_api_url'
+        update_cart_url:
+          description: The endpoint URL provided by the merchant to Bolt to pass cart updates.
+          example: https://example.com/api/v1/cart_update
+          type: string
+        validate_additional_account_data_url:
+          $ref: '#/components/schemas/merchant_validate_additional_account_data_url'
+      required:
+      - merchant_id
+      - description
+      - is_universal_merchant_api
+      - is_webhooks_v2
+      - shipping_url
+      - tax_url
+      type: object
+    address:
+      description: The Address object is used for billing, shipping, and physical store address use cases.
+      properties:
+        company:
+          description: The company name associated with this address.
+          example: Bolt
+          maxLength: 1024
+          type: string
+        country:
+          description: The name of the country associated with this address.
+          example: United States
+          maxLength: 1024
+          type: string
+        country_code:
+          description: The ISO 3166-1 alpha-2 country code associated with this address.
+          example: US
+          maxLength: 2
+          minLength: 2
+          type: string
+        default:
+          description: Whether the added address is now the default address.
+          example: true
+          type: boolean
+        door_code:
+          $ref: '#/components/schemas/door_code'
+        email:
+          description: The email address associated with this address.
+          $ref: '#/components/schemas/email'
+        first_name:
+          description: The given name of the person associated with this address.
+          example: Alan
+          maxLength: 1024
+          type: string
+        last_name:
+          description: The surname of the person associated with this address.
+          example: Watts
+          maxLength: 1024
+          type: string
+        locality:
+          description: The city name details associated with this address.
+          example: Brooklyn
+          maxLength: 1024
+          type: string
+        name:
+          description: The given and surname of the person associated with this address.
+          example: Alan Watts
+          maxLength: 1024
+          type: string
+        phone:
+          description: The phone number associated with this address.
+          $ref: '#/components/schemas/phone'
+        postal_code:
+          description: The the postal or zip code associated with this address.
+          example: '10044'
+          maxLength: 32
+          type: string
+        region:
+          description: '**Not Required for NON US addresses**. The region details such as state or province associated with this address.'
+          example: NY
+          maxLength: 1024
+          type: string
+        region_code:
+          description: "The ISO 3166-2 region code associated with this address.\n  - * If specified, value must be valid for the `country`.\n  - * If null, value is inferred from the `region`.\n"
+          example: NY
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        street_address1:
+          description: The street number and street name of the address.
+          example: 888 main street
+          maxLength: 1024
+          type: string
+        street_address2:
+          description: Any apartment, floor, or unit details.
+          example: apt 3021
+          maxLength: 1024
+          type: string
+        street_address3:
+          description: Any additional street address details.
+          example: c/o Alicia Watts
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        street_address4:
+          description: Any additional street address details.
+          example: Bridge Street Apartment Building B
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+      required:
+      - street_address1
+      - locality
+      - region
+      - country_code
+      - postal_code
+      - email
+      - first_name
+      - last_name
+      type: object
+    credit_card_user:
+      description: The credit card user.
+      properties:
+        emails:
+          $ref: '#/components/schemas/emails'
+        first_name:
+          $ref: '#/components/schemas/first_name'
+        id:
+          $ref: '#/components/schemas/consumer_id'
+        last_name:
+          $ref: '#/components/schemas/last_name'
+        phones:
+          $ref: '#/components/schemas/phones_with_country_code'
+      type: object
+    merchant_id:
+      description: The unique ID for the merchant's Bolt account. A merchant account contains many merchant divisions. **Nullable** for Transactions Details.
+      example: 3X9aPQ67-YrB
+      type: string
+    locality:
+      description: A locale such as county, district, etc.
+      example: Wayne County
+      type: string
+    custom_field_response_view:
+      properties:
+        response:
+          oneOf:
+          - type: string
+          - type: boolean
+      type: object
+    shipping_method:
+      description: The name of the shipping method.
+      example: unknown
+      type: string
+    height:
+      description: The height.
+      example: 103
+      type: integer
+    in_store_cart_shipment:
+      properties:
+        cart_shipment:
+          $ref: '#/components/schemas/cart_shipment'
+        description:
+          description: Shipment option description.
+          example: Pick up in-store at 123 Main St.
+          type: string
+        distance:
+          example: 3
+          format: float64
+          type: number
+        distance_unit:
+          enum:
+          - km
+          - mile
+          example: mile
+          type: string
+        in_store_pickup_address:
+          $ref: '#/components/schemas/address'
+        pickup_window_close:
+          format: date
+          type: integer
+        pickup_window_open:
+          format: date
+          type: integer
+        store_name:
+          description: The local store's name where the item can be picked up.
+          example: Bolt Collective
+          type: string
+      type: object
+    consumer_summary_view:
+      properties:
+        first_name:
+          description: The given name of the person associated with this record.
+          example: Alan
+          type: string
+        id:
+          type: string
+        last_name:
+          description: The surname of the person associated with this record.
+          example: Watts
+          type: string
+      type: object
+    manual_disputes:
+      properties:
+        amount:
+          $ref: '#/components/schemas/amount'
+        currency:
+          $ref: '#/components/schemas/currency_iso'
+        delivery_evidence:
+          example: Delivery Evidence
+          type: string
+        delivery_link:
+          example: https://example.com/delivery/234563245
+          type: string
+        dispute_evidence:
+          example: Dispute Evidence
+          type: string
+        dispute_link:
+          example: https://example.com/receipts/234563245
+          type: string
+        other_evidence:
+          example: Other Evidence
+          type: string
+        other_link:
+          example: https://example.com/other/234563245
+          type: string
+        reason:
+          example: string
+          type: string
+        status:
+          enum:
+          - pending
+          - approved
+          - denied
+          example: pending
+          type: string
+      type: object
+    amount_view:
+      properties:
+        amount:
+          format: int64
+          example: 754
+          type: number
+        currency:
+          example: USD
+          type: string
+        currency_symbol:
+          example: $
+          type: string
+      type: object
+    auth_rejection_details_view:
+      properties:
+        reason_code:
+          type: string
+        reason_description:
+          type: string
+      required:
+      - reason_description
+      type: object
+    capture_view:
+      description: Deprecated. Use `captures`.
+      properties:
+        amount:
+          $ref: '#/components/schemas/amount_view'
+        id:
+          $ref: '#/components/schemas/capture_id'
+        merchant_event_id:
+          $ref: '#/components/schemas/transaction_merchant_event_id'
+        metadata:
+          description: Additional information about the capture. For example, the processor capture ID. **Nullable** for Transactions Details.
+          additionalProperties:
+            type: string
+          type: object
+        splits:
+          description: A split of fees by type and amount. **Nullable** for Transactions Details.
+          items:
+            description: A split of fees by type and amount.
+            properties:
+              amount:
+                $ref: '#/components/schemas/amount_view'
+              type:
+                description: 'Fee type options. **Nullable** for Transactions Details.
+
+                  '
+                enum:
+                - net
+                - processing_fee
+                - risk_fee
+                - apm_fee
+                - network_fee
+                - platform_fee
+                - bolt_account_fee
+                example: processing_fee
+                type: string
+            type: object
+          type: array
+        status:
+          $ref: '#/components/schemas/capture_status'
+      type: object
+    error_bolt_api:
+      properties:
+        code:
+          $ref: '#/components/schemas/code'
+        message:
+          $ref: '#/components/schemas/message'
+      type: object
+      description: Error object containing custom error information
+    merchant_created_date:
+      description: The date the merchant account was created.  **Nullable** for Transactions Details.
+      example: 1485997169003
+      type: integer
+    i_authorize_result_view:
+      properties:
+        did_create_bolt_account:
+          type: boolean
+        order_number:
+          type: string
+        transaction:
+          $ref: '#/components/schemas/transaction_view'
+      type: object
+    i_cart_shipment_view:
+      properties:
+        carrier:
+          description: The carrier used to deliver the shipment.
+          example: USPS
+          maxLength: 1024
+          type: string
+        cost:
+          $ref: '#/components/schemas/amount_view'
+        default:
+          type: boolean
+        description:
+          items:
+            $ref: '#/components/schemas/i_description_part'
+          type: array
+        description_tooltips:
+          items:
+            $ref: '#/components/schemas/i_description_tooltip'
+          type: array
+        estimated_delivery_date:
+          example: '2022-04-10 16:12:38.386000+00:00'
+          format: date-time
+          type: string
+        expedited:
+          description: Used to determine whether a shipment has been expedited or not.
+          type: boolean
+        gift_options:
+          $ref: '#/components/schemas/gift_option_view'
+        id:
+          type: string
+        package_dimension:
+          properties:
+            depth:
+              format: int64
+              type: number
+            height:
+              format: int64
+              type: number
+            unit:
+              type: string
+            width:
+              format: int64
+              type: number
+          type: object
+        package_type:
+          type: string
+        package_weight:
+          $ref: '#/components/schemas/i_weight'
+        reference:
+          type: string
+        service:
+          type: string
+        shipping_address:
+          $ref: '#/components/schemas/address_view'
+        shipping_method:
+          type: string
+        signature:
+          type: string
+        tax_amount:
+          $ref: '#/components/schemas/amount_view'
+        total_weight:
+          $ref: '#/components/schemas/i_weight'
+        type:
+          type: string
+      type: object
+    card_bin:
+      description: The Bank Identification Number for the credit card; this is typically the first 4-6 digits of the credit card number. **Nullable** for Transactions Details.
+      example: '402201'
+      maxLength: 6
+      minLength: 4
+      type: string
+    risk_review_status:
+      description: Describes the current Risk Review status. A transaction could be unreviewed, reviewed, or pending manual review by the Bolt team.
+      enum:
+      - unknown
+      - needs_review
+      - reviewed
+      example: reviewed
+      type: string
+    i_cart_item_external_inputs:
+      properties:
+        shopify_line_item_reference:
+          format: int64
+          type: number
+        shopify_product_reference:
+          format: int64
+          type: number
+        shopify_product_variant_reference:
+          format: int64
+          type: number
+      type: object
+    order_decision_details_view:
+      properties:
+        decision_factors:
+          items:
+            type: string
+          type: array
+        score:
+          format: int64
+          type: number
+      type: object
+    fulfillment:
+      description: Defines the shipments associated with the cart items.
+      properties:
+        cart_items:
+          items:
+            $ref: '#/components/schemas/cart_item'
+          type: array
+        cart_shipment:
+          $ref: '#/components/schemas/cart_shipment'
+        digital_delivery:
+          $ref: '#/components/schemas/digital_delivery'
+        in_store_cart_shipment:
+          $ref: '#/components/schemas/in_store_cart_shipment'
+        type:
+          enum:
+          - physical_door_delivery
+          - physical_ship_to_store
+          - physical_in_store_pickup
+          - digital_download
+          - digital_no_delivery
+          type: string
+      type: object
+    consumer_user_membership:
+      description: '**Nullable** for Transactions Details.
+
+        '
+      properties:
+        status:
+          $ref: '#/components/schemas/consumer_membership_status'
+      required:
+      - status
+      type: object
+    name_person:
+      description: The first and last name together as a string.
+      example: Charlotte Charles
+      type: string
+    risk_insight_availability.yml:
+      description: Must be set to `true` to receive fraud insights.
+      example: true
+      type: boolean
+    reference:
+      description: Reference for the object.
+      example: '1123'
+      type: string
+    transaction_view:
+      properties:
+        amount:
+          $ref: '#/components/schemas/amount_view'
+        authorization:
+          $ref: '#/components/schemas/credit_card_authorization_view'
+        capture:
+          $ref: '#/components/schemas/capture_view'
+        captures:
+          items:
+            $ref: '#/components/schemas/credit_card_capture_view'
+          type: array
+        credit:
+          $ref: '#/components/schemas/credit_card_credit_view'
+        date:
+          $ref: '#/components/schemas/transaction_date'
+        from_consumer:
+          $ref: '#/components/schemas/consumer_self_view'
+        from_credit_card:
+          $ref: '#/components/schemas/credit_card_view'
+        id:
+          $ref: '#/components/schemas/transaction_id'
+        indemnification_decision:
+          $ref: '#/components/schemas/transaction_indemnification_decision'
+        indemnification_reason:
+          $ref: '#/components/schemas/transaction_indemnification_reason'
+        last4:
+          $ref: '#/components/schemas/card_last4'
+        last_viewed_utc:
+          format: int64
+          type: number
+        merchant_division:
+          $ref: '#/components/schemas/merchant_division_summary_view'
+        merchant_order_number:
+          type: string
+        order_decision:
+          $ref: '#/components/schemas/order_decision_details_view'
+        processor:
+          $ref: '#/components/schemas/transaction_processor'
+        reference:
+          $ref: '#/components/schemas/transaction_reference'
+        review_ticket:
+          $ref: '#/components/schemas/review_ticket_view'
+        risk_insights:
+          $ref: '#/components/schemas/risk_model_external_result_view'
+        risk_review_status:
+          $ref: '#/components/schemas/risk_review_status'
+        risk_score:
+          format: int64
+          type: integer
+        splits:
+          items:
+            $ref: '#/components/schemas/transaction_splits_view'
+          type: array
+        status:
+          $ref: '#/components/schemas/transaction_status'
+        to_consumer:
+          $ref: '#/components/schemas/consumer_self_view'
+        to_credit_card:
+          $ref: '#/components/schemas/credit_card_view'
+        transaction_properties:
+          additionalProperties:
+            example:
+              key1: value1
+              key2: value2
+            type: string
+          type: object
+        type:
+          $ref: '#/components/schemas/transaction_type'
+        void:
+          $ref: '#/components/schemas/credit_card_void_view'
+        view_status:
+          enum:
+          - not_viewed
+          - viewed
+          - viewing
+          type: string
+      type: object
+    merchant_division_summary_view:
+      properties:
+        account_page_url:
+          type: string
+        api_base_domain_url:
+          type: string
+        base_domain_url:
+          type: string
+        confirmation_redirect_url:
+          type: string
+        create_order_url:
+          type: string
+        debug_url:
+          type: string
+        description:
+          type: string
+        display_name:
+          type: string
+        get_account_url:
+          type: string
+        shopper_custom_fields_updated_url:
+          type: string
+        hook_type:
+          enum:
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+          - '5'
+          - '6'
+          type: string
+        hook_url:
+          type: string
+        id:
+          type: string
+        is_universal_merchant_api:
+          type: boolean
+        is_webhooks_v2:
+          type: boolean
+        logo:
+          $ref: '#/components/schemas/merchant_division_logo_view'
+        logo_dashboard:
+          $ref: '#/components/schemas/merchant_division_logo_view'
+        merchant_id:
+          type: string
+        mobile_app_domain_url:
+          type: string
+        oauth_logout_url:
+          type: string
+        oauth_redirect_url:
+          type: string
+        platform:
+          type: string
+        plugin_config_url:
+          type: string
+        privacy_policy_url:
+          type: string
+        product_info_url:
+          type: string
+        public_id:
+          type: string
+        remote_apiurl:
+          type: string
+        shipping_and_tax_url:
+          type: string
+        shipping_url:
+          type: string
+        status:
+          type: string
+        tax_url:
+          type: string
+        terms_of_service_url:
+          type: string
+        universal_merchant_api_url:
+          type: string
+        update_cart_url:
+          type: string
+        use_async_refunds_amazon_pay:
+          type: boolean
+        use_async_refunds_paypal:
+          type: boolean
+        validate_additional_account_data_url:
+          type: string
+        merchant_password_login_url:
+          description: (Optional) Link shoppers can use to log into a merchant store via the Bolt SSO modal.
+          example: https://www.example.com/login
+          type: string
+      type: object
+    transaction_review_view:
+      properties:
+        date:
+          format: int64
+          type: number
+        decision:
+          type: string
+        risk_model_result:
+          $ref: '#/components/schemas/risk_model_result_view'
+        source:
+          type: string
+      type: object
+    order_external_data_view:
+      properties:
+        shopify:
+          type: string
+      type: object
+    risk_model_result_view:
+      properties:
+        contribution:
+          items:
+            $ref: '#/components/schemas/risk_model_resul_contribution_view'
+          type: array
+      type: object
+    transaction_rejection_details_view:
+      properties:
+        auth_rejection_details:
+          $ref: '#/components/schemas/auth_rejection_details'
+      type: object
+    phone:
+      description: A phone number following E164 standards, in its globalized format, i.e. prepended with a plus sign.
+      example: '+12125550199'
+      maxLength: 16
+      type: string
+    card_token_type:
+      description: 'Used to define which payment processor generated the token for this credit card.
+
+        '
+      enum:
+      - vantiv
+      - applepay
+      - bolt
+      - stripe
+      - plcc
+      - applepay_encrypted_blob
+      example: bolt
+      type: string
+    cart_create:
+      allOf:
+      - $ref: '#/components/schemas/base_cart'
+      - properties:
+          cart_url:
+            description: Used to provide a link to the cart ID.
+            example: https://boltswagstore.com/orders/123456765432
+            maxLength: 8192
+            type: string
+          currency:
+            example: USD
+            type: string
+          display_id:
+            description: This field, although required, can be an empty string.
+            example: displayid_100
+            maxLength: 128
+            type: string
+          metadata:
+            additionalProperties:
+              type: string
+            description: Optional custom metadata.
+            example:
+              key1: value1
+              key2: value2
+            type: object
+          order_description:
+            description: Used optionally to pass additional information like order numbers or other IDs as needed.
+            example: 'Order #1234567890'
+            maxLength: 1024
+            type: string
+          order_reference:
+            description: This value is used by Bolt as an external reference to a given order. This reference must be unique per successful transaction.
+            example: order_100
+            type: string
+        required:
+        - currency
+        - order_reference
+        type: object
+    fulfillment_view:
+      properties:
+        cart_shipment:
+          $ref: '#/components/schemas/i_cart_shipment_view'
+        fulfillment_type:
+          type: string
+        id:
+          type: string
+        in_store_cart_shipment:
+          $ref: '#/components/schemas/in_store_shipment2'
+        items:
+          items:
+            $ref: '#/components/schemas/i_cart_item_view'
+          type: array
+      type: object
+    address_change_view:
+      properties:
+        from_address:
+          $ref: '#/components/schemas/address_view'
+        status:
+          type: string
+        ticket_id:
+          type: string
+        timestamp:
+          format: int64
+          type: number
+        to_address:
+          $ref: '#/components/schemas/address_view'
+      type: object
+    last_viewed_utc:
+      description: The last view time as UTC.
+      example: 1485997169003
+      type: integer
+    payment_service:
+      enum:
+      - affirm
+      - afterpay
+      - amazon_pay
+      - credova
+      - klarna
+      - paypal
+      - sezzle
+      - radial_klarna
+      - radial_paypal
+      - adyen_gateway
+      - alliance_data
+      - authorize_net
+      - braintree
+      - cardconnect
+      - checkout_com
+      - cybersource
+      - first_data
+      - nmi
+      - orbital
+      - paypal_payflow
+      - radial
+      - rocketgate
+      - shopify_payments
+      - stripe
+      - magentopayment
+      - adyen_payfac
+      - vantiv
+      - google_pay
+      - bolt
+      type: string
+    merchant_hook_url:
+      description: The endpoint URL provided by the merchant to send webhooks.
+      example: https://example.com/api/v1/hooks
+      type: string
+    cart_item_customization:
+      properties:
+        attributes:
+          additionalProperties:
+            type: string
+          example:
+            key1: value1
+            key2: value2
+          type: object
+        name:
+          type: string
+        price:
+          example: 754
+          format: int64
+          type: number
+      type: object
+    transaction_operational_processor:
+      properties:
+        processor:
+          $ref: '#/components/schemas/transaction_processor'
+        status:
+          $ref: '#/components/schemas/transaction_processor_status'
+      required:
+      - processor
+      - status
+      type: object
+    i_gift_option_view:
+      properties:
+        hide_gift_message:
+          type: boolean
+        hide_gift_wrap:
+          type: boolean
+      type: object
+    webhooks_type:
+      description: '[Webhook events](https://help.boltapp.com/developers/guides/webhooks/#transaction-hook-types) that trigger a notification to the URL.  **Note**:`newsletter_subscription` is only for merchant use cases.
+
+
+        Subscription events:
+
+        * `subscription_created` - A subscription was created from a successful initial transaction.
+
+        * `subscription_renewed` - A recurring subscription order was placed successfully and the next order was scheduled.
+
+        * `subscription_canceled` - A subscription was canceled, by the merchant, by the shopper, or automatically (e.g. once its dunning retry schedule is exhausted). Also sent alongside `subscription_ended` when the subscription''s configured final dunning action is cancellation.
+
+        * `subscription_payment_failed` - A scheduled subscription order''s payment attempt failed.
+
+        * `subscription_paused` - A subscription was paused, by the merchant, by the shopper, or automatically once its dunning retry schedule is exhausted (when the configured final dunning action is pausing).
+
+        * `subscription_unpaused` - A paused subscription was resumed, by the merchant or by the shopper.
+
+        * `subscription_ended` - A subscription was permanently ended after its dunning retry schedule was exhausted. Sent alongside `subscription_canceled` for this case.
+
+        '
+      enum:
+      - payment
+      - credit
+      - capture
+      - void
+      - auth
+      - pending
+      - rejected_irreversible
+      - rejected_reversible
+      - failed_payment
+      - newsletter_subscription
+      - risk_insights
+      - credit_card_deleted
+      - subscription_created
+      - subscription_renewed
+      - subscription_canceled
+      - subscription_payment_failed
+      - subscription_paused
+      - subscription_unpaused
+      - subscription_ended
+      example: pending
+      type: string
+    eligible_payment_method:
+      properties:
+        eligible:
+          type: boolean
+        transaction_processor_type:
+          $ref: '#/components/schemas/payment_service'
+      type: object
+    risk_decision_factor.yml:
+      description: One of the main contributing factors to the fraud decision and score.
+      enum:
+      - address_details
+      - auth_decline_stolen_card
+      - card_information
+      - cart_details
+      - checkout_behavior
+      - device_specifications
+      - email_details
+      - fraudulent_chargeback
+      - ip_details
+      - phone_details
+      - shipping_details
+      - too_many_attempts
+      - user_history
+      example: checkout_behavior
+      type: string
+    custom_fields:
+      properties:
+        checkout_setup:
+          enum:
+          - shipping_step
+          - delivery_step
+          - payment_step
+          - account_registration_sso
+          example: string
+          type: string
+        dynamic:
+          description: Defines whether the field is dynamic.
+          example: false
+          type: boolean
+        context:
+          description: The app context of where the custom field is used.
+          enum:
+          - CHECKOUT
+          - SSO
+          example: CHECKOUT
+          type: string
+        external_id:
+          description: The external ID for the custom field.
+          example: '123456'
+          type: string
+        field_setup:
+          example: string
+          type: string
+        label:
+          description: The displayed label for the custom field, seen by the shopper.
+          example: Special Field
+          type: string
+        position:
+          example: 1
+          type: integer
+        public_id:
+          description: The internal ID for the custom field.
+          example: i-123456
+          type: string
+        required:
+          description: Defines if the field must be completed to check out.
+          example: true
+          type: boolean
+        subscribe_to_newsletter:
+          description: Defines whether the shopper is opted into a newsletter or not.
+          example: false
+          type: boolean
+      type: object
+    signature:
+      description: The signature.
+      example: a1B2s3dC4f5g5D6hj6E7k8F9l0
+      type: string
+    transaction_merchant_event_id:
+      description: The reference ID associated with a transaction event (auth, capture, refund, void). This is an arbitrary identifier created by the merchant. Bolt does not enforce any uniqueness constraints on this ID. It is up to the merchant to generate identifiers that properly fulfill its needs.
+      example: dbe0cd5d-3261-41d9-ba61-49e5b9d07567
+      type: string
+    card_id:
+      description: The card's ID. **Nullable** for Transactions Details.
+      example: AB3rJKam5DhYE
+      type: string
+    merchant_division_public_id:
+      description: The unique public ID for one of the merchant's store division.
+      example: 3X9aPQ67-YrB
+      type: string
+    order_decision_score:
+      description: The total fraud risk score of the order.
+      example: '680'
+      type: integer
+    phones_with_country_code:
+      description: A list of phone numbers.
+      items:
+        description: A phone number with country code.
+        properties:
+          country_code:
+            $ref: '#/components/schemas/phone_country_code'
+          id:
+            $ref: '#/components/schemas/phone_id'
+          number:
+            $ref: '#/components/schemas/phone'
+          priority:
+            $ref: '#/components/schemas/phone_priority'
+          status:
+            $ref: '#/components/schemas/phone_status'
+        type: object
+      type: array
+    merchant_onboarding_status_code:
+      enum:
+      - new_merchant
+      - user_created
+      - form_filled
+      - integration_done
+      - legacy
+      - processor_settings_received
+      type: string
+    merchant_product_info_url:
+      description: The endpoint URL provided by the merchant for checking product details.
+      example: https://example.com/api/v1/product_details
+      type: string
+    subscription:
+      description: Describes a product added as a recurring subscription.
+      properties:
+        frequency:
+          description: Describes how often the subscription recurs.
+          properties:
+            unit:
+              description: The unit for this subscription's frequency.
+              enum:
+              - day
+              - week
+              - month
+              - year
+              example: month
+              type: string
+            value:
+              description: The value applied to the unit frequency.
+              example: 2
+              type: integer
+          type: object
+      type: object
+    previous_subscription_id:
+      description: The unique ID associated with to the shopper's previous subscription-based transaction. Leave `null` for standard, non-subscription transactions.
+      example: null
+      type:
+      - string
+      - 'null'
+    service:
+      description: The service name.
+      example: Option 1
+      type: string
+    cart_fee:
+      properties:
+        reference:
+          description: Unique reference used to identify the fee.
+          example: ItemFee
+          maxLength: 1024
+          type: string
+        name:
+          description: Name of the fee that will appear in the order ledger.
+          example: Item Fee
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        description:
+          description: Description of the fee that will appear in the tooltip if the mouse hovers over the fee.
+          example: Item Fee
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        unit_price:
+          format: int64
+          type: number
+        unit_tax_amount:
+          format: int64
+          type: number
+        quantity:
+          format: int64
+          type: number
+      required:
+      - reference
+      - name
+      - unit_price
+      - unit_tax_amount
+      - quantity
+      type: object
+    package_dimension:
+      description: Contains the package's width, eight, depth, and unit details.
+      properties:
+        depth:
+          $ref: '#/components/schemas/depth'
+        height:
+          $ref: '#/components/schemas/height'
+        unit:
+          $ref: '#/components/schemas/dimension_unit'
+        width:
+          $ref: '#/components/schemas/width'
+      type: object
+    shipping_address_id:
+      description: ID for billing address
+      example: address1
+      type: string
+    transaction_id:
+      description: The unique ID associated with the transaction. **Nullable** for Transactions Details.
+      example: T1c3p4yBuVYJ9
+      type: string
+    merchant_division_description:
+      description: The description of the merchant division. **Nullable** for Transactions Details.
+      example: Storefront for employees only.
+      type: string
+    gift_options:
+      description: Contains the gift option settings for wrapping and custom messages.
+      properties:
+        message:
+          $ref: '#/components/schemas/gift_options_message'
+        wrap:
+          $ref: '#/components/schemas/gift_options_wrap'
+      type: object
+    last_name:
+      description: The person's last name.
+      example: Charles
+      type: string
+    auth_rejection_details:
+      properties:
+        reason_code:
+          type: string
+        reason_description:
+          type: string
+      type: object
+    credit_card_authorization_reason:
+      description: "The reason code explaining the authorization status.\n  * `1` - none\n  * `2` - invalid_amount\n  * `3` - invalid_cvv\n  * `4` - invalid_cc_number\n  * `5` - expired\n  * `6` - risk\n  * `7` - lost_stolen\n  * `8` - call_issuer\n  * `9` - invalid_merchant_for_card\n  * `10` - unsupported_payment_method\n"
+      enum:
+      - none
+      - invalid_amount
+      - invalid_cvv
+      - invalid_cc_number
+      - expired
+      - risk
+      - lost_stolen
+      - call_issuer
+      - invalid_merchant_for_card
+      - unsupported_payment_method
+      - processor_server_error
+      type: string
+    errors_bolt_api:
+      items:
+        $ref: '#/components/schemas/error_bolt_api'
+      type: array
+    merchant_credit_card_authorization_recharge:
+      description: This request is used for authorizing an existing, saved card associated with the account.
+      properties:
+        auto_capture:
+          type: boolean
+          description: This property determines how the transaction is processed after authorization. If set to `true`, the transaction is placed in a queue for automatic capture. This process is asynchronous, meaning the transaction may not immediately appear as captured after the authorization request. This is because the transaction is in a transitional state as it moves from authorization to capture. If `auto_capture` is set to `false`, the transaction is only authorized and must be manually captured.
+        cart:
+          allOf:
+          - $ref: '#/components/schemas/cart_create'
+          - description: The cart_create object is a composite of the base_cart object and additional order details.
+        credit_card_id:
+          description: The unique ID associated to the saved credit card in the account's wallet.
+          example: SAeEcU1hpMobc
+          type: string
+        division_id:
+          description: The unique ID associated to the merchant's Bolt Account division; Merchants can have different divisions to suit multiple use cases (storefronts, pay-by-link, phone order processing). Use the Bolt Merchant Dashboard to switch between divisions and find the division ID under `Merchant Division Public ID`.
+          example: 3X9aPQ67-YrB
+          type: string
+        merchant_event_id:
+          $ref: '#/components/schemas/transaction_merchant_event_id'
+        previous_transaction_id:
+          $ref: '#/components/schemas/previous_subscription_id'
+        processing_initiator:
+          $ref: '#/components/schemas/processing_initiator'
+        shipping_address:
+          $ref: '#/components/schemas/address'
+        source:
+          enum:
+          - direct_payments
+          type: string
+        user_identifier:
+          $ref: '#/components/schemas/user_identifier'
+        user_identity:
+          $ref: '#/components/schemas/user_identity'
+      required:
+      - cart
+      - credit_card_id
+      - division_id
+      - source
+      - user_identifier
+      - user_identity
+      type: object
+    credit_card_void_status:
+      description: The status of the void request.
+      enum:
+      - succeeded
+      - declined
+      - error
+      example: succeeded
+      type: string
+    risk_fraud_probability.yml:
+      description: 'The total [fraud score](/merchants/references/policies/fraud-review/#fraud-scoring).
+
+        '
+      example: 943
+      type: integer
+    user_identity:
+      properties:
+        first_name:
+          $ref: '#/components/schemas/first_name'
+        last_name:
+          $ref: '#/components/schemas/last_name'
+      type: object
+    merchant_division_logo_view:
+      properties:
+        domain:
+          type: string
+        resource:
+          type: string
+      type: object
+    card_last4:
+      description: The card's last 4 digits. **Nullable** for Transactions Details.
+      example: '4021'
+      maxLength: 4
+      minLength: 4
+      type: string
+    transaction_credit:
+      properties:
+        amount:
+          $ref: '#/components/schemas/amount'
+        currency:
+          $ref: '#/components/schemas/currency_iso'
+        merchant_event_id:
+          $ref: '#/components/schemas/transaction_merchant_event_id'
+        skip_hook_notification:
+          $ref: '#/components/schemas/transaction_skip_hook_notification'
+        transaction_reference:
+          $ref: '#/components/schemas/transaction_reference'
+      required:
+      - transaction_reference
+      - amount
+      - currency
+      type: object
+    weight_unit:
+      description: The unit of measurement for an item's weight.
+      example: kg
+      type: string
+    gift_options_message:
+      description: Includes the gift message written by the shopper.
+      example: Happy Anniversary, Smoochy Poo!
+      type: string
+    merchant_time_zone:
+      description: The timezone of the merchant. **Nullable** for Transactions Details.
+      example: America/Los_Angeles
+      type: string
+    transaction_date:
+      description: Transaction date. **Nullable** for Transactions Details.
+      example: 1615407159447
+      type: integer
+    i_description_tooltip:
+      properties:
+        html_content:
+          type: string
+        target:
+          format: int64
+          type: number
+      type: object
+    card_display_network:
+      description: The card's network. **Nullable** for Transactions Details.
+      enum:
+      - Credit Card
+      - American Express
+      - Diners Club
+      - Discover
+      - JCB
+      - MasterCard
+      - Union Pay
+      - Visa
+      example: Visa
+      type: string
+    risk_model_external_result_view:
+      properties:
+        available:
+          type: boolean
+        decision_factors:
+          description: Used to list a total of up to 5 decision factors used by the risk model to determine the risk analysis result.
+          items:
+            type: string
+          type: array
+        fraud_probability:
+          format: int
+          type: number
+        payment_instrument_factors:
+          additionalProperties:
+            example:
+              factor1: factor1
+              factor2: factor2
+            type: string
+          type: object
+      type: object
+    custom_field_full_response_view:
+      properties:
+        field:
+          $ref: '#/components/schemas/custom_field_view'
+        response:
+          $ref: '#/components/schemas/custom_field_response_view'
+      type: object
+    in_store_shipment:
+      description: A cart that is being prepared for shipment
+      properties:
+        carrier:
+          $ref: '#/components/schemas/carrier'
+        cost:
+          $ref: '#/components/schemas/amounts'
+        default:
+          $ref: '#/components/schemas/default'
+        estimated_delivery_date:
+          $ref: '#/components/schemas/estimated_delivery_date'
+        expedited:
+          $ref: '#/components/schemas/expedited'
+        gift_options:
+          $ref: '#/components/schemas/gift_options'
+        id:
+          $ref: '#/components/schemas/shipping_address_id'
+        package_dimension:
+          $ref: '#/components/schemas/package_dimension'
+        package_type:
+          $ref: '#/components/schemas/package_type'
+        package_weights:
+          $ref: '#/components/schemas/package_weights'
+        reference:
+          $ref: '#/components/schemas/reference'
+        service:
+          $ref: '#/components/schemas/service'
+        shipping_address:
+          $ref: '#/components/schemas/consumer_billing_address'
+        shipping_method:
+          $ref: '#/components/schemas/shipping_method'
+        signature:
+          $ref: '#/components/schemas/signature'
+        tax_amount:
+          $ref: '#/components/schemas/amounts'
+        total_weight:
+          $ref: '#/components/schemas/total_weight'
+      type: object
+    amount:
+      description: The amount in cents. **Nullable** for Transactions Details.
+      example: 754
+      type: integer
+    tax_code:
+      description: The relevant tax code.
+      example: tax-12345
+      type: string
+    priority:
+      description: 'Describes the card''s priority.
+
+        '
+      enum:
+      - primary
+      - listed
+      example: primary
+      type: string
+    refund_transaction_ids:
+      description: '**Nullable** for Transactions Details.
+
+        '
+      items:
+        $ref: '#/components/schemas/transaction_id'
+      type: array
+    merchant:
+      properties:
+        created_at:
+          $ref: '#/components/schemas/merchant_created_date'
+        description:
+          $ref: '#/components/schemas/merchant_description'
+        onboarding_status:
+          $ref: '#/components/schemas/merchant_onboarding_status_code'
+        operational_processors:
+          $ref: '#/components/schemas/transaction_operational_processors'
+        processor:
+          $ref: '#/components/schemas/transaction_processor'
+        public_id:
+          $ref: '#/components/schemas/merchant_public_id'
+        status:
+          $ref: '#/components/schemas/merchant_status'
+        time_zone:
+          $ref: '#/components/schemas/merchant_time_zone'
+      required:
+      - created_at
+      - description
+      - processor
+      - operational_processors
+      - time_zone
+      type: object
+    email_view:
+      properties:
+        address:
+          type: string
+        id:
+          type: string
+        priority:
+          $ref: '#/components/schemas/priority'
+        status:
+          type: string
+      type: object
+    in_store_shipment2:
+      description: A cart that is being prepared for shipment
+      properties:
+        address:
+          $ref: '#/components/schemas/address_view'
+        distance:
+          example: 1.2
+          type: number
+        distance_unit:
+          enum:
+          - mile
+          - km
+          type: string
+        shipment:
+          $ref: '#/components/schemas/in_store_shipment'
+        store_name:
+          example: My Store
+          type: string
+      type: object
+    merchant_oauth_redirect_url:
+      description: The endpoint URL provided by the merchant for OAuth redirects.
+      example: https://example.com/api/v1/oauth_redirect
+      type: string
+    merchant_division_logo:
+      description: The logo image file for the merchant division.
+      example: division-logo.png
+      type: string
+    risk_decision_factors.yml:
+      description: The top 5 factors of the fraud decision.
+      items:
+        $ref: '#/components/schemas/risk_decision_factor.yml'
+      type: array
+    merchant_universal_merchant_api_url:
+      description: The endpoint URL provided by the merchant to access their universal API.
+      example: https://example.com/api/bolt_universal
+      type: string
+    dimension_unit:
+      description: The unit of measurement for an item's dimensions.
+      example: cm
+      type: string
+    width:
+      description: The width.
+      example: 222
+      type: integer
+    package_weights:
+      properties:
+        unit:
+          $ref: '#/components/schemas/weight_unit'
+        weight:
+          $ref: '#/components/schemas/weight'
+      type: object
+    amounts:
+      description: The amount. **Nullable** for Transactions Details.
+      properties:
+        amount:
+          $ref: '#/components/schemas/amount'
+        currency:
+          $ref: '#/components/schemas/currency_iso'
+        currency_symbol:
+          $ref: '#/components/schemas/currency_symbol'
+      required:
+      - amount
+      - currency
+      - currency_symbol
+      type: object
+    collections:
+      items:
+        $ref: '#/components/schemas/collection'
+      type: array
+    request_deadline:
+      example: 1627955971268
+      type: integer
+    merchant_get_account_url:
+      description: The endpoint URL provided by the merchant to fetch accounts.
+      example: https://example.com/api/v1/account_get
+      type: string
+    credit_card_authorization_status:
+      description: "The status of the authorization request.\n  * `1` - succeeded\n  * `2` - declined\n  * `3` - error\n"
+      enum:
+      - succeeded
+      - declined
+      - error
+      example: succeeded
+      type: string
+    merchant_public_id:
+      description: The unique public ID for the merchant's Bolt account. A merchant account contains many merchant divisions.
+      example: zSrbabI3MFe8
+      type: string
+    weight:
+      description: The weight of an item.
+      example: 22
+      type: integer
+    consumer_billing_address:
+      properties:
+        company:
+          $ref: '#/components/schemas/company'
+        country:
+          $ref: '#/components/schemas/country'
+        country_code:
+          $ref: '#/components/schemas/country_code'
+        email_address:
+          $ref: '#/components/schemas/email'
+        first_name:
+          $ref: '#/components/schemas/first_name'
+        id:
+          $ref: '#/components/schemas/billing_address_id'
+        last_name:
+          $ref: '#/components/schemas/last_name'
+        locality:
+          $ref: '#/components/schemas/locality'
+        name:
+          $ref: '#/components/schemas/name_person'
+        phone_number:
+          $ref: '#/components/schemas/phone'
+        postal_code:
+          $ref: '#/components/schemas/postal_code'
+        region:
+          $ref: '#/components/schemas/region'
+        street_address1:
+          $ref: '#/components/schemas/street_address'
+        street_address2:
+          $ref: '#/components/schemas/street_address'
+        street_address3:
+          $ref: '#/components/schemas/street_address'
+        street_address4:
+          $ref: '#/components/schemas/street_address'
+      required:
+      - street_address1
+      - locality
+      - region
+      - postal_code
+      type: object
+    merchant_plugin_config_url:
+      description: The endpoint URL provided by the merchant for checking plugin configuration details.
+      example: https://example.com/api/v1/plugin_config
+      type: string
+    card_network:
+      description: 'The card''s network code. **Nullable** for Transactions Details. Note: LEGACY diners_club_us_ca now tagged as mastercard
+
+        '
+      enum:
+      - visa
+      - mastercard
+      - amex
+      - discover
+      - dinersclub
+      - jcb
+      - unionpay
+      - alliancedata
+      - citiplcc
+      - unknown
+      example: visa
+      type: string
+    i_cart_item_view:
+      properties:
+        bolt_product_id:
+          type: string
+        brand:
+          type: string
+        category:
+          description: Used to define a product category associated with the item.
+          example: bags
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        collections:
+          $ref: '#/components/schemas/collections'
+        color:
+          description: Used to define the color of the item.
+          example: Bolt Blue
+          type: string
+        customizations:
+          items:
+            $ref: '#/components/schemas/cart_item_customization'
+          type: array
+        description:
+          type: string
+        details_url:
+          description: Used to provide a link to the item's product page.
+          example: https://boltswagstore.com/products/123456
+          type: string
+        gift_option:
+          $ref: '#/components/schemas/gift_option_view'
+        hide:
+          type: boolean
+        image_url:
+          description: Used to provide a link to the image associated with the item.
+          example: https://boltswagstore.com/products/123456/images/1.png
+          type: string
+        isbn:
+          description: Used to define the International Standard Book Number associated with the book.
+          example: 9780091347314
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        item_group:
+          type: string
+        manufacturer:
+          description: Used to define the organization that manufactured the item.
+          example: Bolt Textiles USA
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        merchant_product_id:
+          type: string
+        merchant_variant_id:
+          type: string
+        msrp:
+          $ref: '#/components/schemas/amount_view'
+        name:
+          type: string
+        options:
+          type: string
+        properties:
+          items:
+            $ref: '#/components/schemas/cart_item_property_view'
+          type: array
+        quantity:
+          example: 1
+          format: int64
+          type: number
+        reference:
+          type: string
+        shipment_id:
+          type: string
+        shipment_type:
+          enum:
+          - unknown
+          - door_delivery
+          - ship_to_store
+          - in_store_pickup
+          - ship_to_home_only
+          type: string
+        shopify_line_item_reference:
+          format: int64
+          type: number
+        shopify_product_reference:
+          format: int64
+          type: number
+        shopify_product_variant_reference:
+          format: int64
+          type: number
+        size:
+          description: Used to define the size of the item.
+          example: Large
+          type: string
+        sku:
+          description: Used to define an alpha-numeric Stock Keeping Unit associated with the item as it is mapped to your internal product catalogue.
+          example: BOLT-SKU_100
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        subscription:
+          $ref: '#/components/schemas/subscription'
+        tags:
+          description: Used to define a comma-separated list of tags associated with the item.
+          example: tote, blue, linen, eco-friendly
+          type: string
+        tax_amount:
+          $ref: '#/components/schemas/amount_view'
+        taxable:
+          type: boolean
+        total_amount:
+          $ref: '#/components/schemas/amount_view'
+        type:
+          enum:
+          - unknown
+          - digital
+          - physical
+          - bundled
+          type: string
+        unit_price:
+          $ref: '#/components/schemas/amount_view'
+        uom:
+          description: Used to define the unit of measure used to describe the product.
+          example: inches
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        upc:
+          description: Used to define the 12-digit Universal Product Code (a barcode) associated with the item worldwide.
+          example: 0825764603119
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        weight:
+          $ref: '#/components/schemas/i_weight'
+      type: object
+    risk_model_resul_contribution_view:
+      properties:
+        category:
+          type: string
+        weight:
+          type: string
+      type: object
+    credit:
+      properties:
+        status:
+          example: succeeded
+          type: string
+      type: object
+    manual_dispute_view:
+      properties:
+        amount:
+          format: int64
+          type: number
+        currency:
+          example: USD
+          type: string
+        delivery_evidence:
+          type: string
+        delivery_link:
+          type: string
+        dispute_evidence:
+          type: string
+        dispute_link:
+          type: string
+        other_evidence:
+          items:
+            type: string
+          type: array
+        other_link:
+          items:
+            type: string
+          type: array
+        reason:
+          type: string
+        status:
+          enum:
+          - pending
+          - approved
+          - denied
+          type: string
+      type: object
+    request_failed:
+      example: false
+      type: boolean
+      description: Indicates that the request failed. This value is always false.
+    package_type:
+      description: The type of package.
+      example: A big package.
+      type: string
+    merchant_division_id:
+      description: The unique ID associated to the merchant's Bolt Account division; Merchants can have different divisions to suit multiple use cases (storefronts, pay-by-link, phone order processing). You can view and switch between these divisions from the Bolt Merchant Dashboard.
+      example: 3X9aPQ67-YrB
+      type: string
+    collection:
+      example: summer
+      type: string
+    merchant_credit_card_authorization:
+      description: This request is used for authorizing a new, unsaved card.
+      properties:
+        auto_capture:
+          type: boolean
+          description: This property determines how the transaction is processed after authorization. If set to `true`, the transaction is placed in a queue for automatic capture. This process is asynchronous, meaning the transaction may not immediately appear as captured after the authorization request. This is because the transaction is in a transitional state as it moves from authorization to capture. If `auto_capture` is set to `false`, the transaction is only authorized and must be manually captured.
+        cart:
+          allOf:
+          - $ref: '#/components/schemas/cart_create'
+          - description: The cart_create object is a composite of the base_cart object and additional order details.
+        create_bolt_account:
+          description: If `true`, the guest shopper is provided a Bolt Account using their email address as its unique ID; if `false`, no information is saved at checkout.
+          type: boolean
+        credit_card:
+          $ref: '#/components/schemas/credit_card'
+        division_id:
+          description: The unique ID associated to the merchant's Bolt Account division; Merchants can have different divisions to suit multiple use cases (storefronts, pay-by-link, phone order processing). Use the Bolt Merchant Dashboard to switch between divisions and find the division ID under `Merchant Division Public ID`.
+          example: 3X9aPQ67-YrB
+          type: string
+        merchant_event_id:
+          $ref: '#/components/schemas/transaction_merchant_event_id'
+        previous_transaction_id:
+          $ref: '#/components/schemas/previous_subscription_id'
+        processing_initiator:
+          description: 'Determines who initiated the transaction (e.g. shopper, merchant) and how they did it (e.g. recurring subscription, on-file card).
+
+
+            * `initial_card_on_file` - The first transaction made for a card. The system then saves this card for future transactions.
+
+            * `initial_recurring` - The first time any card is used to pay for a recurring charge. For example, a subscription.
+
+            * `stored_cardholder_initiated` - The subsequent (second, third, etc.) transactions a shopper initiates with a stored card. This includes every situation during which a cardholder requests a charge, for example if the cardholder requests a merchant charge their card.
+
+            * `stored_merchant_initiated` - The subsequent (second, third, etc.) transactions a merchant initiates with a stored card only when the cardholder does not request the charge. For example, when a customer service representative buys on behalf of a shopper or when a business adds funds to a public transit card.
+
+            * `following_recurring` - The subsequent (second, third, etc.) transactions  a card is used to pay for a recurring charge. For example, a subscription.
+
+            * `cardholder_initiated` - When a cardholder begins a transaction that isn’t stored in Bolt and won’t be stored in Bolt for future transactions.
+
+            * `recurring` - Any time a card is used to pay for a recurring charge (for example, a subscription). Only use this value when you don’t know if it’s the first recurring charge.
+
+            '
+          enum:
+          - initial_card_on_file
+          - initial_recurring
+          - stored_cardholder_initiated
+          - stored_merchant_initiated
+          - following_recurring
+          - cardholder_initiated
+          - recurring
+          type: string
+        shipping_address:
+          $ref: '#/components/schemas/address'
+        source:
+          enum:
+          - direct_payments
+          type: string
+        user_identifier:
+          $ref: '#/components/schemas/user_identifier'
+        user_identity:
+          $ref: '#/components/schemas/user_identity'
+      required:
+      - cart
+      - credit_card
+      - division_id
+      - source
+      - user_identifier
+      - user_identity
+      - create_bolt_account
+      type: object
+    chargeback_reason:
+      description: The reason for the chargeback.
+      example: string
+      type: string
+    i_custom_field_view:
+      properties:
+        checkout_step:
+          enum:
+          - SHIPPING_STEP
+          - DELIVERY_STEP
+          - PAYMENT_STEP
+          - ACCOUNT_REGISTRATION_SSO
+          type: string
+        dynamic:
+          type: boolean
+        context:
+          enum:
+          - CHECKOUT
+          - SSO
+          type: string
+        external_id:
+          type: string
+        field_setup:
+          type: string
+        helper_text:
+          type: string
+        label:
+          type: string
+        position:
+          format: int64
+          type: number
+        public_id:
+          type: string
+        required:
+          type: boolean
+        subscribeToNewsletter:
+          type: boolean
+      type: object
+    chargeback_details_view:
+      properties:
+        amt_won:
+          allOf:
+          - $ref: '#/components/schemas/amount_view'
+          - description: The total representment amount IF the merchant won the chargeback case.
+        chargeback_amt:
+          allOf:
+          - $ref: '#/components/schemas/amount_view'
+          - description: The total amount of dispute debits and credits related to this chargeback case.
+        chargeback_fee:
+          allOf:
+          - $ref: '#/components/schemas/amount_view'
+          - description: The total amount of dispute fee debits and credits related to this chargeback case.
+        chargeback_id:
+          type: string
+        event_views:
+          items:
+            $ref: '#/components/schemas/chargeback_event_view'
+          type: array
+        net_amt:
+          allOf:
+          - $ref: '#/components/schemas/amount_view'
+          - description: The total sum of the fields `chargeback_amt` and `chargeback_fee`.
+        reason:
+          type: string
+        reason_code:
+          type: string
+        representment_reply_by_date:
+          description: The reply-by date of the dispute in UnixMillis format.
+          format: int64
+          type: number
+        representment_result:
+          enum:
+          - none
+          - open
+          - lost
+          - won
+          type: string
+      type: object
+    i_cart_discount_view:
+      properties:
+        amount:
+          $ref: '#/components/schemas/amount_view'
+        code:
+          description: Discount code used.
+          example: SUMMER10
+          type: string
+        description:
+          description: Used to define the discount offering.
+          example: 10% off our summer collection
+          maxLength: 1024
+          type: string
+        details_url:
+          description: Used to provide a link to additional details, such as a landing page, associated with the discount offering.
+          example: https://boltswagstore.com/SUMMERSALE
+          type: string
+        discount_category:
+          enum:
+          - coupon
+          - giftcard
+          - managed_giftcard
+          - store_credit
+          - automatic_promotion
+          - membership_discount
+          - membership_giftcard
+          - subscription_discount
+          - rewards_discount
+          - shipping_discount
+          - unknown
+          type: string
+        free_shipping:
+          $ref: '#/components/schemas/i_free_shipping_discount_view'
+        reference:
+          description: Used to define the reference ID associated with the discount available.
+          example: DISC-1234
+          type: string
+      type: object
+    capture_status:
+      description: The status of the capture. **Nullable** for Transactions Details.
+      enum:
+      - succeeded
+      - declined
+      - error
+      example: succeeded
+      type: string
+    captures_view:
+      description: All captures associated with the transaction. **Nullable** for Transactions Details.
+      items:
+        $ref: '#/components/schemas/capture_view'
+      type: array
+    chargeback_representment_reply_by_date:
+      description: The date of the chargeback.
+      example: 1485997169003
+      type: integer
+    total_weight:
+      properties:
+        unit:
+          $ref: '#/components/schemas/weight_unit'
+        weight:
+          $ref: '#/components/schemas/weight'
+      type: object
+    merchant_privacy_policy_url:
+      description: The endpoint URL provided by the merchant for providing a unique privacy policy.
+      example: https://example.com/api/v1/privacy
+      type: string
+    email_status:
+      description: This is the status of the contact method.
+      enum:
+      - active
+      - pending
+      - inactive
+      example: active
+      type: string
+    cart_add_on:
+      description: A list of up to 3 add-ons that are displayed to the shopper.
+      properties:
+        description:
+          description: The description of the product being displayed as an add on.
+          maxLength: 256
+          type: string
+        imageUrl:
+          description: The URL of the image displayed for the add on product.
+          maxLength: 1024
+          type: string
+        name:
+          description: The name of the product being displayed as an add on.
+          maxLength: 256
+          type: string
+        price:
+          description: The price of the product add on in cents (1/100).
+          format: int64
+          type: number
+        productId:
+          description: The the ID of the product being displayed as an add on.
+          maxLength: 256
+          type: string
+        productPageUrl:
+          description: The URL to the product page of the product being displayed as an add on.
+          maxLength: 1024
+          type: string
+      required:
+      - name
+      - productId
+      - price
+      type: object
+    cart_shipment_type:
+      description: The type corresponding to this shipment, if applicable.
+      example: door_delivery
+      enum:
+      - door_delivery
+      - in_store_pickup
+      - ship_to_store
+      - ship_to_home_only
+      - unknown
+      type: string
+    merchant_variant_id:
+      description: A merchant's unique ID for a given product's specific variant.
+      example: '888'
+      type: string
+    transaction_type:
+      description: The type of transaction.
+      enum:
+      - cc_payment
+      - cc_credit
+      - funding_transfer
+      - processing_fee_transfer
+      - reserve_transfer
+      - float_transfer
+      - merchant_credit
+      - merchant_debit
+      - funding_withdrawal
+      - processing_fee_withdrawal
+      - zero_amount
+      - bolt_fee_transfer
+      - bolt_fee_withdrawal
+      - bank_account_verification
+      - authorization_verification
+      - paypal_payment
+      - paypal_refund
+      - apm_payment
+      - apm_refund
+      - zero_amount_verification
+      example: cc_payment
+      type: string
+    address_view:
+      description: The address object returned in the response.
+      properties:
+        company:
+          description: The company name associated with this address.
+          example: Bolt
+          type: string
+        country:
+          description: The name of the country associated with this address.
+          example: United States
+          type: string
+        country_code:
+          description: The ISO 3166-1 alpha-2 country code associated with this address.
+          example: US
+          type: string
+        door_code:
+          $ref: '#/components/schemas/door_code'
+        email_address:
+          description: The email address associated with this address.
+          $ref: '#/components/schemas/email'
+        first_name:
+          description: The given name of the person associated with this address.
+          example: Alan
+          type: string
+        id:
+          description: The unique Bolt ID associated with this address.
+          type: string
+        last_name:
+          description: The surname of the person associated with this address.
+          example: Watts
+          type: string
+        locality:
+          description: The city name details associated with this address.
+          example: Brooklyn
+          type: string
+        name:
+          description: The given and surname of the person associated with this address.
+          example: Alan Watts
+          type: string
+        phone_number:
+          description: The phone number associated with this address.
+          $ref: '#/components/schemas/phone'
+        postal_code:
+          description: The postal or zip code associated with this address.
+          example: '10044'
+          maxLength: 32
+          type: string
+        priority:
+          description: The shopper-indicated priority of this address compared to other addresses on their account.
+          example: primary
+          type:
+          - string
+          - 'null'
+          enum:
+          - primary
+          - listed
+        region:
+          description: The region details such as state or province associated with this address.
+          example: NY
+          type: string
+        region_code:
+          description: The the ISO 3166-2 region code associated with this address.
+          example: NY
+          type:
+          - string
+          - 'null'
+        street_address1:
+          description: The street number and street name of the address.
+          example: 888 main street
+          type: string
+        street_address2:
+          description: Any apartment, floor, or unit details.
+          example: apt 3021
+          type: string
+        street_address3:
+          description: Any additional street address details.
+          example: c/o Alicia Watts
+          type:
+          - string
+          - 'null'
+        street_address4:
+          description: Any additional street address details.
+          example: Bridge Street Apartment Building B
+          type:
+          - string
+          - 'null'
+      type: object
+    merchant_validate_additional_account_data_url:
+      description: The endpoint URL provided by the merchant for validating additional account data.
+      example: https://example.com/api/v1/account_validate
+      type: string
+    transaction_indemnification_reason:
+      description: 'Describes the reason that the transaction is or is not indemnified by Bolt for fraud.
+
+        '
+      enum:
+      - unknown
+      - checkout
+      - virtual_terminal
+      - merchant_back_office
+      - merchant_force_approved
+      - reversibly_rejected
+      - irreversibly_rejected
+      - risk_engine_approved
+      - analyst_approved
+      - auth_verification
+      - paypal
+      - afterpay
+      - direct_payments
+      - whitelist
+      - external_review
+      - affirm
+      - merchant_ip_address
+      - amazon_pay
+      - apple_pay
+      - phone_order
+      - klarna
+      - cardholder_authentication
+      - address_change_rejected
+      - indemnify_direct_payments
+      - indemnify_virtual_terminal
+      - membership_subscription
+      - embedded_guest_checkout
+      - risk_assessment_only
+      - sezzle
+      - credova
+      - subscription
+      - indemnify_apm_transaction
+      example: merchant_force_approved
+      type: string
+    cart_item_gift_option:
+      description: Contains the gift option settings for wrapping and custom messages.
+      properties:
+        cost:
+          $ref: '#/components/schemas/cost'
+        merchant_product_id:
+          $ref: '#/components/schemas/merchant_product_id'
+        message:
+          $ref: '#/components/schemas/gift_options_message'
+        wrap:
+          $ref: '#/components/schemas/gift_options_wrap'
+      type: object
+    address_change_request_metadata_view:
+      properties:
+        can_change_shipping_address:
+          type: boolean
+        id:
+          type: string
+        status:
+          type: string
+        ticket_id:
+          type: string
+        ticket_status:
+          type: string
+      type: object
+    errors_bolt_api_response:
+      properties:
+        errors:
+          $ref: '#/components/schemas/errors_bolt_api'
+        result:
+          $ref: '#/components/schemas/request_result'
+      type: object
+    credit_card_void_view:
+      properties:
+        cause:
+          $ref: '#/components/schemas/credit_card_void_cause'
+        merchant_event_id:
+          $ref: '#/components/schemas/transaction_merchant_event_id'
+        status:
+          $ref: '#/components/schemas/credit_card_void_status'
+        void:
+          description: The void ID returned from the payment processor.
+          type: string
+          example: '123456'
+      type: object
+    transaction_skip_hook_notification:
+      description: Set to `true` to skip receiving a webhook notification from Bolt that is triggered by this update to the transaction.
+      example: false
+      type: boolean
+    i_description_part:
+      properties:
+        content:
+          type: string
+        is_html:
+          type: boolean
+      type: object
+    credit_card_credit_status:
+      properties:
+        status:
+          description: The status of the refund to a card.
+          enum:
+          - succeeded
+          - declined
+          - error
+          - pending
+          - in progress
+          example: succeeded
+          type: string
+      type: object
+    currency_symbol:
+      description: The currency symbol used for the amount. **Nullable** for Transactions Details.
+      example: $
+      type: string
+    transaction_processor_status:
+      description: The processor's status. Only `primary` and `active` processor are displayed.
+      enum:
+      - primary
+      - active
+      - inactive
+      example: primary
+      type: string
+    tax_amount:
+      description: Tax amount in cents.
+      example: 230
+      type: integer
+    transaction_operational_processors:
+      description: '**Nullable** for Transactions Details.
+
+        '
+      items:
+        $ref: '#/components/schemas/transaction_operational_processor'
+      type: array
+    merchant_description:
+      description: The description of the merchant account. **Nullable** for Transactions Details.
+      example: Brand Name Here.
+      type: string
+    transaction_indemnification_decision:
+      description: 'Describes whether the transaction is indemnified by Bolt for fraud.
+
+        '
+      enum:
+      - unknown
+      - indemnified
+      - not_indemnified
+      example: indemnified
+      type: string
+    emails:
+      description: A list of email addresses. **Nullable** for Transactions Details.
+      items:
+        description: An object of user email.
+        properties:
+          address:
+            $ref: '#/components/schemas/email'
+          id:
+            $ref: '#/components/schemas/email_id'
+          priority:
+            $ref: '#/components/schemas/email_priority'
+          status:
+            $ref: '#/components/schemas/email_status'
+        type: object
+      type: array
+    email_priority:
+      description: This is the priority of the contact method. This field's contents are not displayed in the transaction details view.
+      enum:
+      - primary
+      - listed
+      example: primary
+      type: string
+    merchant_logo:
+      properties:
+        domain:
+          $ref: '#/components/schemas/merchant_division_domain'
+        resource:
+          $ref: '#/components/schemas/merchant_division_logo'
+      type: object
+    discount_membership:
+      description: Defines if shopper has a membership discount.
+      example: false
+      type: boolean
+    email:
+      description: An email address.
+      example: alan.watts@example.com
+      format: email
+      type: string
+      maxLength: 255
+  responses:
+    transaction_void_error_403:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_bolt_api_response'
+      description: Generic Error Schema
+    transaction_details:
+      content:
+        application/json:
+          schema:
+            properties:
+              address_change_request_metadata:
+                $ref: '#/components/schemas/address_change_request_metadata_view'
+              adjust_transactions:
+                $ref: '#/components/schemas/adjust_transactions'
+              amount:
+                $ref: '#/components/schemas/amount_view'
+              auth_verification_status:
+                $ref: '#/components/schemas/authorization_verification_status'
+              authorization:
+                $ref: '#/components/schemas/credit_card_authorization_view'
+              authorization_id:
+                $ref: '#/components/schemas/authorization_id'
+              capture:
+                $ref: '#/components/schemas/capture_view'
+              captures:
+                $ref: '#/components/schemas/captures_view'
+              chargeback_details:
+                $ref: '#/components/schemas/chargeback_details'
+              credit:
+                $ref: '#/components/schemas/credit'
+              custom_fields:
+                $ref: '#/components/schemas/custom_fields'
+              customer_list_status:
+                $ref: '#/components/schemas/customer_list_status'
+              date:
+                $ref: '#/components/schemas/transaction_date'
+              from_consumer:
+                $ref: '#/components/schemas/credit_card_user'
+              from_consumer_membership_users:
+                $ref: '#/components/schemas/consumer_user_membership'
+              from_credit_card:
+                $ref: '#/components/schemas/credit_card_view'
+              id:
+                $ref: '#/components/schemas/transaction_id'
+              indemnification_decision:
+                $ref: '#/components/schemas/transaction_indemnification_decision'
+              indemnification_reason:
+                $ref: '#/components/schemas/transaction_indemnification_reason'
+              last_viewed_utc:
+                $ref: '#/components/schemas/last_viewed_utc'
+              last4:
+                $ref: '#/components/schemas/card_last4'
+              manual_disputes:
+                $ref: '#/components/schemas/manual_disputes'
+              merchant:
+                $ref: '#/components/schemas/merchant'
+              merchant_division:
+                $ref: '#/components/schemas/merchant_division'
+              merchant_order_number:
+                $ref: '#/components/schemas/merchant_order_number'
+              order:
+                $ref: '#/components/schemas/order_view'
+              order_decision:
+                $ref: '#/components/schemas/order_decision'
+              platform_metadata:
+                additionalProperties:
+                  type: string
+                type: object
+              processor:
+                $ref: '#/components/schemas/transaction_processor'
+              reference:
+                $ref: '#/components/schemas/transaction_reference'
+              refund_transaction_ids:
+                $ref: '#/components/schemas/refund_transaction_ids'
+              refund_transactions:
+                $ref: '#/components/schemas/refund_transactions_view'
+              refunded_amount:
+                $ref: '#/components/schemas/amount_view'
+              review_ticket:
+                $ref: '#/components/schemas/review_ticket'
+              risk_insights:
+                $ref: '#/components/schemas/risk_insights.yml'
+              risk_review_status:
+                $ref: '#/components/schemas/risk_review_status'
+              risk_score:
+                type: integer
+              source_transaction:
+                $ref: '#/components/schemas/transaction_view'
+              splits:
+                $ref: '#/components/schemas/splits_view'
+              status:
+                $ref: '#/components/schemas/transaction_status'
+              timeline:
+                $ref: '#/components/schemas/transaction_timeline_view'
+              to_consumer:
+                $ref: '#/components/schemas/consumer_self_view'
+              to_credit_card:
+                $ref: '#/components/schemas/credit_card_view'
+              transaction_properties:
+                additionalProperties:
+                  type: string
+                type: object
+              transaction_rejection_details:
+                $ref: '#/components/schemas/transaction_rejection_details_view'
+              type:
+                $ref: '#/components/schemas/transaction_type'
+              view_status:
+                type: string
+              void:
+                $ref: '#/components/schemas/credit_card_void_view'
+              void_cause:
+                type: string
+            type: object
+      description: 'Transaction Details Retrieved
+
+        '
+    transaction_review_error_422:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_bolt_api_response'
+      description: Generic Error Schema
+    transaction_void_error_404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_bolt_api_response'
+      description: Generic Error Schema
+    transaction_review_error_403:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_bolt_api_response'
+      description: Generic Error Schema
+    transaction_capture_error_404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_bolt_api_response'
+      description: Generic Error Schema
+    transaction_details_error_403:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_bolt_api_response'
+      description: Generic Error Schema
+    transaction_details_error_404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_bolt_api_response'
+      description: Generic Error Schema
+    transaction_review_error_404:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_bolt_api_response'
+      description: The requested entity was not found. transaction_id not found
+    transaction_capture_error_403:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_bolt_api_response'
+      description: Generic Error Schema
+    transaction_details_error_422:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_bolt_api_response'
+      description: Generic Error Schema
+  parameters:
+    transaction_reference_path_param:
+      description: This is the Bolt transaction reference. (ex. N7Y3-NFKC-VFRF)
+      in: path
+      name: REFERENCE
+      required: true
+      schema:
+        type: string
+    x-publishable-key:
+      description: The publicly viewable identifier used to identify a merchant division. This key is found in the Developer > API section of the Bolt Merchant Dashboard [RECOMMENDED].
+      in: header
+      name: X-Publishable-Key
+      required: false
+      schema:
+        type: string
+    idempotency_key:
+      description: A key created by merchants that ensures `POST` and `PATCH` requests are only performed once. [Read more about Idempotent Requests here](/developers/references/idempotency/).
+      in: header
+      name: Idempotency-Key
+      required: false
+      schema:
+        type: string
+    x-bolt-forward-verb:
+      name: X-Bolt-Forward-Verb
+      in: header
+      description: 'The HTTP method to use when forwarding the request to the payment service provider (PSP) endpoint. This allows merchants to specify the appropriate HTTP verb for their PSP''s API requirements.
+
+        '
+      required: true
+      schema:
+        type: string
+        enum:
+        - POST
+        - PUT
+        - PATCH
+        example: POST
+    x-bolt-taas-id:
+      name: X-Bolt-Taas-Id
+      in: header
+      description: "Provide your Tokenizer-as-a-Service (TaaS) identifier. This value tells Bolt which stored payment method to use when injecting sensitive data into the proxied request. The value must be in the following format:\n\n  - `bolt_token:{token}` - Reference a Bolt-issued short-term token\n\nMerchant-scoped long-term tokens will be supported in a future release.\nExample usage allows Bolt to securely inject PAN, CVV, and expiration into the forwarded request body.\n"
+      required: true
+      schema:
+        type: string
+        example: bolt_token:your_bolt_token_here
+    x-bolt-forward-to:
+      name: X-Bolt-Forward-To
+      in: header
+      description: 'The fully qualified URL of the payment service provider (PSP) endpoint to which the request should be proxied. This URL must be whitelisted in advance by Bolt.
+
+        '
+      required: true
+      schema:
+        type: string
+        example: https://api.stripe.com/v1/payment_methods
+  requestBodies:
+    capture_transaction:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/capture_transaction_with_reference'
+      description: Capture a Transaction
+  securitySchemes:
+    OAuth:
+      description: 'Bolt utilizes the OAuth flow that developers can use to attain access to Bolt Account data via APIs.
+
+        For all APIs that require authorization, please provide your `access_token` returned from `/v1/oauth/token` via the basic auth bearer header `Authorization: bearer ${TOKEN}`.
+
+        [Read more about the OAuth token endpoint.](/api-bolt/#tag/OAuth)
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: https://api.boltapp.com/v1/oauth/authorize
+          refreshUrl: https://api.boltapp.com/v1/oauth/token
+          scopes:
+            bolt.account.manage: This scope grants permissions to perform read/edit/delete actions on Bolt Account data
+            bolt.account.view: This scope grants permissions to perform read only actions on Bolt Account data
+            openid: This scope grants permissions that enable Bolt SSO by granting an id token JWT that stores account data. Not used in v1/account endpoints
+          tokenUrl: https://api.boltapp.com/v1/oauth/token
+      type: oauth2
+    X-API-Key:
+      description: Admins and Developers can obtain their Bolt API key from the Bolt Merchant Dashboard.
+      in: header
+      name: X-API-Key
+      type: apiKey
+x-refined-from:
+- bolt-financial-bolt-api-openapi.yml
+- bolt-financial-embeddable-checkout-v1-openapi.yml

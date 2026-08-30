@@ -1,0 +1,655 @@
+openapi: 3.2.0
+info:
+  title: Bolt Financial Testing API
+  version: '1.0'
+  description: 'Operations tagged Testing across 3 of this provider''s published API definitions: bolt-financial-bolt-api-openapi.yml, bolt-financial-embeddable-checkout-v1-openapi.yml, bolt-financial-embeddable-checkout-v3-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.boltapp.com
+  description: The Production URL (Live Data).
+- url: https://api-sandbox.boltapp.com
+  description: The Sandbox URL (Test Data).
+- url: https://api-staging.boltapp.com
+  description: The Staging URL (Staged Data).
+- url: https://{environment}.boltapp.com/v3
+  variables:
+    environment:
+      enum:
+      - api
+      - api-sandbox
+      default: api-sandbox
+tags:
+- name: Testing
+  description: 'The testing endpoint allows you to test various functionality within Bolt. Create a test credit card to process a test payment in your store. You can also simulate tracking an order’s shipment and programmatically create customer accounts to use as dummy data. See our related guide on [Testing](https://help.boltapp.com/developers/production-readiness-guides/test-cards/).
+
+    '
+paths:
+  /v1/shipments/mock_bolt_shipping:
+    post:
+      description: This endpoint simulates tracking an order's shipment and is for testing purposes only.
+      operationId: testShipping
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/mock_tracking_input'
+      responses:
+        '200':
+          description: Success - No Details
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors_bolt_api_response'
+          description: OrderTrackingTesting Generic Failure
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors_bolt_api_response'
+          description: Unprocessable Entity
+      security:
+      - X-API-Key: []
+      summary: Test Shipping
+      tags:
+      - Testing
+    servers:
+    - url: https://api.boltapp.com
+      description: The Production URL (Live Data).
+    - url: https://api-sandbox.boltapp.com
+      description: The Sandbox URL (Test Data).
+    - url: https://api-staging.boltapp.com
+      description: The Staging URL (Staged Data).
+  /v1/testing/shopper/create:
+    post:
+      description: Create a Bolt shopper account for testing purposes. Available for sandbox use only and the created account will be recycled after a certain time.
+      operationId: createTestingShopperAccount
+      parameters:
+      - $ref: '#/components/parameters/x-publishable-key'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/testing_account_request'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/testing_account_details'
+          description: Testing Account Created
+      security:
+      - X-API-Key: []
+      summary: Create Testing Shopper Account
+      tags:
+      - Testing
+    servers:
+    - url: https://api.boltapp.com
+      description: The Production URL (Live Data).
+    - url: https://api-sandbox.boltapp.com
+      description: The Sandbox URL (Test Data).
+    - url: https://api-staging.boltapp.com
+      description: The Staging URL (Staged Data).
+  /v1/testing/card_token:
+    get:
+      description: This endpoint fetches a new credit card token for Bolt's universal test credit card number `4111 1111 1111 1004`. This is for testing and is available only in sandbox.
+      operationId: getTestCreditCardToken
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    description: The newly generated credit card token.
+                    type: string
+                    example: 7i8322df93jsor663bsf02be798e672afd9360a81d203rc97778ff4bddedertg
+                  expiry:
+                    description: The date at which the token expires. A token must be used within 15 minutes of creation.
+                    type: integer
+                    example: 1671140825305
+                  last4:
+                    description: The last 4 digits of the card number.
+                    type: string
+                    example: '1004'
+                  bin:
+                    description: The credit card bin.
+                    type: string
+                    example: '411111'
+                  network:
+                    description: The credit card network.
+                    type: string
+                    example: visa
+          description: Successfully Fetched Credit Card Token
+      security:
+      - X-API-Key: []
+      summary: Fetch a Test Credit Card Token
+      tags:
+      - Testing
+    servers:
+    - url: https://api.boltapp.com
+      description: The Production URL (Live Data).
+    - url: https://api-sandbox.boltapp.com
+      description: The Sandbox URL (Test Data).
+    - url: https://api-staging.boltapp.com
+      description: The Staging URL (Staged Data).
+  /testing/accounts:
+    post:
+      summary: Create a test account
+      operationId: testingAccountCreate
+      x-speakeasy-name-override: CreateAccount
+      description: Create a Bolt shopper account for testing purposes.
+      tags:
+      - Testing
+      security:
+      - api-key: []
+      parameters:
+      - $ref: '#/components/parameters/x-publishable-key_2'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/account-test-creation-data'
+      responses:
+        '200':
+          description: The account was successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/account-test-creation-data'
+        4XX:
+          $ref: '#/components/responses/response-4xx'
+        default:
+          $ref: '#/components/responses/response-default'
+    servers:
+    - url: https://{environment}.boltapp.com/v3
+      variables:
+        environment:
+          enum:
+          - api
+          - api-sandbox
+          default: api-sandbox
+  /testing/accounts/phones:
+    get:
+      summary: Get a random phone number
+      operationId: testingAccountPhoneGet
+      description: Get a random, fictitious phone number that is not assigned to any existing Bolt account.
+      tags:
+      - Testing
+      security:
+      - api-key: []
+      parameters:
+      - $ref: '#/components/parameters/x-publishable-key_2'
+      responses:
+        '200':
+          description: Successfully generated a random, fictitious, unassigned phone number.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/account-test-phone-data'
+        4XX:
+          $ref: '#/components/responses/response-4xx'
+        default:
+          $ref: '#/components/responses/response-default'
+    servers:
+    - url: https://{environment}.boltapp.com/v3
+      variables:
+        environment:
+          enum:
+          - api
+          - api-sandbox
+          default: api-sandbox
+  /testing/credit-cards:
+    post:
+      summary: Retrieve a tokenized test credit card
+      operationId: testingCreditCardGet
+      x-speakeasy-name-override: GetCreditCard
+      description: Retrieve a test credit card that can be used to process payments in your Bolt testing environment. The response includes the card's Bolt credit card token.
+      tags:
+      - Testing
+      security:
+      - api-key: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - type
+              properties:
+                type:
+                  type: string
+                  description: The expected authorization result when using the generated token for a payment.
+                  enum:
+                  - approve
+                  - decline
+                  example: approve
+      responses:
+        '200':
+          description: Successfully generated test credit card details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/test-credit-card'
+        4XX:
+          $ref: '#/components/responses/response-4xx'
+        default:
+          $ref: '#/components/responses/response-default'
+    servers:
+    - url: https://{environment}.boltapp.com/v3
+      variables:
+        environment:
+          enum:
+          - api
+          - api-sandbox
+          default: api-sandbox
+components:
+  schemas:
+    error_bolt_api:
+      properties:
+        code:
+          $ref: '#/components/schemas/code'
+        message:
+          $ref: '#/components/schemas/message'
+      type: object
+      description: Error object containing custom error information
+    message:
+      description: Human-readable description of the error for developers. Should not be shown to users and is not localized.
+      example: The input is missing a required parameter.
+      type: string
+    tracking_detail:
+      properties:
+        city:
+          example: New York
+          type: string
+        country:
+          example: USA
+          type: string
+        datetime:
+          example: '2017-07-21T17:32:28Z'
+          format: date-time
+          type: string
+        message:
+          example: BILLING INFORMATION RECEIVED
+          type: string
+        state:
+          example: New York
+          type: string
+        status:
+          description: The transit status of the order being tracked.
+          enum:
+          - unknown
+          - pre_transit
+          - in_transit
+          - out_for_delivery
+          - delivered
+          - available_for_pickup
+          - return_to_sender
+          - failure
+          - cancelled
+          - error
+          example: in_transit
+          type: string
+        zip:
+          example: '10044'
+          type: string
+      required:
+      - city
+      - state
+      - zip
+      - country
+      - datetime
+      - status
+      - message
+      type: object
+    testing_account_details:
+      properties:
+        email:
+          description: The email of the testing account
+          $ref: '#/components/schemas/email'
+        email_state:
+          example: verified
+          $ref: '#/components/schemas/account_identifier_status'
+        phone:
+          description: The phone number of the testing account
+          $ref: '#/components/schemas/phone'
+        phone_state:
+          example: unverified
+          $ref: '#/components/schemas/account_identifier_status'
+        otp_code:
+          description: Fixed OTP code that can be used to login to the created account
+          example: 123456
+          type: string
+        migrated_merchant_owner_id:
+          description: The merchant's public id if the account is migrated
+          example: addvfRR_bp_7
+          type: string
+        will_deactivate_at:
+          description: The created testing account will be deactivated after this date
+          example: '2023-06-01T23:16:07Z'
+          type: string
+        oauth_code:
+          description: OAuth code that is associated with this account and can be used to exchange for an access token
+          example: 7GSjMRSHs6Ak7C_zvVW6P2IhZOHxMK7HZKW1fMX85ms.-DUXvwr1Yg-bfvqXUlMaz49fPn7OdiPa3TwVBlUI-wc
+          type: string
+      type: object
+    mock_tracking_input:
+      properties:
+        delivery_estimate:
+          type: string
+        status:
+          description: The shipment status of a simulated order.
+          enum:
+          - in_transit
+          - cancelled
+          - failure
+          - delivered
+          type: string
+        tracking_detail:
+          description: A list of tracking updates that contain the shipment's status, location, and any unique messages.
+          items:
+            $ref: '#/components/schemas/tracking_detail'
+          type: array
+        tracking_number:
+          description: The carrier's tracking number for the shipment (Order Tracking Testing). Must begin with `MockBolt`.
+          example: MockBolt1234
+          type: string
+      required:
+      - tracking_number
+      - status
+      - delivery_estimate
+      - tracking_detail
+      type: object
+    phone:
+      description: A phone number following E164 standards, in its globalized format, i.e. prepended with a plus sign.
+      example: '+12125550199'
+      maxLength: 16
+      type: string
+    email:
+      description: An email address.
+      example: alan.watts@example.com
+      format: email
+      type: string
+      maxLength: 255
+    request_result:
+      description: Custom-defined Bolt result object.
+      properties:
+        success:
+          $ref: '#/components/schemas/request_failed'
+      type: object
+    account_identifier_status:
+      description: The status of the shopper account identifier (email or phone). If the account does not have this identifier, the status is "missing"; If the identifier has been used to receive an OTP code, the status is "verified"; If the identifier has not been used to receive an OTP code, the status is "unverified".
+      enum:
+      - missing
+      - verified
+      - unverified
+      example: verified
+      type: string
+    errors_bolt_api:
+      items:
+        $ref: '#/components/schemas/error_bolt_api'
+      type: array
+    errors_bolt_api_response:
+      properties:
+        errors:
+          $ref: '#/components/schemas/errors_bolt_api'
+        result:
+          $ref: '#/components/schemas/request_result'
+      type: object
+    code:
+      description: Custom-defined Bolt error code. This can be used to programmatically react to specific errors.
+      example: 2001005
+      format: int64
+      type: integer
+    testing_account_request:
+      properties:
+        deactivate_in_days:
+          description: 'Number of days after which the test account is deactivated. Default: 30 days. Maximum: 180 days.'
+          type: integer
+        email:
+          description: Deprecated. Please leave this field absent and let the API automatically generate a random email.
+          type: string
+        email_state:
+          $ref: '#/components/schemas/account_identifier_status'
+        phone:
+          description: Deprecated. Please leave this field absent and let the API automatically generate a random phone number.
+          type: string
+        phone_state:
+          $ref: '#/components/schemas/account_identifier_status'
+        migrated:
+          description: Set this account as migrated by the merchant in the request
+          type: boolean
+        has_address:
+          description: Add a random U.S. address to the created account if set to `true`
+          type: boolean
+      type: object
+      example:
+        deactivate_in_days: 30
+        email_state: verified
+        phone_state: verified
+    request_failed:
+      example: false
+      type: boolean
+      description: Indicates that the request failed. This value is always false.
+    field-error:
+      type: object
+      description: An error that pertains to validation of a specific field in the request.
+      required:
+      - .tag
+      - message
+      - field
+      properties:
+        .tag:
+          type: string
+          enum:
+          - invalid_input_parameter
+          description: The type of error returned
+          example: invalid_input_parameter
+        message:
+          type: string
+          description: A human-readable error message, which might include information specific to the request that was made.
+          example: We were unable to process your request.
+        field:
+          type: string
+          description: The field (in its hierarchical form) that is failing validation.
+          example: address.phone
+    account-test-creation-data:
+      type: object
+      required:
+      - email
+      - email_state
+      - phone
+      - phone_state
+      - otp_code
+      - oauth_code
+      properties:
+        email:
+          type: string
+          format: email
+          readOnly: true
+          example: alice@example.com
+        email_state:
+          type: string
+          enum:
+          - missing
+          - unverified
+          - verified
+          example: unverified
+        phone:
+          type: string
+          format: phone
+          readOnly: true
+          example: '+14155550199'
+        phone_state:
+          type: string
+          enum:
+          - missing
+          - unverified
+          - verified
+          example: verified
+        is_migrated:
+          type: boolean
+          writeOnly: true
+          example: true
+        has_address:
+          type: boolean
+          writeOnly: true
+          example: true
+        has_credit_card:
+          type: boolean
+          writeOnly: true
+          example: true
+        otp_code:
+          type: string
+          readOnly: true
+          example: '123456'
+        oauth_code:
+          type: string
+          readOnly: true
+          example: 7GSjMRSHs6Ak7C_zvVW6P2IhZOHxMK7HZKW1fMX85ms
+    account-test-phone-data:
+      type: object
+      required:
+      - phone
+      properties:
+        phone:
+          type: string
+          format: phone
+          description: A random, fictitious, unassigned phone number.
+          example: '+14155550199'
+    test-credit-card:
+      required:
+      - network
+      - bin
+      - last4
+      - expiration
+      - token
+      type: object
+      properties:
+        network:
+          $ref: '#/components/schemas/credit-card-network'
+        bin:
+          type: string
+          description: The Bank Identification Number (BIN). This is typically the first 4 to 6 digits of the account number.
+          pattern: ^\d+$
+          example: '411111'
+        last4:
+          type: string
+          description: The account number's last four digits.
+          pattern: ^\d{4}$
+          example: '1004'
+        expiration:
+          type: string
+          format: date-time
+          description: The token's expiration date. Tokens used past their expiration will be rejected.
+          example: '2023-10-31T06:00:00Z'
+        token:
+          type: string
+          description: The Bolt token associated with the credit card.
+          example: a1B2c3D4e5F6G7H8i9J0k1L2m3N4o5P6Q7r8S9t0
+    error:
+      type: object
+      required:
+      - .tag
+      - message
+      properties:
+        .tag:
+          type: string
+          enum:
+          - unauthorized
+          - forbidden
+          - unprocessable_request
+          - not_found
+          description: The type of error returned
+          example: unprocessable_request
+        message:
+          type: string
+          description: A human-readable error message, which might include information specific to the request that was made.
+          example: We were unable to process your request.
+    credit-card-network:
+      type: string
+      description: The credit card's network.
+      enum:
+      - visa
+      - mastercard
+      - amex
+      - discover
+      - jcb
+      - dinersclub
+      - unionpay
+      - alliancedata
+      - citiplcc
+      example: visa
+      x-oapi-codegen-extra-tags:
+        validate: required
+  parameters:
+    x-publishable-key:
+      description: The publicly viewable identifier used to identify a merchant division. This key is found in the Developer > API section of the Bolt Merchant Dashboard [RECOMMENDED].
+      in: header
+      name: X-Publishable-Key
+      required: false
+      schema:
+        type: string
+    x-publishable-key_2:
+      description: The publicly shareable identifier used to identify your Bolt merchant division.
+      in: header
+      name: X-Publishable-Key
+      required: true
+      schema:
+        type: string
+  responses:
+    response-4xx:
+      description: An error has occurred, and further details are contained in the response
+      content:
+        application/json:
+          schema:
+            oneOf:
+            - $ref: '#/components/schemas/error'
+            - $ref: '#/components/schemas/field-error'
+    response-default:
+      description: An error has occurred, and no further details are provided (e.g. 5xx errors)
+  securitySchemes:
+    OAuth:
+      description: 'Bolt utilizes the OAuth flow that developers can use to attain access to Bolt Account data via APIs.
+
+        For all APIs that require authorization, please provide your `access_token` returned from `/v1/oauth/token` via the basic auth bearer header `Authorization: bearer ${TOKEN}`.
+
+        [Read more about the OAuth token endpoint.](/api-bolt/#tag/OAuth)
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: https://api.boltapp.com/v1/oauth/authorize
+          refreshUrl: https://api.boltapp.com/v1/oauth/token
+          scopes:
+            bolt.account.manage: This scope grants permissions to perform read/edit/delete actions on Bolt Account data
+            bolt.account.view: This scope grants permissions to perform read only actions on Bolt Account data
+            openid: This scope grants permissions that enable Bolt SSO by granting an id token JWT that stores account data. Not used in v1/account endpoints
+          tokenUrl: https://api.boltapp.com/v1/oauth/token
+      type: oauth2
+    X-API-Key:
+      description: Admins and Developers can obtain their Bolt API key from the Bolt Merchant Dashboard.
+      in: header
+      name: X-API-Key
+      type: apiKey
+    api-key:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    oauth:
+      flows:
+        authorizationCode:
+          authorizationUrl: /v1/oauth/authorize
+          refreshUrl: /v1/oauth/token
+          tokenUrl: /v1/oauth/token
+          scopes:
+            bolt.account.manage: This scope grants permissions to perform read/edit/delete actions on Bolt Account data
+            bolt.account.view: This scope grants permissions to perform read only actions on Bolt Account data
+            openid: This scope grants permissions that enable Bolt Single Sign-On (SSO) by granting a JSON Web Token (JWT) that stores account data.
+      type: oauth2
+x-refined-from:
+- bolt-financial-bolt-api-openapi.yml
+- bolt-financial-embeddable-checkout-v1-openapi.yml
+- bolt-financial-embeddable-checkout-v3-openapi.yml

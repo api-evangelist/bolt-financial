@@ -1,0 +1,2855 @@
+openapi: 3.2.0
+info:
+  title: Bolt Financial Orders API
+  version: '1.0'
+  description: 'Operations tagged Orders across 2 of this provider''s published API definitions: bolt-financial-bolt-api-openapi.yml, bolt-financial-embeddable-checkout-v3-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://api.boltapp.com
+  description: The Production URL (Live Data).
+- url: https://api-sandbox.boltapp.com
+  description: The Sandbox URL (Test Data).
+- url: https://api-staging.boltapp.com
+  description: The Staging URL (Staged Data).
+- url: https://{environment}.boltapp.com/v3
+  variables:
+    environment:
+      enum:
+      - api
+      - api-sandbox
+      default: api-sandbox
+tags:
+- name: Orders
+  description: 'Use the Orders API to interact with the customer''s cart throughout the checkout process. Pre-checkout, perform actions such as validating inventory, verifying discounts, and calculating taxes. Post-checkout, share shipping information so your customer can track their order. You''ll interact with the [Merchant API](https://help.boltapp.com/api-merchant/) to keep the servers in sync with any changes the customer makes to their cart. See our related guide [Create a Bolt Order Token](https://help.boltapp.com/products/checkout/how-to-integrate/create-bolt-order-token-new/).
+
+    '
+paths:
+  /v1/merchant/orders:
+    post:
+      description: Make a request to this endpoint to create a Bolt order, generate a Bolt order token, and initiate the checkout process. A Bolt order token is required for Bolt orders; see Non-Bolt orders for alternative use cases.
+      operationId: createOrderToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/order_create'
+        description: Generate Order Token
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/i_order_view'
+          description: Token Generation Successful
+        '400':
+          $ref: '#/components/responses/order_generate_error_400'
+        '403':
+          $ref: '#/components/responses/order_generate_error_403'
+        '422':
+          $ref: '#/components/responses/order_generate_error_422'
+      security:
+      - X-API-Key: []
+      summary: Create Order Token
+      tags:
+      - Orders
+    servers:
+    - url: https://api.boltapp.com
+      description: The Production URL (Live Data).
+    - url: https://api-sandbox.boltapp.com
+      description: The Sandbox URL (Test Data).
+    - url: https://api-staging.boltapp.com
+      description: The Staging URL (Staged Data).
+  /v1/merchant/track_shipment:
+    post:
+      description: 'Send the carrier and order tracking number to Bolt (after a label has been printed). Bolt then uses EasyPost to forward ongoing tracking event updates to the shopper. This request must include **all** items included in the shipment; their references must also match those found in the original cart generation.
+
+        '
+      operationId: trackOrder
+      requestBody:
+        $ref: '#/components/requestBodies/order_track'
+      responses:
+        '200':
+          $ref: '#/components/responses/order_track'
+        '400':
+          $ref: '#/components/responses/order_track_error_400'
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errors_bolt_api_response'
+          description: Generic Error Schema
+      security:
+      - X-API-Key:
+        - X-API-Key
+      summary: Send order tracking details
+      tags:
+      - Orders
+    servers:
+    - url: https://api.boltapp.com
+      description: The Production URL (Live Data).
+    - url: https://api-sandbox.boltapp.com
+      description: The Sandbox URL (Test Data).
+    - url: https://api-staging.boltapp.com
+      description: The Staging URL (Staged Data).
+  /orders:
+    post:
+      summary: Create an order that was prepared outside the Bolt ecosystem.
+      operationId: ordersCreate
+      description: Create an order that was prepared outside the Bolt ecosystem. Some Bolt-powered flows automatically manage order creation - in those flows the order ID will be provided separately and not through this API.
+      tags:
+      - Orders
+      security:
+      - api-key: []
+      parameters:
+      - $ref: '#/components/parameters/x-publishable-key'
+      - $ref: '#/components/parameters/x-merchant-client-id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/order'
+            examples:
+              reference:
+                $ref: '#/components/examples/order'
+      responses:
+        '200':
+          description: The order was successfuly created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/order-response'
+              examples:
+                finalized:
+                  $ref: '#/components/examples/order-response'
+        4XX:
+          $ref: '#/components/responses/response-4xx'
+        default:
+          $ref: '#/components/responses/response-default'
+    servers:
+    - url: https://{environment}.boltapp.com/v3
+      variables:
+        environment:
+          enum:
+          - api
+          - api-sandbox
+          default: api-sandbox
+components:
+  schemas:
+    cost:
+      description: The cost in cents.
+      example: 770
+      type: integer
+    merchant_product_id:
+      description: The merchant's unique ID for the product.
+      example: '881'
+      type: string
+    item_property:
+      properties:
+        name:
+          example: a-name
+          type: string
+        value:
+          example: a-value
+          type: string
+      type: object
+    depth:
+      description: The depth.
+      example: 90
+      type: integer
+    cart_shipment:
+      description: A cart that is being prepared for shipment
+      properties:
+        carrier:
+          $ref: '#/components/schemas/carrier'
+        cost:
+          $ref: '#/components/schemas/cost'
+        discounted_by_membership:
+          $ref: '#/components/schemas/discount_membership'
+        estimated_delivery_date:
+          $ref: '#/components/schemas/estimated_delivery_date'
+        expedited:
+          $ref: '#/components/schemas/expedited'
+        package_depth:
+          $ref: '#/components/schemas/depth'
+        package_dimension_unit:
+          $ref: '#/components/schemas/dimension_unit'
+        package_height:
+          $ref: '#/components/schemas/height'
+        package_type:
+          $ref: '#/components/schemas/package_type'
+        package_weight_unit:
+          $ref: '#/components/schemas/weight_unit'
+        package_width:
+          $ref: '#/components/schemas/width'
+        service:
+          $ref: '#/components/schemas/service'
+        shipping_address:
+          $ref: '#/components/schemas/address'
+        shipping_address_id:
+          $ref: '#/components/schemas/shipping_address_id'
+        shipping_method:
+          $ref: '#/components/schemas/shipping_method'
+        signature:
+          $ref: '#/components/schemas/signature'
+        tax_amount:
+          $ref: '#/components/schemas/tax_amount'
+        tax_code:
+          $ref: '#/components/schemas/tax_code'
+        total_weight:
+          description: The total weight.
+          example: 55
+          type: integer
+        total_weight_unit:
+          $ref: '#/components/schemas/weight_unit'
+        type:
+          $ref: '#/components/schemas/cart_shipment_type'
+      type: object
+    options:
+      example: string option
+      type: string
+    cart_discount:
+      properties:
+        amount:
+          example: 100
+          type: number
+        code:
+          example: SUMMER10DISCOUNT
+          maxLength: 1024
+          type: string
+        description:
+          description: Used to define the discount offering.
+          example: 10% off our summer collection
+          maxLength: 1024
+          type: string
+        details_url:
+          description: Used to provide a link to additional details, such as a landing page, associated with the discount offering.
+          example: https://boltswagstore.com/SUMMERSALE
+          maxLength: 8192
+          type: string
+        discount_category:
+          enum:
+          - coupon
+          - giftcard
+          - managed_giftcard
+          - store_credit
+          - automatic_promotion
+          - membership_discount
+          - membership_giftcard
+          - subscription_discount
+          - rewards_discount
+          - shipping_discount
+          - unknown
+          type: string
+        reference:
+          description: Used to define the reference ID associated with the discount available.
+          example: DISC-1234
+          maxLength: 1024
+          type: string
+        type:
+          description: The type of discount.
+          enum:
+          - fixed_amount
+          - percentage
+          - free_shipping
+          example: percentage
+          type: string
+      type: object
+    gift_option_view:
+      description: Defines which gift options are hidden.
+      properties:
+        hide_gift_message:
+          example: false
+          type: boolean
+        hide_gift_wrap:
+          example: false
+          type: boolean
+      type: object
+    type:
+      description: Determines if item is a physical, digital, or bundled good, or if the good type is unknown.
+      enum:
+      - bundled
+      - digital
+      - physical
+      - unknown
+      example: physical
+      type: string
+    item_properties:
+      items:
+        $ref: '#/components/schemas/item_property'
+      type: array
+    metadata_component:
+      properties:
+        key1:
+          example: value1
+          type: string
+        key2:
+          example: value2
+          type: string
+      type: object
+    carrier:
+      description: The name of the carrier selected.
+      example: FedEx
+      type: string
+    cart_loyalty_rewards:
+      properties:
+        amount:
+          description: The reward amount in cents (1/100).
+          format: int64
+          type: number
+        coupon_code:
+          description: The loyalty reward's coupon code.
+          type: string
+        description:
+          description: A description of the loyalty reward that will be shown to the shopper.
+          type: string
+          example: $5 off (100 Points)
+        details:
+          description: Internal-facing metadata for the Loyalty Rewards. Ideal for adding any other identifying information about the reward, including a duplication of the original loyalty reward json response from the loyalty provider as shown in the example provided. If you choose to use this field to hold json, enclose the content in single quotes to force a string value.
+          type: string
+          example: '{"id": 123456, "icon": "fa-dollar", "name": "$15.00 Off", "type": "Coupon", "amount": 100, "duration": "single_use", "cost_text": "150 Points", "description": "Get $15 off your next purchase for 150 points", "discount_type": "fixed_amount", "unrendered_name": "$15.00 Off", "discount_percentage": null, "discount_rate_cents": null, "discount_value_cents": null, "discount_amount_cents": 1500, "unrendered_description": "Get $15 off your next purchase for 150 points", "applies_to_product_type": "ALL"}'
+        points:
+          description: The number of points needed for this reward.
+          format: int64
+          type: number
+        source:
+          description: The loyalty rewards provider.
+          type: string
+        type:
+          description: The type of loyalty reward.
+          type: string
+      type: object
+    items:
+      description: A list of items.
+      items:
+        $ref: '#/components/schemas/item'
+      type: array
+    estimated_delivery_date:
+      description: The estimated delivery date.
+      example: 08-30-2022
+      type: string
+    digital_delivery:
+      properties:
+        email:
+          type: string
+        phone:
+          type: string
+      type: object
+    i_weight:
+      properties:
+        unit:
+          type: string
+        weight:
+          format: int64
+          type: number
+      type: object
+    size:
+      description: The size.
+      example: XXL
+      type: string
+    quantity:
+      description: The quantity of this item.
+      example: 3
+      type: integer
+    taxable:
+      description: Determines if item is taxable.
+      example: true
+      type: boolean
+    i_cart_view:
+      description: This is the cart object returned in a successful response.
+      properties:
+        billing_address:
+          $ref: '#/components/schemas/address_view'
+        cart_url:
+          description: Used to provide a link to the cart ID.
+          example: https://boltswagstore.com/orders/123456765432
+          maxLength: 8192
+          type: string
+        currency:
+          $ref: '#/components/schemas/i_currency'
+        discount_amount:
+          $ref: '#/components/schemas/amount_view'
+        discounts:
+          items:
+            $ref: '#/components/schemas/i_cart_discount_view'
+          type: array
+        display_id:
+          example: displayid_100
+          type: string
+        fee_amount:
+          $ref: '#/components/schemas/amount_view'
+        fees:
+          items:
+            $ref: '#/components/schemas/i_cart_fee_view'
+          type: array
+        items:
+          items:
+            $ref: '#/components/schemas/i_cart_item_view'
+          type: array
+        merchant_order_url:
+          type: string
+        order_description:
+          description: Used optionally to pass additional information like order numbers or other IDs as needed.
+          example: 'Order #1234567890'
+          maxLength: 1024
+          type: string
+        order_reference:
+          description: This value is used by Bolt as an external reference to a given order. This reference must be unique per successful transaction.
+          example: order_100
+          type: string
+        shipments:
+          items:
+            $ref: '#/components/schemas/i_cart_shipment_view'
+          type: array
+        shipping_amount:
+          $ref: '#/components/schemas/amount_view'
+        subtotal_amount:
+          $ref: '#/components/schemas/amount_view'
+        tax_amount:
+          $ref: '#/components/schemas/amount_view'
+        total_amount:
+          $ref: '#/components/schemas/amount_view'
+        transaction_reference:
+          description: The 12 digit reference ID associated to a given transaction webhook for an order.
+          example: 6CEA-ZME1-DACE
+          maxLength: 12
+          minLength: 12
+          type: string
+      type: object
+    request_result:
+      description: Custom-defined Bolt result object.
+      properties:
+        success:
+          $ref: '#/components/schemas/request_failed'
+      type: object
+    cart_item_property:
+      properties:
+        color:
+          maxLength: 1024
+          type: string
+        display:
+          type: boolean
+        name:
+          maxLength: 1024
+          type: string
+        name_id:
+          format: int64
+          type: number
+        value:
+          maxLength: 1024
+          type: string
+        value_id:
+          format: int64
+          type: number
+      type: object
+    customizations_name:
+      description: The name of the customization.
+      example: Bedazzled
+      type: string
+    door_code:
+      description: The building door code or community gate code.
+      example: '123456'
+      maxLength: 1024
+      type:
+      - string
+      - 'null'
+    expedited:
+      description: True if shipment is expedited.
+      example: false
+      type: boolean
+    cart_item_property_view:
+      properties:
+        color:
+          type: string
+        display:
+          type: boolean
+        name:
+          type: string
+        value:
+          type: string
+      type: object
+    cart_item:
+      properties:
+        brand:
+          example: Bolt
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        category:
+          description: Used to define a product category associated with the item.
+          example: bags
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        collections:
+          $ref: '#/components/schemas/collections'
+        color:
+          description: Used to define the color of the item.
+          example: Bolt Blue
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        customizations:
+          items:
+            $ref: '#/components/schemas/cart_item_customization'
+          type: array
+        description:
+          example: Large tote with Bolt logo.
+          type:
+          - string
+          - 'null'
+        details_url:
+          description: Used to provide a link to the item's product page.
+          example: https://boltswagstore.com/products/123456
+          maxLength: 8192
+          type: string
+        external_inputs:
+          $ref: '#/components/schemas/i_cart_item_external_inputs'
+        gift_option:
+          $ref: '#/components/schemas/cart_item_gift_option'
+        image_url:
+          description: Used to provide a link to the image associated with the item.
+          example: https://boltswagstore.com/products/123456/images/1.png
+          maxLength: 8192
+          type: string
+        isbn:
+          description: Used to define the International Standard Book Number associated with the book.
+          example: '9780091347314'
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        item_group:
+          type:
+          - string
+          - 'null'
+        manufacturer:
+          description: Used to define the organization that manufactured the item.
+          example: Bolt Textiles USA
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        merchant_product_id:
+          $ref: '#/components/schemas/merchant_product_id'
+        merchant_variant_id:
+          $ref: '#/components/schemas/merchant_variant_id'
+        msrp:
+          format: int64
+          type:
+          - number
+          - 'null'
+        name:
+          example: Bolt Swag Bag
+          maxLength: 1024
+          minLength: 1
+          type: string
+        options:
+          example: Special Edition
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        properties:
+          items:
+            $ref: '#/components/schemas/cart_item_property'
+          type: array
+        quantity:
+          example: 1
+          format: int64
+          maximum: 15000
+          type: number
+        reference:
+          example: item_100
+          maxLength: 1024
+          type: string
+        shipment:
+          $ref: '#/components/schemas/cart_shipment'
+        shipment_type:
+          enum:
+          - unknown
+          - door_delivery
+          - ship_to_store
+          - in_store_pickup
+          type: string
+        size:
+          description: Used to define the size of the item.
+          example: Large
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        sku:
+          description: Used to define the alpha-numberic Stock Keeping Unit associated with the item as it is mapped to your internal product catalogue.
+          example: BOLT-SKU_100
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        source:
+          type:
+          - string
+          - 'null'
+        seller_id:
+          description: The unique identifier for the seller within the marketplace ecosystem. This field ensures deterministic multi-party payout calculations.
+          example: seller-1234
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        tags:
+          description: Used to define a comma-separated list of tags associated with the item.
+          example: tote, blue, linen, eco-friendly
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        tax_amount:
+          description: The tax amount for the item; this value should scale with the quantity of units selected.
+          example: 0
+          format: int64
+          type:
+          - number
+          - 'null'
+        tax_code:
+          maxLength: 32
+          type:
+          - string
+          - 'null'
+        taxable:
+          type:
+          - boolean
+          - 'null'
+        total_amount:
+          description: The total amount, in cents, of the item including its taxes if applicable.
+          example: 1000
+          format: int64
+          type: number
+        type:
+          enum:
+          - unknown
+          - digital
+          - physical
+          - bundled
+          type: string
+        unit_price:
+          description: The price of one unit of the item; for example, the price of one pack of socks.
+          example: 1000
+          format: int64
+          type: number
+        uom:
+          description: Used to define the unit of measure used to describe the item.
+          example: inches
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        upc:
+          description: Used to define the 12-digit Universal Product Code (a barcode) associated with the item worldwide.
+          example: 0825764603119
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        weight:
+          example: 10
+          format: int64
+          maximum: 10000
+          type:
+          - number
+          - 'null'
+        weight_unit:
+          example: pounds
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+      required:
+      - reference
+      - name
+      - total_amount
+      - unit_price
+      - quantity
+      type: object
+    i_order_dynamic_content:
+      properties:
+        custom_fields:
+          items:
+            $ref: '#/components/schemas/i_custom_field_view'
+          type: array
+        eligible_payment_methods:
+          items:
+            $ref: '#/components/schemas/eligible_payment_method'
+          type: array
+        gift_option_view:
+          $ref: '#/components/schemas/i_gift_option_view'
+        hide_apm:
+          items:
+            enum:
+            - PAYPAL
+            - AFFIRM
+            - AFTERPAY
+            - AMAZONPAY
+            - KLARNA
+            - RADIALPAYPAL
+            - SEZZLE
+            - RADIALKLARNA
+            - CREDOVA
+            - GOOGLEPAY
+            type: string
+          type: array
+        order_notice:
+          type: string
+        payment_notice:
+          type: string
+        shipping_info_notice:
+          type: string
+        shipping_notice:
+          type: string
+      type: object
+    currency_iso:
+      description: The 3-digit ISO code for the currency. **Nullable** for Transactions Details.
+      example: USD
+      type: string
+    item_shipment_type:
+      description: The shipment type selected by the shopper.
+      enum:
+      - unknown
+      - door delivery
+      - in_store_pickup
+      - ship_to_store
+      type: string
+    message:
+      description: Human-readable description of the error for developers. Should not be shown to users and is not localized.
+      example: The input is missing a required parameter.
+      type: string
+    base_cart:
+      description: The base_cart object contains the core details typically found in most cart objects, including items, discounts, amount totals, shipments, and in-store pickups.
+      properties:
+        add_ons:
+          items:
+            $ref: '#/components/schemas/cart_add_on'
+          type: array
+        billing_address:
+          $ref: '#/components/schemas/address'
+        discounts:
+          items:
+            $ref: '#/components/schemas/cart_discount'
+          type: array
+        fees:
+          items:
+            $ref: '#/components/schemas/cart_fee'
+          type: array
+        fulfillments:
+          items:
+            $ref: '#/components/schemas/fulfillment'
+          type: array
+        in_store_cart_shipments:
+          items:
+            $ref: '#/components/schemas/in_store_cart_shipment'
+          type: array
+        items:
+          description: The list of items associated with the cart.
+          items:
+            $ref: '#/components/schemas/cart_item'
+          type: array
+        loyalty_rewards:
+          items:
+            $ref: '#/components/schemas/cart_loyalty_rewards'
+          type: array
+        shipments:
+          items:
+            $ref: '#/components/schemas/cart_shipment'
+          type: array
+        tax_amount:
+          description: The total tax amount for all of the items associated with the cart.
+          format: int64
+          type: number
+        total_amount:
+          description: The total amount, in cents, of the cart including its items and taxes (if applicable), e.g. $9.00 is 900. This total must match the sum of all other amounts.
+          example: 900
+          format: int64
+          type: number
+      required:
+      - total_amount
+      type: object
+    i_free_shipping_discount_view:
+      properties:
+        is_free_shipping:
+          type: boolean
+        maximum_cost_allowed:
+          format: int64
+          type: number
+      type: object
+    transaction_reference:
+      description: The transaction's 12-digit Bolt reference ID. **Nullable** for Transactions Details.
+      example: LBLJ-TWW7-R9VC
+      maxLength: 12
+      minLength: 12
+      type: string
+    code:
+      description: Custom-defined Bolt error code. This can be used to programmatically react to specific errors.
+      example: 2001005
+      format: int64
+      type: integer
+    i_currency:
+      properties:
+        currency:
+          example: USD
+          type: string
+        currency_symbol:
+          example: $
+          type: string
+      type: object
+    order_create:
+      properties:
+        cart:
+          allOf:
+          - $ref: '#/components/schemas/cart_create'
+          - description: The cart_create object is a composite of the base_cart object and additional order details.
+          - required:
+            - order_reference
+        channel:
+          description: Used to determine the channel from which the order was created.
+          enum:
+          - browser
+          - mobile_app
+          type: string
+        create_cart_on_merchant_backend:
+          description: Used to determine whether the order is created on your backend platform. This should almost always be `false`.
+          example: false
+          type:
+          - boolean
+          - 'null'
+        metadata:
+          $ref: '#/components/schemas/i_order_metadata'
+        user_note:
+          description: Optionally used by shoppers to make extra requests or provide details for gift messages.
+          example: Happy Birthday to my best friend in the whole world. Enjoy!
+          maxLength: 1024
+          type: string
+        seller_splits:
+          description: Array of seller splits for marketplace orders. This enables marketplaces to dynamically configure commission fees and payment splits per seller. Each split contains seller identification, scoped line items and shipments, and declarative amount breakdowns.
+          items:
+            $ref: '#/components/schemas/seller_split'
+          type:
+          - array
+          - 'null'
+      required:
+      - cart
+      - channel
+      type: object
+    gift_options_wrap:
+      description: Defines whether gift wrapping was requested.
+      example: false
+      type: boolean
+    i_order_external_data:
+      properties:
+        steam_id:
+          type: string
+      type: object
+    address:
+      description: The Address object is used for billing, shipping, and physical store address use cases.
+      properties:
+        company:
+          description: The company name associated with this address.
+          example: Bolt
+          maxLength: 1024
+          type: string
+        country:
+          description: The name of the country associated with this address.
+          example: United States
+          maxLength: 1024
+          type: string
+        country_code:
+          description: The ISO 3166-1 alpha-2 country code associated with this address.
+          example: US
+          maxLength: 2
+          minLength: 2
+          type: string
+        default:
+          description: Whether the added address is now the default address.
+          example: true
+          type: boolean
+        door_code:
+          $ref: '#/components/schemas/door_code'
+        email:
+          description: The email address associated with this address.
+          $ref: '#/components/schemas/email'
+        first_name:
+          description: The given name of the person associated with this address.
+          example: Alan
+          maxLength: 1024
+          type: string
+        last_name:
+          description: The surname of the person associated with this address.
+          example: Watts
+          maxLength: 1024
+          type: string
+        locality:
+          description: The city name details associated with this address.
+          example: Brooklyn
+          maxLength: 1024
+          type: string
+        name:
+          description: The given and surname of the person associated with this address.
+          example: Alan Watts
+          maxLength: 1024
+          type: string
+        phone:
+          description: The phone number associated with this address.
+          $ref: '#/components/schemas/phone'
+        postal_code:
+          description: The the postal or zip code associated with this address.
+          example: '10044'
+          maxLength: 32
+          type: string
+        region:
+          description: '**Not Required for NON US addresses**. The region details such as state or province associated with this address.'
+          example: NY
+          maxLength: 1024
+          type: string
+        region_code:
+          description: "The ISO 3166-2 region code associated with this address.\n  - * If specified, value must be valid for the `country`.\n  - * If null, value is inferred from the `region`.\n"
+          example: NY
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        street_address1:
+          description: The street number and street name of the address.
+          example: 888 main street
+          maxLength: 1024
+          type: string
+        street_address2:
+          description: Any apartment, floor, or unit details.
+          example: apt 3021
+          maxLength: 1024
+          type: string
+        street_address3:
+          description: Any additional street address details.
+          example: c/o Alicia Watts
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        street_address4:
+          description: Any additional street address details.
+          example: Bridge Street Apartment Building B
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+      required:
+      - street_address1
+      - locality
+      - region
+      - country_code
+      - postal_code
+      - email
+      - first_name
+      - last_name
+      type: object
+    shipping_method:
+      description: The name of the shipping method.
+      example: unknown
+      type: string
+    height:
+      description: The height.
+      example: 103
+      type: integer
+    in_store_cart_shipment:
+      properties:
+        cart_shipment:
+          $ref: '#/components/schemas/cart_shipment'
+        description:
+          description: Shipment option description.
+          example: Pick up in-store at 123 Main St.
+          type: string
+        distance:
+          example: 3
+          format: float64
+          type: number
+        distance_unit:
+          enum:
+          - km
+          - mile
+          example: mile
+          type: string
+        in_store_pickup_address:
+          $ref: '#/components/schemas/address'
+        pickup_window_close:
+          format: date
+          type: integer
+        pickup_window_open:
+          format: date
+          type: integer
+        store_name:
+          description: The local store's name where the item can be picked up.
+          example: Bolt Collective
+          type: string
+      type: object
+    amount_view:
+      properties:
+        amount:
+          format: int64
+          example: 754
+          type: number
+        currency:
+          example: USD
+          type: string
+        currency_symbol:
+          example: $
+          type: string
+      type: object
+    error_bolt_api:
+      properties:
+        code:
+          $ref: '#/components/schemas/code'
+        message:
+          $ref: '#/components/schemas/message'
+      type: object
+      description: Error object containing custom error information
+    i_cart_shipment_view:
+      properties:
+        carrier:
+          description: The carrier used to deliver the shipment.
+          example: USPS
+          maxLength: 1024
+          type: string
+        cost:
+          $ref: '#/components/schemas/amount_view'
+        default:
+          type: boolean
+        description:
+          items:
+            $ref: '#/components/schemas/i_description_part'
+          type: array
+        description_tooltips:
+          items:
+            $ref: '#/components/schemas/i_description_tooltip'
+          type: array
+        estimated_delivery_date:
+          example: '2022-04-10 16:12:38.386000+00:00'
+          format: date-time
+          type: string
+        expedited:
+          description: Used to determine whether a shipment has been expedited or not.
+          type: boolean
+        gift_options:
+          $ref: '#/components/schemas/gift_option_view'
+        id:
+          type: string
+        package_dimension:
+          properties:
+            depth:
+              format: int64
+              type: number
+            height:
+              format: int64
+              type: number
+            unit:
+              type: string
+            width:
+              format: int64
+              type: number
+          type: object
+        package_type:
+          type: string
+        package_weight:
+          $ref: '#/components/schemas/i_weight'
+        reference:
+          type: string
+        service:
+          type: string
+        shipping_address:
+          $ref: '#/components/schemas/address_view'
+        shipping_method:
+          type: string
+        signature:
+          type: string
+        tax_amount:
+          $ref: '#/components/schemas/amount_view'
+        total_weight:
+          $ref: '#/components/schemas/i_weight'
+        type:
+          type: string
+      type: object
+    i_cart_item_external_inputs:
+      properties:
+        shopify_line_item_reference:
+          format: int64
+          type: number
+        shopify_product_reference:
+          format: int64
+          type: number
+        shopify_product_variant_reference:
+          format: int64
+          type: number
+      type: object
+    fulfillment:
+      description: Defines the shipments associated with the cart items.
+      properties:
+        cart_items:
+          items:
+            $ref: '#/components/schemas/cart_item'
+          type: array
+        cart_shipment:
+          $ref: '#/components/schemas/cart_shipment'
+        digital_delivery:
+          $ref: '#/components/schemas/digital_delivery'
+        in_store_cart_shipment:
+          $ref: '#/components/schemas/in_store_cart_shipment'
+        type:
+          enum:
+          - physical_door_delivery
+          - physical_ship_to_store
+          - physical_in_store_pickup
+          - digital_download
+          - digital_no_delivery
+          type: string
+      type: object
+    isbn:
+      description: A 13-digit identifier for a book item.
+      example: 12-345-678-90123
+      type: string
+    reference:
+      description: Reference for the object.
+      example: '1123'
+      type: string
+    category:
+      description: A category.
+      example: hats
+      type: string
+    phone:
+      description: A phone number following E164 standards, in its globalized format, i.e. prepended with a plus sign.
+      example: '+12125550199'
+      maxLength: 16
+      type: string
+    cart_create:
+      allOf:
+      - $ref: '#/components/schemas/base_cart'
+      - properties:
+          cart_url:
+            description: Used to provide a link to the cart ID.
+            example: https://boltswagstore.com/orders/123456765432
+            maxLength: 8192
+            type: string
+          currency:
+            example: USD
+            type: string
+          display_id:
+            description: This field, although required, can be an empty string.
+            example: displayid_100
+            maxLength: 128
+            type: string
+          metadata:
+            additionalProperties:
+              type: string
+            description: Optional custom metadata.
+            example:
+              key1: value1
+              key2: value2
+            type: object
+          order_description:
+            description: Used optionally to pass additional information like order numbers or other IDs as needed.
+            example: 'Order #1234567890'
+            maxLength: 1024
+            type: string
+          order_reference:
+            description: This value is used by Bolt as an external reference to a given order. This reference must be unique per successful transaction.
+            example: order_100
+            type: string
+        required:
+        - currency
+        - order_reference
+        type: object
+    payment_service:
+      enum:
+      - affirm
+      - afterpay
+      - amazon_pay
+      - credova
+      - klarna
+      - paypal
+      - sezzle
+      - radial_klarna
+      - radial_paypal
+      - adyen_gateway
+      - alliance_data
+      - authorize_net
+      - braintree
+      - cardconnect
+      - checkout_com
+      - cybersource
+      - first_data
+      - nmi
+      - orbital
+      - paypal_payflow
+      - radial
+      - rocketgate
+      - shopify_payments
+      - stripe
+      - magentopayment
+      - adyen_payfac
+      - vantiv
+      - google_pay
+      - bolt
+      type: string
+    cart_item_customization:
+      properties:
+        attributes:
+          additionalProperties:
+            type: string
+          example:
+            key1: value1
+            key2: value2
+          type: object
+        name:
+          type: string
+        price:
+          example: 754
+          format: int64
+          type: number
+      type: object
+    i_gift_option_view:
+      properties:
+        hide_gift_message:
+          type: boolean
+        hide_gift_wrap:
+          type: boolean
+      type: object
+    eligible_payment_method:
+      properties:
+        eligible:
+          type: boolean
+        transaction_processor_type:
+          $ref: '#/components/schemas/payment_service'
+      type: object
+    signature:
+      description: The signature.
+      example: a1B2s3dC4f5g5D6hj6E7k8F9l0
+      type: string
+    marketplace_commission_fee:
+      description: Configures the marketplace commission fee structure for a seller split, supporting both percentage-based and flat fee models.
+      properties:
+        bps:
+          description: The commission fee expressed in basis points (1 bps = 0.01%). For example, 100 bps = 1%, 250 bps = 2.5%.
+          example: 250
+          format: int64
+          type: number
+        flat_cents:
+          description: The fixed commission fee amount in cents, applied regardless of transaction value.
+          example: 100
+          format: int64
+          type: number
+        metadata:
+          description: Additional contextual information about the commission fee, such as plan type, tier level, or other business rules.
+          additionalProperties:
+            type: string
+          example:
+            plan_type: pro
+            tier: premium
+          type:
+          - object
+          - 'null'
+      required:
+      - bps
+      - flat_cents
+      type: object
+    i_cart_fee_view:
+      properties:
+        reference:
+          description: Unique reference used to identify the fee.
+          example: ItemFee
+          maxLength: 1024
+          type: string
+        name:
+          description: Name of the fee that will appear in the order ledger.
+          example: Item Fee
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        description:
+          description: Description of the fee that will appear in the tooltip if the mouse hovers over the fee.
+          example: Item Fee
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        unit_price:
+          $ref: '#/components/schemas/amount_view'
+        unit_tax_amount:
+          $ref: '#/components/schemas/amount_view'
+        quantity:
+          format: int64
+          type: number
+      type: object
+    item_description:
+      description: A description for the item added to the cart/order.
+      example: ' Large blue satin hat with initials embroidered.'
+      type: string
+    shipping_carrier:
+      description: the name of the carrier used for shipment.
+      example: UPS
+      type: string
+    subscription:
+      description: Describes a product added as a recurring subscription.
+      properties:
+        frequency:
+          description: Describes how often the subscription recurs.
+          properties:
+            unit:
+              description: The unit for this subscription's frequency.
+              enum:
+              - day
+              - week
+              - month
+              - year
+              example: month
+              type: string
+            value:
+              description: The value applied to the unit frequency.
+              example: 2
+              type: integer
+          type: object
+      type: object
+    service:
+      description: The service name.
+      example: Option 1
+      type: string
+    cart_fee:
+      properties:
+        reference:
+          description: Unique reference used to identify the fee.
+          example: ItemFee
+          maxLength: 1024
+          type: string
+        name:
+          description: Name of the fee that will appear in the order ledger.
+          example: Item Fee
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        description:
+          description: Description of the fee that will appear in the tooltip if the mouse hovers over the fee.
+          example: Item Fee
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        unit_price:
+          format: int64
+          type: number
+        unit_tax_amount:
+          format: int64
+          type: number
+        quantity:
+          format: int64
+          type: number
+      required:
+      - reference
+      - name
+      - unit_price
+      - unit_tax_amount
+      - quantity
+      type: object
+    shipping_address_id:
+      description: ID for billing address
+      example: address1
+      type: string
+    tag:
+      description: A tag
+      example: red
+      type: string
+    errors_bolt_api:
+      items:
+        $ref: '#/components/schemas/error_bolt_api'
+      type: array
+    item:
+      description: An item with properties.
+      properties:
+        bolt_product_id:
+          $ref: '#/components/schemas/bolt_product_id'
+        brand:
+          $ref: '#/components/schemas/brand'
+        category:
+          $ref: '#/components/schemas/category'
+        collections:
+          $ref: '#/components/schemas/collections'
+        color:
+          $ref: '#/components/schemas/color'
+        customizations:
+          items:
+            properties:
+              attributes:
+                $ref: '#/components/schemas/metadata_component'
+              name:
+                $ref: '#/components/schemas/customizations_name'
+              price:
+                $ref: '#/components/schemas/amounts'
+            required:
+            - name
+            - price
+            - attributes
+            type: object
+          type: array
+        description:
+          $ref: '#/components/schemas/item_description'
+        details_url:
+          description: The URL for the item's details.
+          example: https://boltswagstore.com/inventory/hats/red-hat.png
+          type: string
+        image_url:
+          $ref: '#/components/schemas/image_url'
+        isbn:
+          $ref: '#/components/schemas/isbn'
+        item_group:
+          $ref: '#/components/schemas/item_group'
+        manufacturer:
+          $ref: '#/components/schemas/manufacturer'
+        name:
+          $ref: '#/components/schemas/name_item'
+        options:
+          $ref: '#/components/schemas/options'
+        properties:
+          $ref: '#/components/schemas/item_properties'
+        quantity:
+          $ref: '#/components/schemas/quantity'
+        reference:
+          $ref: '#/components/schemas/reference'
+        shipment_type:
+          $ref: '#/components/schemas/item_shipment_type'
+        size:
+          $ref: '#/components/schemas/size'
+        sku:
+          $ref: '#/components/schemas/sku'
+        tags:
+          $ref: '#/components/schemas/tag'
+        tax_amount:
+          $ref: '#/components/schemas/amounts'
+        taxable:
+          $ref: '#/components/schemas/taxable'
+        total_amount:
+          $ref: '#/components/schemas/amounts'
+        type:
+          $ref: '#/components/schemas/type'
+        unit_price:
+          $ref: '#/components/schemas/amounts'
+        uom:
+          example: string
+          type: string
+        upc:
+          example: string
+          type: string
+        weight:
+          $ref: '#/components/schemas/total_weight'
+      required:
+      - reference
+      - name
+      - total_amount
+      - unit_price
+      - quantity
+      type: object
+    brand:
+      description: The name of a brand.
+      example: Bolt Swagstore
+      type: string
+    order_non_bolt:
+      description: Designates if the order was placed outside of Bolt checkout.
+      example: false
+      type: boolean
+    weight_unit:
+      description: The unit of measurement for an item's weight.
+      example: kg
+      type: string
+    gift_options_message:
+      description: Includes the gift message written by the shopper.
+      example: Happy Anniversary, Smoochy Poo!
+      type: string
+    i_description_tooltip:
+      properties:
+        html_content:
+          type: string
+        target:
+          format: int64
+          type: number
+      type: object
+    manufacturer:
+      description: The name of a manufacturer.
+      example: Bolt Factory
+      type: string
+    amount:
+      description: The amount in cents. **Nullable** for Transactions Details.
+      example: 754
+      type: integer
+    tax_code:
+      description: The relevant tax code.
+      example: tax-12345
+      type: string
+    color:
+      description: The color.
+      example: Red
+      type: string
+    i_order_view:
+      properties:
+        cart:
+          $ref: '#/components/schemas/i_cart_view'
+        dynamic_content:
+          $ref: '#/components/schemas/i_order_dynamic_content'
+        external_data:
+          $ref: '#/components/schemas/i_order_external_data'
+        token:
+          type: string
+        user_note:
+          description: Used by shoppers to make extra requests or provide details for gift messages.
+          type: string
+      type: object
+    item_group:
+      description: Enables grouping in the checkout UI.
+      example: Ships Immediately
+      type: string
+    dimension_unit:
+      description: The unit of measurement for an item's dimensions.
+      example: cm
+      type: string
+    width:
+      description: The width.
+      example: 222
+      type: integer
+    amounts:
+      description: The amount. **Nullable** for Transactions Details.
+      properties:
+        amount:
+          $ref: '#/components/schemas/amount'
+        currency:
+          $ref: '#/components/schemas/currency_iso'
+        currency_symbol:
+          $ref: '#/components/schemas/currency_symbol'
+      required:
+      - amount
+      - currency
+      - currency_symbol
+      type: object
+    collections:
+      items:
+        $ref: '#/components/schemas/collection'
+      type: array
+    weight:
+      description: The weight of an item.
+      example: 22
+      type: integer
+    i_cart_item_view:
+      properties:
+        bolt_product_id:
+          type: string
+        brand:
+          type: string
+        category:
+          description: Used to define a product category associated with the item.
+          example: bags
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        collections:
+          $ref: '#/components/schemas/collections'
+        color:
+          description: Used to define the color of the item.
+          example: Bolt Blue
+          type: string
+        customizations:
+          items:
+            $ref: '#/components/schemas/cart_item_customization'
+          type: array
+        description:
+          type: string
+        details_url:
+          description: Used to provide a link to the item's product page.
+          example: https://boltswagstore.com/products/123456
+          type: string
+        gift_option:
+          $ref: '#/components/schemas/gift_option_view'
+        hide:
+          type: boolean
+        image_url:
+          description: Used to provide a link to the image associated with the item.
+          example: https://boltswagstore.com/products/123456/images/1.png
+          type: string
+        isbn:
+          description: Used to define the International Standard Book Number associated with the book.
+          example: 9780091347314
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        item_group:
+          type: string
+        manufacturer:
+          description: Used to define the organization that manufactured the item.
+          example: Bolt Textiles USA
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        merchant_product_id:
+          type: string
+        merchant_variant_id:
+          type: string
+        msrp:
+          $ref: '#/components/schemas/amount_view'
+        name:
+          type: string
+        options:
+          type: string
+        properties:
+          items:
+            $ref: '#/components/schemas/cart_item_property_view'
+          type: array
+        quantity:
+          example: 1
+          format: int64
+          type: number
+        reference:
+          type: string
+        shipment_id:
+          type: string
+        shipment_type:
+          enum:
+          - unknown
+          - door_delivery
+          - ship_to_store
+          - in_store_pickup
+          - ship_to_home_only
+          type: string
+        shopify_line_item_reference:
+          format: int64
+          type: number
+        shopify_product_reference:
+          format: int64
+          type: number
+        shopify_product_variant_reference:
+          format: int64
+          type: number
+        size:
+          description: Used to define the size of the item.
+          example: Large
+          type: string
+        sku:
+          description: Used to define an alpha-numeric Stock Keeping Unit associated with the item as it is mapped to your internal product catalogue.
+          example: BOLT-SKU_100
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        subscription:
+          $ref: '#/components/schemas/subscription'
+        tags:
+          description: Used to define a comma-separated list of tags associated with the item.
+          example: tote, blue, linen, eco-friendly
+          type: string
+        tax_amount:
+          $ref: '#/components/schemas/amount_view'
+        taxable:
+          type: boolean
+        total_amount:
+          $ref: '#/components/schemas/amount_view'
+        type:
+          enum:
+          - unknown
+          - digital
+          - physical
+          - bundled
+          type: string
+        unit_price:
+          $ref: '#/components/schemas/amount_view'
+        uom:
+          description: Used to define the unit of measure used to describe the product.
+          example: inches
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        upc:
+          description: Used to define the 12-digit Universal Product Code (a barcode) associated with the item worldwide.
+          example: 0825764603119
+          maxLength: 1024
+          type:
+          - string
+          - 'null'
+        weight:
+          $ref: '#/components/schemas/i_weight'
+      type: object
+    request_failed:
+      example: false
+      type: boolean
+      description: Indicates that the request failed. This value is always false.
+    package_type:
+      description: The type of package.
+      example: A big package.
+      type: string
+    collection:
+      example: summer
+      type: string
+    i_order_metadata:
+      properties:
+        encrypted_user_id:
+          example: ID12345678
+          type: string
+      type:
+      - object
+      - 'null'
+    seller_split:
+      description: Defines a seller split configuration for marketplace orders, specifying which items and shipments belong to a seller and how amounts should be calculated and distributed.
+      properties:
+        seller_id:
+          description: The unique identifier for the seller within the marketplace ecosystem.
+          example: seller-1234
+          type: string
+        amounts:
+          $ref: '#/components/schemas/seller_split_amounts'
+          description: The declarative amounts for this seller split.
+        marketplace_commission_fee:
+          $ref: '#/components/schemas/marketplace_commission_fee'
+          description: The marketplace commission fee structure for this seller split.
+      required:
+      - seller_id
+      - amounts
+      - marketplace_commission_fee
+      type: object
+    i_custom_field_view:
+      properties:
+        checkout_step:
+          enum:
+          - SHIPPING_STEP
+          - DELIVERY_STEP
+          - PAYMENT_STEP
+          - ACCOUNT_REGISTRATION_SSO
+          type: string
+        dynamic:
+          type: boolean
+        context:
+          enum:
+          - CHECKOUT
+          - SSO
+          type: string
+        external_id:
+          type: string
+        field_setup:
+          type: string
+        helper_text:
+          type: string
+        label:
+          type: string
+        position:
+          format: int64
+          type: number
+        public_id:
+          type: string
+        required:
+          type: boolean
+        subscribeToNewsletter:
+          type: boolean
+      type: object
+    i_cart_discount_view:
+      properties:
+        amount:
+          $ref: '#/components/schemas/amount_view'
+        code:
+          description: Discount code used.
+          example: SUMMER10
+          type: string
+        description:
+          description: Used to define the discount offering.
+          example: 10% off our summer collection
+          maxLength: 1024
+          type: string
+        details_url:
+          description: Used to provide a link to additional details, such as a landing page, associated with the discount offering.
+          example: https://boltswagstore.com/SUMMERSALE
+          type: string
+        discount_category:
+          enum:
+          - coupon
+          - giftcard
+          - managed_giftcard
+          - store_credit
+          - automatic_promotion
+          - membership_discount
+          - membership_giftcard
+          - subscription_discount
+          - rewards_discount
+          - shipping_discount
+          - unknown
+          type: string
+        free_shipping:
+          $ref: '#/components/schemas/i_free_shipping_discount_view'
+        reference:
+          description: Used to define the reference ID associated with the discount available.
+          example: DISC-1234
+          type: string
+      type: object
+    sku:
+      description: The SKU identifier for this item or service.
+      example: SKU-11021
+      type: string
+    total_weight:
+      properties:
+        unit:
+          $ref: '#/components/schemas/weight_unit'
+        weight:
+          $ref: '#/components/schemas/weight'
+      type: object
+    cart_add_on:
+      description: A list of up to 3 add-ons that are displayed to the shopper.
+      properties:
+        description:
+          description: The description of the product being displayed as an add on.
+          maxLength: 256
+          type: string
+        imageUrl:
+          description: The URL of the image displayed for the add on product.
+          maxLength: 1024
+          type: string
+        name:
+          description: The name of the product being displayed as an add on.
+          maxLength: 256
+          type: string
+        price:
+          description: The price of the product add on in cents (1/100).
+          format: int64
+          type: number
+        productId:
+          description: The the ID of the product being displayed as an add on.
+          maxLength: 256
+          type: string
+        productPageUrl:
+          description: The URL to the product page of the product being displayed as an add on.
+          maxLength: 1024
+          type: string
+      required:
+      - name
+      - productId
+      - price
+      type: object
+    cart_shipment_type:
+      description: The type corresponding to this shipment, if applicable.
+      example: door_delivery
+      enum:
+      - door_delivery
+      - in_store_pickup
+      - ship_to_store
+      - ship_to_home_only
+      - unknown
+      type: string
+    merchant_variant_id:
+      description: A merchant's unique ID for a given product's specific variant.
+      example: '888'
+      type: string
+    bolt_product_id:
+      description: Unique ID generated for a product via the products endpoint.
+      example: e2bb0e7e-5625-536f-8ad7-25a26537ee28
+      type: string
+    address_view:
+      description: The address object returned in the response.
+      properties:
+        company:
+          description: The company name associated with this address.
+          example: Bolt
+          type: string
+        country:
+          description: The name of the country associated with this address.
+          example: United States
+          type: string
+        country_code:
+          description: The ISO 3166-1 alpha-2 country code associated with this address.
+          example: US
+          type: string
+        door_code:
+          $ref: '#/components/schemas/door_code'
+        email_address:
+          description: The email address associated with this address.
+          $ref: '#/components/schemas/email'
+        first_name:
+          description: The given name of the person associated with this address.
+          example: Alan
+          type: string
+        id:
+          description: The unique Bolt ID associated with this address.
+          type: string
+        last_name:
+          description: The surname of the person associated with this address.
+          example: Watts
+          type: string
+        locality:
+          description: The city name details associated with this address.
+          example: Brooklyn
+          type: string
+        name:
+          description: The given and surname of the person associated with this address.
+          example: Alan Watts
+          type: string
+        phone_number:
+          description: The phone number associated with this address.
+          $ref: '#/components/schemas/phone'
+        postal_code:
+          description: The postal or zip code associated with this address.
+          example: '10044'
+          maxLength: 32
+          type: string
+        priority:
+          description: The shopper-indicated priority of this address compared to other addresses on their account.
+          example: primary
+          type:
+          - string
+          - 'null'
+          enum:
+          - primary
+          - listed
+        region:
+          description: The region details such as state or province associated with this address.
+          example: NY
+          type: string
+        region_code:
+          description: The the ISO 3166-2 region code associated with this address.
+          example: NY
+          type:
+          - string
+          - 'null'
+        street_address1:
+          description: The street number and street name of the address.
+          example: 888 main street
+          type: string
+        street_address2:
+          description: Any apartment, floor, or unit details.
+          example: apt 3021
+          type: string
+        street_address3:
+          description: Any additional street address details.
+          example: c/o Alicia Watts
+          type:
+          - string
+          - 'null'
+        street_address4:
+          description: Any additional street address details.
+          example: Bridge Street Apartment Building B
+          type:
+          - string
+          - 'null'
+      type: object
+    image_url:
+      description: The URL for the item's image.
+      example: https://boltswagstore.com/inventory/hats/red-hat.png
+      type: string
+    cart_item_gift_option:
+      description: Contains the gift option settings for wrapping and custom messages.
+      properties:
+        cost:
+          $ref: '#/components/schemas/cost'
+        merchant_product_id:
+          $ref: '#/components/schemas/merchant_product_id'
+        message:
+          $ref: '#/components/schemas/gift_options_message'
+        wrap:
+          $ref: '#/components/schemas/gift_options_wrap'
+      type: object
+    errors_bolt_api_response:
+      properties:
+        errors:
+          $ref: '#/components/schemas/errors_bolt_api'
+        result:
+          $ref: '#/components/schemas/request_result'
+      type: object
+    order_tracking_number:
+      description: The carrier's tracking number for the shipment.
+      example: EZ1000000001
+      type: string
+    i_description_part:
+      properties:
+        content:
+          type: string
+        is_html:
+          type: boolean
+      type: object
+    seller_split_amounts:
+      description: Defines the financial breakdown for a seller split, including subtotals, discounts, shipping, taxes, and the final gross amount.
+      properties:
+        merchant_subtotal:
+          description: The subtotal amount for the merchant's items in this split, in cents.
+          example: 5000
+          format: int64
+          type: number
+        discount_total:
+          description: The total discount amount applied to this seller split, in cents.
+          example: 500
+          format: int64
+          type: number
+        shipping_total:
+          description: The total shipping amount for this seller split, in cents.
+          example: 1000
+          format: int64
+          type: number
+        tax_total:
+          description: The total tax amount for this seller split, in cents.
+          example: 400
+          format: int64
+          type: number
+        gross_total:
+          description: The gross total amount for this seller split, in cents.
+          example: 5900
+          format: int64
+          type: number
+      required:
+      - merchant_subtotal
+      - discount_total
+      - shipping_total
+      - tax_total
+      - gross_total
+      type: object
+    currency_symbol:
+      description: The currency symbol used for the amount. **Nullable** for Transactions Details.
+      example: $
+      type: string
+    tax_amount:
+      description: Tax amount in cents.
+      example: 230
+      type: integer
+    discount_membership:
+      description: Defines if shopper has a membership discount.
+      example: false
+      type: boolean
+    name_item:
+      description: The name of an item.
+      example: Blue Hat
+      type: string
+    email:
+      description: An email address.
+      example: alan.watts@example.com
+      format: email
+      type: string
+      maxLength: 255
+    transaction:
+      type: object
+      properties:
+        reference:
+          type: string
+          example: OBYG-X1PX-FN55
+        authorizations:
+          description: Payment authorization events attached to a transaction
+          type: array
+          items:
+            $ref: '#/components/schemas/transaction-authorization'
+    order-response:
+      type: object
+      required:
+      - id
+      - transaction
+      properties:
+        id:
+          type: string
+          format: id
+          example: iKv7t5bgt1gg
+        transaction:
+          $ref: '#/components/schemas/transaction'
+    address-reference-explicit:
+      type: object
+      title: Explicit Address Reference
+      required:
+      - .tag
+      - first_name
+      - last_name
+      - street_address1
+      - locality
+      - postal_code
+      - country_code
+      properties:
+        .tag:
+          type: string
+          enum:
+          - explicit
+          description: The type of address reference
+          example: explicit
+          x-order: 0
+        id:
+          type: string
+          format: id
+          description: The address's unique identifier.
+          readOnly: true
+          example: D4g3h5tBuVYK9
+          x-order: 1
+        first_name:
+          type: string
+          description: The first name of the person associated with this address.
+          example: Alice
+          x-order: 2
+        last_name:
+          type: string
+          description: The last name of the person associated with this address.
+          example: Baker
+          x-order: 3
+        company:
+          type: string
+          description: The company associated with this address.
+          example: ACME Corporation
+          x-order: 4
+        street_address1:
+          type: string
+          description: The street address associated with this address.
+          example: 535 Mission St, Ste 1401
+          x-order: 5
+        street_address2:
+          type: string
+          description: Any additional, optional, street address information associated with this address.
+          example: c/o Shipping Department
+          x-order: 6
+        locality:
+          type: string
+          description: The locality (e.g. city, town, etc...) associated with this address.
+          example: San Francisco
+          x-order: 7
+        postal_code:
+          type: string
+          description: The postal code associated with this address.
+          example: '94105'
+          x-order: 8
+        region:
+          type: string
+          description: The region or administrative area (e.g. state, province, county, etc...) associated with this address.
+          example: CA
+          x-order: 9
+        country_code:
+          $ref: '#/components/schemas/country-code'
+        email:
+          type: string
+          format: email
+          description: The email address associated with this address.
+          example: alice@example.com
+          x-order: 11
+        phone:
+          type: string
+          format: phone
+          description: The phone number associated with this address.
+          example: '+14155550199'
+          x-order: 12
+    country-code:
+      type: string
+      description: The country (in its ISO 3166 alpha-2 format) associated with this address.
+      enum:
+      - AF
+      - AX
+      - AL
+      - DZ
+      - AS
+      - AD
+      - AO
+      - AI
+      - AQ
+      - AG
+      - AR
+      - AM
+      - AW
+      - AU
+      - AT
+      - AZ
+      - BH
+      - BS
+      - BD
+      - BB
+      - BY
+      - BE
+      - BZ
+      - BJ
+      - BM
+      - BT
+      - BO
+      - BQ
+      - BA
+      - BW
+      - BV
+      - BR
+      - IO
+      - BN
+      - BG
+      - BF
+      - BI
+      - KH
+      - CM
+      - CA
+      - CV
+      - KY
+      - CF
+      - TD
+      - CL
+      - CN
+      - CX
+      - CC
+      - CO
+      - KM
+      - CG
+      - CD
+      - CK
+      - CR
+      - CI
+      - HR
+      - CU
+      - CW
+      - CY
+      - CZ
+      - DK
+      - DJ
+      - DM
+      - DO
+      - EC
+      - EG
+      - SV
+      - GQ
+      - ER
+      - EE
+      - ET
+      - FK
+      - FO
+      - FJ
+      - FI
+      - FR
+      - GF
+      - PF
+      - TF
+      - GA
+      - GM
+      - GE
+      - DE
+      - GH
+      - GI
+      - GR
+      - GL
+      - GD
+      - GP
+      - GU
+      - GT
+      - GG
+      - GN
+      - GW
+      - GY
+      - HT
+      - HM
+      - VA
+      - HN
+      - HK
+      - HU
+      - IS
+      - IN
+      - ID
+      - IR
+      - IQ
+      - IE
+      - IM
+      - IL
+      - IT
+      - JM
+      - JP
+      - JE
+      - JO
+      - KZ
+      - KE
+      - KI
+      - KP
+      - KR
+      - KW
+      - KG
+      - LA
+      - LV
+      - LB
+      - LS
+      - LR
+      - LY
+      - LI
+      - LT
+      - LU
+      - MO
+      - MK
+      - MG
+      - MW
+      - MY
+      - MV
+      - ML
+      - MT
+      - MH
+      - MQ
+      - MR
+      - MU
+      - YT
+      - MX
+      - FM
+      - MD
+      - MC
+      - MN
+      - ME
+      - MS
+      - MA
+      - MZ
+      - MM
+      - NA
+      - NR
+      - NP
+      - NL
+      - NC
+      - NZ
+      - NI
+      - NE
+      - NG
+      - NU
+      - NF
+      - MP
+      - 'NO'
+      - OM
+      - PK
+      - PW
+      - PS
+      - PA
+      - PG
+      - PY
+      - PE
+      - PH
+      - PN
+      - PL
+      - PT
+      - PR
+      - QA
+      - RE
+      - RO
+      - RU
+      - RW
+      - BL
+      - SH
+      - KN
+      - LC
+      - MF
+      - PM
+      - VC
+      - WS
+      - SM
+      - ST
+      - SA
+      - SN
+      - RS
+      - SC
+      - SL
+      - SG
+      - SX
+      - SK
+      - SI
+      - SB
+      - SO
+      - ZA
+      - GS
+      - SS
+      - ES
+      - LK
+      - SD
+      - SR
+      - SJ
+      - SZ
+      - SE
+      - CH
+      - SY
+      - TW
+      - TJ
+      - TZ
+      - TH
+      - TL
+      - TG
+      - TK
+      - TO
+      - TT
+      - TN
+      - TR
+      - TM
+      - TC
+      - TV
+      - UG
+      - UA
+      - AE
+      - GB
+      - US
+      - UM
+      - UY
+      - UZ
+      - VU
+      - VE
+      - VN
+      - VG
+      - VI
+      - WF
+      - EH
+      - YE
+      - ZM
+      - ZW
+      example: US
+      x-oapi-codegen-extra-tags:
+        validate: country,required
+      x-order: 11
+    profile:
+      type: object
+      description: An account's identifying information.
+      required:
+      - first_name
+      - last_name
+      - email
+      properties:
+        first_name:
+          type: string
+          description: The given name of the person associated with this profile.
+          example: Alice
+          x-order: 1
+        last_name:
+          type: string
+          description: The last name of the person associated with this profile.
+          example: Baker
+          x-order: 2
+        email:
+          type: string
+          format: email
+          description: The email address asscoiated with this profile.
+          example: alice@example.com
+          x-order: 3
+        phone:
+          type: string
+          format: phone
+          description: The phone number associated with this profile.
+          example: '+14155550199'
+          x-order: 4
+    cart-item:
+      type: object
+      required:
+      - name
+      - reference
+      - total_amount
+      - unit_price
+      - quantity
+      properties:
+        name:
+          description: The name of a given item.
+          type: string
+          maxLength: 1024
+          example: Bolt Swag Bag
+        reference:
+          type: string
+          description: This value is used by Bolt as an external reference to a given item.
+          maxLength: 1024
+          example: item_100
+        description:
+          type: string
+          description: A human-readable description of this cart item.
+          example: Large tote with Bolt logo.
+        seller_id:
+          type: string
+          description: External reference ID for a marketplace seller.
+          example: seller_123
+        total_amount:
+          $ref: '#/components/schemas/amount_2'
+        unit_price:
+          type: integer
+          description: The item's unit price, i.e. the cost of a single item exclusive of tax and discounts.
+          format: int64
+          example: 1000
+        quantity:
+          type: integer
+          description: The number of units that comprise this cart item.
+          format: int64
+          maximum: 15000
+          example: 1
+        image_url:
+          type: string
+          description: Used to provide a link to the image associated with the item.
+          maxLength: 8192
+          example: https://www.example.com/products/123456/images/1.png
+          format: url
+        subscription_plan_id:
+          type: string
+          description: Subscription Plan ID that assigns this item to a specific subscription plan.
+          maxLength: 1024
+          example: spl_123
+    address-reference-partial:
+      type: object
+      title: Partial Address Reference
+      required:
+      - .tag
+      - postal_code
+      properties:
+        .tag:
+          type: string
+          enum:
+          - partial
+          description: The type of address reference
+          example: partial
+          x-order: 0
+        postal_code:
+          type: string
+          description: The postal code associated with the credit card billing address.
+          example: '94105'
+          x-order: 1
+    field-error:
+      type: object
+      description: An error that pertains to validation of a specific field in the request.
+      required:
+      - .tag
+      - message
+      - field
+      properties:
+        .tag:
+          type: string
+          enum:
+          - invalid_input_parameter
+          description: The type of error returned
+          example: invalid_input_parameter
+        message:
+          type: string
+          description: A human-readable error message, which might include information specific to the request that was made.
+          example: We were unable to process your request.
+        field:
+          type: string
+          description: The field (in its hierarchical form) that is failing validation.
+          example: address.phone
+    order:
+      type: object
+      required:
+      - profile
+      - cart
+      properties:
+        profile:
+          $ref: '#/components/schemas/profile'
+        cart:
+          $ref: '#/components/schemas/cart'
+    transaction-authorization:
+      type: object
+      properties:
+        processor_reference:
+          type: string
+          example: 123456789XYZ
+        processor_response:
+          $ref: '#/components/schemas/processor-response'
+    address-reference-id:
+      type: object
+      title: Address ID Reference
+      required:
+      - .tag
+      - id
+      properties:
+        .tag:
+          type: string
+          enum:
+          - id
+          description: The type of address reference
+          example: id
+        id:
+          type: string
+          format: id
+          description: The address's ID
+          example: D4g3h5tBuVYK9
+    cart-shipment:
+      type: object
+      properties:
+        address:
+          $ref: '#/components/schemas/address-reference'
+        cost:
+          $ref: '#/components/schemas/amount_2'
+        carrier:
+          type: string
+          description: The name of the carrier selected.
+          example: FedEx
+    cart:
+      required:
+      - total
+      - tax
+      - order_reference
+      type: object
+      properties:
+        order_reference:
+          type: string
+          description: This value is used by Bolt as an external reference to a given order. This reference must be unique per successful transaction.
+          example: order_100
+        order_description:
+          type: string
+          description: Used optionally to pass additional information like order numbers or other IDs as needed.
+          maxLength: 1024
+          example: 'Order #1234567890'
+        display_id:
+          type: string
+          description: A shopper-facing identifier corresponding to the order reference associated with this transaction.
+          maxLength: 128
+          example: '215614191'
+        shipments:
+          type: array
+          items:
+            $ref: '#/components/schemas/cart-shipment'
+        discounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/cart-discount'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/cart-item'
+        total:
+          description: The total amount of the cart including its items and taxes (if applicable).
+          $ref: '#/components/schemas/amount_2'
+        tax:
+          $ref: '#/components/schemas/amount_2'
+    processor-response:
+      description: Raw authorization response from the payment processor
+      properties:
+        content_type:
+          type: string
+          example: application/json
+        api_version:
+          type: string
+          example: '3.3'
+        text:
+          type: string
+          example: <?xml version="1.0" encoding="UTF-8"?> <transaction> <id>bfraj39q</id> <status>authorized</status> <type>sale</type> <currency-iso-code>USD</currency-iso-code> <amount>57.71</amount> <amount-requested>57.71</amount-requested> <merchant-account-id>GenericMerchant</merchant-account-id> <order-id>ORDER123456</order-id> <created-at type="datetime">2024-11-20T12:36:53Z</created-at> <updated-at type="datetime">2024-11-20T12:36:54Z</updated-at> <customer> <first-name>John</first-name> <last-name>Doe</last-name> <email>example@example.com</email> <phone>1234567890</phone> <international-phone></international-phone> </customer> <billing> <first-name>John</first-name> <last-name>Doe</last-name> <street-address>123 Generic St</street-address> <locality>GenericCity</locality> <region>GenericRegion</region> <postal-code>12345</postal-code> <country-name>GenericCountry</country-name> <country-code-alpha2>GC</country-code-alpha2> <country-code-alpha3>GCR</country-code-alpha3> <country-code-numeric>999</country-code-numeric> <international-phone></international-phone> </billing> <refund-ids type="array"></refund-ids> <partial-settlement-transaction-ids type="array"></partial-settlement-transaction-ids> <shipping> <international-phone></international-phone> </shipping> <custom-fields></custom-fields> <account-funding-transaction type="boolean">false</account-funding-transaction> <avs-postal-code-response-code>M</avs-postal-code-response-code> <avs-street-address-response-code>M</avs-street-address-response-code> <cvv-response-code>I</cvv-response-code> <processor-authorization-code>123456</processor-authorization-code> <processor-response-code>1000</processor-response-code> <processor-response-text>Approved</processor-response-text> <tax-exempt type="boolean">false</tax-exempt> <processed-with-network-token type="boolean">false</processed-with-network-token> <credit-card> <image-url>https://assets.braintreegateway.com/payment_method_logo/unknown.png?environment=production</image-url> <is-network-tokenized type="boolean">false</is-network-tokenized> <prepaid>Unknown</prepaid> <healthcare>Unknown</healthcare> <debit>Unknown</debit> <durbin-regulated>Unknown</durbin-regulated> <commercial>Unknown</commercial> <payroll>Unknown</payroll> <issuing-bank>Unknown</issuing-bank> <country-of-issuance>Unknown</country-of-issuance> <product-id>Unknown</product-id> <venmo-sdk type="boolean">false</venmo-sdk> </credit-card> <apple-pay> <prepaid>No</prepaid> <healthcare>Unknown</healthcare> <debit>No</debit> <durbin-regulated>Unknown</durbin-regulated> <commercial>No</commercial> <payroll>Unknown</payroll> <issuing-bank>GenericBank</issuing-bank> <country-of-issuance>GCR</country-of-issuance> <product-id>Unknown</product-id> <bin>411111</bin> <card-type>Apple Pay - GenericCard</card-type> <last-4>1234</last-4> <expiration-month>12</expiration-month> <expiration-year>2028</expiration-year> <image-url>https://assets.braintreegateway.com/payment_method_logo/apple_pay.png?environment=production</image-url> <payment-instrument-name>Card 1234</payment-instrument-name> <source-description>Card 1234</source-description> </apple-pay> <status-history type="array"> <status-event> <timestamp type="datetime">2024-11-20T12:36:54Z</timestamp> <status>authorized</status> <amount>57.71</amount> <transaction-source>api</transaction-source> </status-event> </status-history> <subscription></subscription> <add-ons type="array"></add-ons> <discounts type="array"></discounts> <descriptor></descriptor> <recurring type="boolean">false</recurring> <channel></channel> <disbursement-details></disbursement-details> <disputes type="array"></disputes> <authorization-adjustments type="array"></authorization-adjustments> <payment-instrument-type>generic_card</payment-instrument-type> <processor-settlement-response-code></processor-settlement-response-code> <processor-settlement-response-text></processor-settlement-response-text> <network-transaction-id>123456789012345</network-transaction-id> <processor-response-type>approved</processor-response-type> <authorization-expires-at type="datetime">2024-11-27T12:36:54Z</authorization-expires-at> <retry-ids type="array"></retry-ids> <retried type="boolean">false</retried> <refund-global-ids type="array"></refund-global-ids> <partial-settlement-transaction-global-ids type="array"></partial-settlement-transaction-global-ids> <global-id>generic_global_id</global-id> <retry-global-ids type="array"></retry-global-ids> <retrieval-reference-number>123456789012345</retrieval-reference-number> <installments type="array"></installments> <refunded-installments type="array"></refunded-installments> <merchant-address></merchant-address> <pin-verified type="boolean">false</pin-verified> <payment-receipt> <id>bfraj39q</id> <global-id>generic_global_id</global-id> <amount>57.71</amount> <currency-iso-code>USD</currency-iso-code> <processor-response-code>1000</processor-response-code> <processor-response-text>Approved</processor-response-text> <processor-authorization-code>123456</processor-authorization-code> <merchant-address></merchant-address> <type>sale</type> <pin-verified type="boolean">false</pin-verified> </payment-receipt> </transaction>
+    amount_2:
+      type: object
+      description: A monetary amount, i.e. a base unit amount and a supported currency.
+      required:
+      - currency
+      - units
+      properties:
+        currency:
+          type: string
+          description: A supported currency.
+          enum:
+          - AUD
+          - CAD
+          - EUR
+          - GBP
+          - USD
+          example: USD
+        units:
+          type: integer
+          description: A monetary amount, represented in its base units (e.g. USD/EUR cents).
+          format: int64
+          example: 900
+    error:
+      type: object
+      required:
+      - .tag
+      - message
+      properties:
+        .tag:
+          type: string
+          enum:
+          - unauthorized
+          - forbidden
+          - unprocessable_request
+          - not_found
+          description: The type of error returned
+          example: unprocessable_request
+        message:
+          type: string
+          description: A human-readable error message, which might include information specific to the request that was made.
+          example: We were unable to process your request.
+    cart-discount:
+      required:
+      - amount
+      type: object
+      properties:
+        amount:
+          $ref: '#/components/schemas/amount_2'
+        code:
+          type: string
+          description: Discount code.
+          maxLength: 1024
+          example: SUMMER10DISCOUNT
+        details_url:
+          type: string
+          description: Used to provide a link to additional details, such as a landing page, associated with the discount offering.
+          maxLength: 8192
+          format: url
+          example: https://www.example.com/SUMMER-SALE
+    address-reference:
+      oneOf:
+      - $ref: '#/components/schemas/address-reference-id'
+      - $ref: '#/components/schemas/address-reference-explicit'
+      - $ref: '#/components/schemas/address-reference-partial'
+      discriminator:
+        propertyName: .tag
+        mapping:
+          id: '#/components/schemas/address-reference-id'
+          explicit: '#/components/schemas/address-reference-explicit'
+          partial: '#/components/schemas/address-reference-partial'
+  responses:
+    order_track_error_400:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_bolt_api_response'
+      description: Generic Error Schema
+    order_generate_error_422:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_bolt_api_response'
+      description: Generic Error Schema
+    order_generate_error_400:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_bolt_api_response'
+      description: Generic Error Schema
+    order_track:
+      content:
+        application/json:
+          schema:
+            required:
+            - url
+            type: object
+      description: Order Tracking Successful
+    order_generate_error_403:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/errors_bolt_api_response'
+      description: Generic Error Schema
+    response-default:
+      description: An error has occurred, and no further details are provided (e.g. 5xx errors)
+    response-4xx:
+      description: An error has occurred, and further details are contained in the response
+      content:
+        application/json:
+          schema:
+            oneOf:
+            - $ref: '#/components/schemas/error'
+            - $ref: '#/components/schemas/field-error'
+  requestBodies:
+    order_track:
+      content:
+        application/json:
+          schema:
+            properties:
+              carrier:
+                $ref: '#/components/schemas/shipping_carrier'
+              is_non_bolt_order:
+                $ref: '#/components/schemas/order_non_bolt'
+              items:
+                $ref: '#/components/schemas/items'
+              tracking_number:
+                $ref: '#/components/schemas/order_tracking_number'
+              transaction_reference:
+                $ref: '#/components/schemas/transaction_reference'
+            required:
+            - transaction_reference
+            - tracking_number
+            - carrier
+            - items
+            type: object
+      description: Send order tracking details.
+  parameters:
+    x-merchant-client-id:
+      description: A unique identifier for a shopper's device, generated by Bolt. The value is retrieved with `Bolt.state.merchantClientId` in your frontend context, per-shopper. This header is required for proper attribution of this operation to your analytics reports. Omitting this header may result in incorrect statistics.
+      in: header
+      name: X-Merchant-Client-Id
+      required: false
+      schema:
+        type: string
+    x-publishable-key:
+      description: The publicly shareable identifier used to identify your Bolt merchant division.
+      in: header
+      name: X-Publishable-Key
+      required: true
+      schema:
+        type: string
+  examples:
+    order:
+      summary: An order created outside the Bolt ecosystem
+      value:
+        profile:
+          first_name: Charlie
+          last_name: Dunn
+          email: charlie@example.com
+          phone: '+14085551111'
+        cart:
+          total:
+            units: 1000
+            currency: USD
+          tax:
+            units: 100
+            currency: USD
+          order_reference: instore_20240116-878
+          order_description: 'Order #878'
+          display_id: 20240116-878
+          items:
+          - name: Red Fidget Spinner
+            reference: sku-984
+            description: Single-packed fidget spinner, red
+            total_amount:
+              units: 1000
+              currency: USD
+            unit_price: 1000
+            quantity: 1
+            image_url: https://www.example.com/products/984/image.png
+          shipments:
+          - cost:
+              units: 10000
+              currency: USD
+            carrier: FedEx
+            address:
+              .tag: explicit
+              first_name: Charlie
+              last_name: Dunn
+              street_address1: 535 Mission St
+              locality: San Francisco
+              postal_code: '94105'
+              region: CA
+              country_code: US
+    order-response:
+      summary: The order was successfully created
+      value:
+        id: 3Cxr2keCtxju
+        transaction:
+          reference: 2ZF2-WZ3J-WD2Y
+  securitySchemes:
+    OAuth:
+      description: 'Bolt utilizes the OAuth flow that developers can use to attain access to Bolt Account data via APIs.
+
+        For all APIs that require authorization, please provide your `access_token` returned from `/v1/oauth/token` via the basic auth bearer header `Authorization: bearer ${TOKEN}`.
+
+        [Read more about the OAuth token endpoint.](/api-bolt/#tag/OAuth)
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: https://api.boltapp.com/v1/oauth/authorize
+          refreshUrl: https://api.boltapp.com/v1/oauth/token
+          scopes:
+            bolt.account.manage: This scope grants permissions to perform read/edit/delete actions on Bolt Account data
+            bolt.account.view: This scope grants permissions to perform read only actions on Bolt Account data
+            openid: This scope grants permissions that enable Bolt SSO by granting an id token JWT that stores account data. Not used in v1/account endpoints
+          tokenUrl: https://api.boltapp.com/v1/oauth/token
+      type: oauth2
+    X-API-Key:
+      description: Admins and Developers can obtain their Bolt API key from the Bolt Merchant Dashboard.
+      in: header
+      name: X-API-Key
+      type: apiKey
+    api-key:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    oauth:
+      flows:
+        authorizationCode:
+          authorizationUrl: /v1/oauth/authorize
+          refreshUrl: /v1/oauth/token
+          tokenUrl: /v1/oauth/token
+          scopes:
+            bolt.account.manage: This scope grants permissions to perform read/edit/delete actions on Bolt Account data
+            bolt.account.view: This scope grants permissions to perform read only actions on Bolt Account data
+            openid: This scope grants permissions that enable Bolt Single Sign-On (SSO) by granting a JSON Web Token (JWT) that stores account data.
+      type: oauth2
+x-refined-from:
+- bolt-financial-bolt-api-openapi.yml
+- bolt-financial-embeddable-checkout-v3-openapi.yml
