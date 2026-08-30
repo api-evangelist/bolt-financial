@@ -143,6 +143,8 @@ apis:
   humanURL: https://help.boltapp.com/api-bolt/
   baseURL: https://api.boltapp.com
   tags:
+  - Authentication
+  tags_raw:
   - OAuth
   properties:
   - type: OpenAPI
@@ -166,6 +168,8 @@ apis:
   humanURL: https://help.boltapp.com/api-bolt/
   baseURL: https://api.boltapp.com
   tags:
+  - Order
+  tags_raw:
   - Orders
   properties:
   - type: OpenAPI
@@ -226,6 +230,8 @@ apis:
   humanURL: https://help.boltapp.com/api-bolt/
   baseURL: https://api.boltapp.com
   tags:
+  - Subscription
+  tags_raw:
   - Subscriptions
   properties:
   - type: OpenAPI
@@ -290,6 +296,8 @@ apis:
   humanURL: https://help.boltapp.com/api-bolt/
   baseURL: https://api.boltapp.com
   tags:
+  - Transaction
+  tags_raw:
   - Transactions
   properties:
   - type: OpenAPI
@@ -310,6 +318,8 @@ apis:
   humanURL: https://help.boltapp.com/api-bolt/
   baseURL: https://api.boltapp.com
   tags:
+  - Webhook
+  tags_raw:
   - Webhooks
   properties:
   - type: OpenAPI
