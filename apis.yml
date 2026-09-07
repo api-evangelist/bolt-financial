@@ -452,5 +452,3 @@ x-enrichment:
   status: enriched
   artifacts_added: 34
   pass: local-v1
-x-parent: bolt
-x-relationship: product
