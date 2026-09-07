@@ -1,0 +1,50 @@
+name: Bolt API Rate Limits
+description: >
+  Bolt does not publish explicit rate-limit figures in its public developer
+  documentation. The API uses standard HTTP 429 Too Many Requests responses
+  when limits are exceeded. Merchants should implement retry logic with
+  exponential back-off and contact Bolt support or their Customer Success
+  Manager for environment-specific throughput guidance.
+
+url: https://help.bolt.com/developers/apis/
+
+environments:
+  sandbox:
+    base_url: https://api-sandbox.bolt.com
+    notes: >
+      Used for development and testing. Intended for low-volume exploratory
+      traffic; not subject to production SLAs.
+
+  production:
+    base_url: https://api.bolt.com
+    notes: >
+      Production environment. Rate limits are enforced per merchant API key.
+      Contact Bolt support for throughput requirements.
+
+authentication:
+  headers:
+    - name: X-Api-Key
+      description: Backend server API credential. Up to five active keys supported simultaneously.
+    - name: X-Nonce
+      description: Unique 12–16 character string (UUID recommended) required on every request.
+    - name: Content-Type
+      value: application/json
+
+rate_limit_response:
+  http_status: 429
+  recommendation: >
+    Implement exponential back-off retry logic. Spread high-volume operations
+    across time windows to avoid bursts.
+
+credential_management:
+  max_active_api_keys: 5
+  rotation: >
+    Bolt supports zero-downtime key rotation. Activate a new key before
+    deactivating the old one. Webhook signatures use X-Bolt-Hmac-Sha256
+    and X-Bolt-Hmac-Sha256-Pending headers during rotation.
+
+notes:
+  - No publicly documented requests-per-minute or requests-per-second limits.
+  - Rate limit details are provided to merchants through the onboarding and
+    contract process.
+  - Sandbox environment limits may differ from production limits.

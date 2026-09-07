@@ -353,6 +353,24 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: AgenticAccess
+  url: agentic-access/bolt-financial-agentic-access.yml
+- type: TrustCenter
+  url: security/bolt-financial-trust-center.yml
+- type: GitHubOrg
+  url: https://github.com/BoltApp
+- type: LinkedIn
+  url: https://www.linkedin.com/company/bolt-com
+- type: X
+  url: https://x.com/bolt
+- type: Plans
+  url: plans/bolt-financial-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/bolt-financial-rate-limits.yml
+- type: FinOps
+  url: finops/bolt-financial-finops.yml
+- type: MerchantDashboard
+  url: https://merchant.bolt.com
 - type: Overlay
   url: overlays/bolt-financial-bolt-api-overlay.yaml
 - type: Overlay

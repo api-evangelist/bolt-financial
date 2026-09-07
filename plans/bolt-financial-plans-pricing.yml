@@ -1,0 +1,59 @@
+name: Bolt Plans and Pricing
+description: >
+  Bolt uses a contract-based pricing model tailored per merchant. There are no
+  publicly listed tiered subscription plans. Merchants are charged through a
+  combination of platform fees, processing fees, and add-on service fees.
+  Specific rates are negotiated individually — contact sales@bolt.com.
+
+url: https://help.bolt.com/dashboard/billing/fees/
+
+plans:
+
+  - name: Bundled Pricing
+    description: >
+      All-in-one fee that combines checkout access, payment processing, and
+      selected add-on services into a single per-transaction rate. Pricing is
+      merchant-specific and set in the merchant contract.
+    type: contract
+    audience: Mid-market to enterprise eCommerce merchants
+    contact: sales@bolt.com
+
+fees:
+
+  - name: Platform Fee
+    description: >
+      Covers access to Bolt Checkout, the merchant dashboard, encryption,
+      tokenization, and SSO capabilities. Calculated on the full transaction
+      amount and charged at first capture.
+
+  - name: Bolt Payments Fee
+    description: >
+      Applied when merchants process payments through Bolt Payments (gateway
+      model). Charged per capture, scaled by the captured amount.
+
+  - name: Fraud Protection Fee
+    description: >
+      Covers Bolt's fraud detection and chargeback indemnification service.
+      Calculated on the full transaction amount and charged at first capture.
+
+  - name: Fraud Scoring Fee
+    description: >
+      Covers machine-based review of transaction risk level. Applied per
+      transaction.
+
+  - name: Lost Chargeback Fee
+    description: >
+      Fixed-amount fee charged when a dispute is filed against a transaction.
+      Refunded if the merchant wins the dispute.
+
+  - name: Integration Fee
+    description: >
+      One-time fee charged during the initial implementation process. Amount
+      is contract-dependent.
+
+notes:
+  - Voided transactions incur no fees.
+  - "Refunds on captured funds: platform and processing fees are refundable only if no processing occurred; add-on fees are fully refunded only on complete voids."
+  - Bolt Payments merchants receive daily settlement via funding statements.
+  - Gateway-model merchants receive monthly email invoices.
+  - Contact your Customer Success Manager for your specific fee schedule.

@@ -1,0 +1,73 @@
+name: Bolt FinOps
+description: >
+  Financial operations guidance for teams integrating with the Bolt API.
+  Bolt's pricing is contract-based and transaction-driven. Cost management
+  focuses on optimizing transaction volumes, avoiding unnecessary charges,
+  and monitoring settlement statements.
+
+url: https://help.bolt.com/dashboard/billing/fees/
+
+cost_drivers:
+
+  - name: Transaction Volume
+    description: >
+      Platform, processing, and fraud fees are all assessed per transaction.
+      Higher GMV directly increases fee spend. Negotiate bundled pricing at
+      scale to reduce per-transaction cost.
+
+  - name: Fraud Losses
+    description: >
+      Lost chargebacks incur a fixed fee per dispute. Enabling Bolt's fraud
+      protection and chargeback indemnification service can reduce net
+      chargeback costs.
+
+  - name: Integration Fee
+    description: >
+      One-time cost incurred during initial implementation. Budget for this
+      during project planning; it is not an ongoing recurring expense.
+
+  - name: Refund Handling
+    description: >
+      Platform and processing fees on refunded transactions may not be
+      recoverable unless a complete void is issued before capture. Design
+      order management workflows to minimize partial-capture refund scenarios.
+
+  - name: BNPL (Buy Now Pay Later)
+    description: >
+      Bolt partners with Affirm as its default BNPL provider in the US.
+      BNPL transactions may carry different fee structures; confirm with your
+      Customer Success Manager.
+
+cost_reduction_strategies:
+
+  - name: Bundled Pricing Negotiation
+    description: >
+      Merchants with high GMV can negotiate bundled rates that combine
+      checkout, processing, and fraud fees into a single all-in rate lower
+      than itemized pricing.
+
+  - name: Void Before Capture
+    description: >
+      Cancel orders before capture to avoid platform and processing fees on
+      transactions that will not complete.
+
+  - name: Chargeback Win Rate
+    description: >
+      The Lost Chargeback Fee is refunded when disputes are won. Maintaining
+      strong evidence documentation improves win rates and reduces net costs.
+
+  - name: Sandbox Testing
+    description: >
+      All development and QA work should be conducted in the sandbox
+      environment (api-sandbox.bolt.com) to avoid incurring fees on
+      non-production transactions.
+
+monitoring:
+  - "Bolt Payments merchants: review daily funding statements in the merchant dashboard at https://merchant.bolt.com"
+  - "Gateway model merchants: reconcile monthly email invoices"
+  - Use the Bolt Transactions API to pull financial statement data programmatically for internal cost reporting
+
+contact:
+  sales: sales@bolt.com
+  support: https://support.bolt.com
+  customer_success: Assigned CSM via merchant contract
