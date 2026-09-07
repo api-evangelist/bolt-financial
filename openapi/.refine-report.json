@@ -1,0 +1,44 @@
+{
+  "provider": "bolt-financial",
+  "sources": [
+    "bolt-financial-bolt-api-openapi.yml",
+    "bolt-financial-embeddable-checkout-v1-openapi.yml",
+    "bolt-financial-embeddable-checkout-v3-openapi.yml",
+    "bolt-financial-tokenizer-openapi.yml"
+  ],
+  "outputs": [
+    "bolt-financial-account-api-openapi.yml",
+    "bolt-financial-configuration-api-openapi.yml",
+    "bolt-financial-oauth-api-openapi.yml",
+    "bolt-financial-orders-api-openapi.yml",
+    "bolt-financial-statements-api-openapi.yml",
+    "bolt-financial-subscriptions-api-openapi.yml",
+    "bolt-financial-testing-api-openapi.yml",
+    "bolt-financial-transactions-api-openapi.yml",
+    "bolt-financial-webhooks-api-openapi.yml",
+    "bolt-financial-callbacks-api-openapi.yml",
+    "bolt-financial-payments-api-openapi.yml",
+    "bolt-financial-tokenizer-api-openapi.yml"
+  ],
+  "archived": [
+    "archived openapi/bolt-financial-bolt-api-openapi.yml",
+    "archived openapi/bolt-financial-embeddable-checkout-v1-openapi.yml",
+    "archived openapi/bolt-financial-embeddable-checkout-v3-openapi.yml",
+    "archived openapi/bolt-financial-tokenizer-openapi.yml"
+  ],
+  "errors": [],
+  "warnings": [],
+  "notes": [
+    "bolt-financial-bolt-api-openapi.yml: upgraded openapi 3.0.0 -> OpenAPI 3.2.0",
+    "bolt-financial-embeddable-checkout-v1-openapi.yml: upgraded openapi 3.0.0 -> OpenAPI 3.2.0",
+    "bolt-financial-embeddable-checkout-v3-openapi.yml: upgraded openapi 3.0.0 -> OpenAPI 3.2.0",
+    "bolt-financial-tokenizer-openapi.yml: upgraded openapi 3.0.0 -> OpenAPI 3.2.0",
+    "tag 'Account' spans 3 source specs (bolt-financial-bolt-api-openapi.yml, bolt-financial-embeddable-checkout-v1-openapi.yml, bolt-financial-embeddable-checkout-v3-openapi.yml): per-path servers applied",
+    "tag 'OAuth' spans 3 source specs (bolt-financial-bolt-api-openapi.yml, bolt-financial-embeddable-checkout-v1-openapi.yml, bolt-financial-embeddable-checkout-v3-openapi.yml): per-path servers applied",
+    "tag 'Orders' spans 2 source specs (bolt-financial-bolt-api-openapi.yml, bolt-financial-embeddable-checkout-v3-openapi.yml): per-path servers applied",
+    "tag 'Testing' spans 3 source specs (bolt-financial-bolt-api-openapi.yml, bolt-financial-embeddable-checkout-v1-openapi.yml, bolt-financial-embeddable-checkout-v3-openapi.yml): per-path servers applied",
+    "tag 'Transactions' spans 2 source specs (bolt-financial-bolt-api-openapi.yml, bolt-financial-embeddable-checkout-v1-openapi.yml): per-path servers applied",
+    "apis.yml register: written (+12 apis, 13 total)"
+  ],
+  "skipped": []
+}
