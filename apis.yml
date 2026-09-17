@@ -149,29 +149,6 @@ apis:
     url: https://help.boltapp.com/api-embedded-v3/
   - type: Documentation
     url: https://help.boltapp.com/api-tokenizer/
-- aid: bolt-financial:bolt-financial-oauth-api
-  name: Bolt Financial O Auth API
-  description: >-
-    Use this endpoint to retrieve an OAuth token. Use the token to allow your ecommerce server to make
-    calls to the Account endpoint and create a one-click checkout experience for shoppers. See related
-    guide [Fetch OAuth Token](https://help.boltapp.com/products/ignite/api-implementation/endpoints/oauth-guide/).
-  humanURL: https://help.boltapp.com/api-bolt/
-  baseURL: https://api.boltapp.com
-  tags:
-  - Authentication
-  tags_raw:
-  - OAuth
-  properties:
-  - type: OpenAPI
-    url: openapi/bolt-financial-oauth-api-openapi.yml
-  - type: Documentation
-    url: https://help.boltapp.com/api-bolt/
-  - type: Documentation
-    url: https://help.boltapp.com/api-embedded/
-  - type: Documentation
-    url: https://help.boltapp.com/api-embedded-v3/
-  - type: Documentation
-    url: https://help.boltapp.com/api-tokenizer/
 - aid: bolt-financial:bolt-financial-orders-api
   name: Bolt Financial Orders API
   description: >-
@@ -339,6 +316,27 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/bolt-financial-webhooks-api-openapi.yml
+  - type: Documentation
+    url: https://help.boltapp.com/api-bolt/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded/
+  - type: Documentation
+    url: https://help.boltapp.com/api-embedded-v3/
+  - type: Documentation
+    url: https://help.boltapp.com/api-tokenizer/
+- aid: bolt-financial:bolt-financial-oauth-api
+  name: Bolt Financial O Auth API
+  description: >-
+    Use this endpoint to retrieve an OAuth token. Use the token to allow your ecommerce server to make
+    calls to the Account endpoint and create a one-click checkout experience for shoppers. See related
+    guide [Fetch OAuth Token](https://help.boltapp.com/products/ignite/api-implementation/endpoints/oauth-guide/).
+  humanURL: https://help.boltapp.com/ai-agents/mcp-server
+  baseURL: https://help.boltapp.com/mcp
+  tags:
+  - OAuth
+  properties:
+  - type: OpenAPI
+    url: openapi/bolt-financial-oauth-api-openapi.yml
   - type: Documentation
     url: https://help.boltapp.com/api-bolt/
   - type: Documentation
