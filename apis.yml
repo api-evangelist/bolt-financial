@@ -333,6 +333,8 @@ apis:
   humanURL: https://help.boltapp.com/ai-agents/mcp-server
   baseURL: https://help.boltapp.com/mcp
   tags:
+  - Authentication
+  tags_raw:
   - OAuth
   properties:
   - type: OpenAPI
