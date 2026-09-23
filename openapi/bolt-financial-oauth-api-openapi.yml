@@ -19,13 +19,17 @@ servers:
       default: api-sandbox
 tags:
 - name: OAuth
-  description: 'Use this endpoint to retrieve an OAuth token. Use the token to allow your ecommerce server to make calls to the Account endpoint and create a one-click checkout experience for shoppers. See related guide [Fetch OAuth Token](https://help.boltapp.com/products/ignite/api-implementation/endpoints/oauth-guide/).
-
-    '
+  description: Use this endpoint to retrieve an OAuth token. Use the token to allow your ecommerce server to make calls to the Account endpoint and create a one-click checkout experience for shoppers. See related guide Fetch OAuth Token.
 paths:
   /v1/oauth/token:
     post:
-      description: "Endpoint for receiving access, ID, and refresh tokens from Bolt's OAuth server. \n\nTo use this endpoint, first use the Authorization Code Request flow by using the `authorization_code` Grant Type (`grant_type`). Then, in the event that you would need a second or subsequent code, use the `refresh_token` value returned from a successful request as the `refresh_token` input value in your subsequent `refresh_token` Grant Type (`grant_type`) request.\n\n **Reminder - the Content-Type of this request must be application/x-www-form-urlencoded**\n"
+      description: 'Endpoint for receiving access, ID, and refresh tokens from Bolt''s OAuth server.
+
+
+        To use this endpoint, first use the Authorization Code Request flow by using the `authorization_code` Grant Type (`grant_type`). Then, in the event that you would need a second or subsequent code, use the `refresh_token` value returned from a successful request as the `refresh_token` input value in your subsequent `refresh_token` Grant Type (`grant_type`) request.
+
+
+        **Reminder - the Content-Type of this request must be application/x-www-form-urlencoded**'
       operationId: OAuthToken
       parameters:
       - $ref: '#/components/parameters/x-publishable-key'
@@ -139,80 +143,43 @@ paths:
           - api-sandbox
           default: api-sandbox
 components:
-  responses:
-    oauth_422:
-      content:
-        application/json:
-          example:
-            error: invalid _grant
-            error_description: The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client.
-          schema:
-            $ref: '#/components/schemas/errors_oauth_server_response'
-      description: Unprocessable request to OAuth Token.
-    oauth_403:
-      content:
-        application/json:
-          examples:
-            request_forbidden:
-              value:
-                error: request_forbidden
-                error_description: The request is forbidden. You are not allowed to perform this action.
-            unsupported_grant_type:
-              value:
-                error: unsupported_grant_type
-                error_description: The grant type is not supported by Bolt’s authorization server.
-          schema:
-            $ref: '#/components/schemas/errors_oauth_server_response'
-      description: Forbidden request to OAuth Token.
-    oauth_400:
-      content:
-        application/json:
-          examples:
-            invalid_request:
-              value:
-                error: invalid_request
-                error_description: The request is missing a required parameter, includes an invalid parameter value, includes a parameter more than once, or is otherwise malformed.
-            invalid_scope:
-              value:
-                error: invalid_scope
-                error_description: The request scope is invalid, unknown, or malformed.
-          schema:
-            $ref: '#/components/schemas/errors_oauth_server_response'
-      description: Invalid request to OAuth Token.
-    response-4xx:
-      description: An error has occurred, and further details are contained in the response
-      content:
-        application/json:
-          schema:
-            oneOf:
-            - $ref: '#/components/schemas/error'
-            - $ref: '#/components/schemas/field-error'
-    response-default:
-      description: An error has occurred, and no further details are provided (e.g. 5xx errors)
   schemas:
-    o_auth_token_response:
+    errors_oauth_server_response:
       properties:
-        access_token:
-          description: An access token you can use to make requests on behalf of a Bolt Account.
+        error:
           type: string
-        expires_in:
-          description: Access token’s expiration in seconds.
-          type: integer
-        id_token:
-          description: A JWT token issued when the request includes the scope open_id.
+        error_description:
+          type: string
+      type: object
+    o_auth_token_input_refresh:
+      properties:
+        client_id:
+          description: Merchant publishable key which can be found in the merchant dashboard
+          type: string
+        client_secret:
+          description: Your Bolt API Key.
+          type: string
+        grant_type:
+          description: "The type of OAuth 2.0 grant being utilized. \n\nThe value will always be `refresh_token` when exchanging a refresh token for an access token.\n"
+          enum:
+          - refresh_token
           type: string
         refresh_token:
-          description: A refresh token you can use to issue a brand new access token without obtaining a new authorization code.
-          type: string
-        refresh_token_scope:
-          description: The scope granted to the refresh token. Currently this will always be bolt.account.view.
+          description: The value of the refresh token issued to you in the originating OAuth token request.
           type: string
         scope:
-          description: The scope granted to access token, depending on the scope granted to the authorization code as well as the scope parameter. Options include `bolt.account.manage`, `bolt.account.view`, `openid`.
+          description: The scope issued to the merchant when receiving an authorization code. Options include `bolt.account.manage`, `bolt.account.view`, `openid`.
           type: string
-        token_type:
-          description: The token_type will always be bearer.
+        state:
+          description: A randomly generated string issued to the merchant when receiving an authorization code used to prevent CSRF attacks
           type: string
+      required:
+      - grant_type
+      - client_id
+      - refresh_token
+      - scope
+      - client_secret
+      title: Refresh Token Request
       type: object
     o_auth_token_input:
       properties:
@@ -248,92 +215,30 @@ components:
       - client_secret
       title: Authorization Code Request
       type: object
-    o_auth_token_input_refresh:
-      properties:
-        client_id:
-          description: Merchant publishable key which can be found in the merchant dashboard
-          type: string
-        client_secret:
-          description: Your Bolt API Key.
-          type: string
-        grant_type:
-          description: "The type of OAuth 2.0 grant being utilized. \n\nThe value will always be `refresh_token` when exchanging a refresh token for an access token.\n"
-          enum:
-          - refresh_token
-          type: string
-        refresh_token:
-          description: The value of the refresh token issued to you in the originating OAuth token request.
-          type: string
-        scope:
-          description: The scope issued to the merchant when receiving an authorization code. Options include `bolt.account.manage`, `bolt.account.view`, `openid`.
-          type: string
-        state:
-          description: A randomly generated string issued to the merchant when receiving an authorization code used to prevent CSRF attacks
-          type: string
-      required:
-      - grant_type
-      - client_id
-      - refresh_token
-      - scope
-      - client_secret
-      title: Refresh Token Request
-      type: object
-    errors_oauth_server_response:
-      properties:
-        error:
-          type: string
-        error_description:
-          type: string
-      type: object
-    field-error:
-      type: object
-      description: An error that pertains to validation of a specific field in the request.
-      required:
-      - .tag
-      - message
-      - field
-      properties:
-        .tag:
-          type: string
-          enum:
-          - invalid_input_parameter
-          description: The type of error returned
-          example: invalid_input_parameter
-        message:
-          type: string
-          description: A human-readable error message, which might include information specific to the request that was made.
-          example: We were unable to process your request.
-        field:
-          type: string
-          description: The field (in its hierarchical form) that is failing validation.
-          example: address.phone
-    base-oauth-token-response:
-      type: object
+    o_auth_token_response:
       properties:
         access_token:
-          description: An access token you can use to make requests on behalf of a Bolt shopper.
+          description: An access token you can use to make requests on behalf of a Bolt Account.
           type: string
-          example: KCqordmSK6_lpkaXaXfGD8LwnKMGGOYy4Ju2IaBXpJI.CzOF7QOmGGQEgIzBjxOEh1FbRdDpzf9zbm9eHrCZ6zw
         expires_in:
-          description: The access token's expiration, in seconds.
+          description: Access token’s expiration in seconds.
           type: integer
-          example: 3600
+        id_token:
+          description: A JWT token issued when the request includes the scope open_id.
+          type: string
         refresh_token:
           description: A refresh token you can use to issue a brand new access token without obtaining a new authorization code.
           type: string
-          example: 4hJYNO4GHvALZoocXoLenfNeFy1RR5ZT6G5JYrFbvkI.Q_PqV0lIszCNoN-85EwD-2nYZOVEepVgJSolx-Jbzrs
         refresh_token_scope:
-          description: The scope granted to the refresh token. Currently, refreshed token will only grant view permissions.
+          description: The scope granted to the refresh token. Currently this will always be bolt.account.view.
           type: string
-          example: bolt.account.view
         scope:
-          description: The scope granted to access token, depending on the scope granted to the authorization code as well as the scope parameter. Options include `bolt.account.manage`, `bolt.account.view`, `openid`. Multiple values can be returned as space-separated strings.
+          description: The scope granted to access token, depending on the scope granted to the authorization code as well as the scope parameter. Options include `bolt.account.manage`, `bolt.account.view`, `openid`.
           type: string
-          example: bolt.account.manage openid
         token_type:
           description: The token_type will always be bearer.
           type: string
-          example: bearer
+      type: object
     refresh-token-request:
       type: object
       description: Refresh an existing access token, using the refresh token provided in the initial authorization.
@@ -378,6 +283,61 @@ components:
           description: The value of the refresh token issued to you in the originating OAuth token request.
           type: string
           example: 4hJYNO4GHvALZoocXoLenfNeFy1RR5ZT6G5JYrFbvkI.Q_PqV0lIszCNoN-85EwD-2nYZOVEepVgJSolx-Jbzrs
+    base-oauth-token-response:
+      type: object
+      properties:
+        access_token:
+          description: An access token you can use to make requests on behalf of a Bolt shopper.
+          type: string
+          example: KCqordmSK6_lpkaXaXfGD8LwnKMGGOYy4Ju2IaBXpJI.CzOF7QOmGGQEgIzBjxOEh1FbRdDpzf9zbm9eHrCZ6zw
+        expires_in:
+          description: The access token's expiration, in seconds.
+          type: integer
+          example: 3600
+        refresh_token:
+          description: A refresh token you can use to issue a brand new access token without obtaining a new authorization code.
+          type: string
+          example: 4hJYNO4GHvALZoocXoLenfNeFy1RR5ZT6G5JYrFbvkI.Q_PqV0lIszCNoN-85EwD-2nYZOVEepVgJSolx-Jbzrs
+        refresh_token_scope:
+          description: The scope granted to the refresh token. Currently, refreshed token will only grant view permissions.
+          type: string
+          example: bolt.account.view
+        scope:
+          description: The scope granted to access token, depending on the scope granted to the authorization code as well as the scope parameter. Options include `bolt.account.manage`, `bolt.account.view`, `openid`. Multiple values can be returned as space-separated strings.
+          type: string
+          example: bolt.account.manage openid
+        token_type:
+          description: The token_type will always be bearer.
+          type: string
+          example: bearer
+    get-access-token-response:
+      allOf:
+      - type: object
+        properties:
+          id_token:
+            description: A JSON Web Token (JWT) issued when the request includes the scope open_id.
+            type: string
+            example: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsaWNlQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImV4cCI6MTcwNTY1MTczMSwiZmlyc3RfbmFtZSI6IkFsaWNlIiwiaXNzIjoiaHR0cDovL2FwaS5ib2x0LmNvbSIsImxhc3RfbmFtZSI6IkJha2VyIiwicGhvbmVfbnVtYmVyIjoiKzE0MTU1NTUwMTk5IiwicGhvbmVfbnVtYmVyX3ZlcmlmaWVkIjp0cnVlLCJpYXQiOjE3MDU2NDg0MjF9.Ir0aKx40zfNCZol1DnqchFx9ciHlyZY9y10mndEjOBHhpHif8-7aZl2UoJVs_0Hj-5ArEouUD6n-y1SJD0Wns-gDMoA0Etoc5dT_0zt0Kw5T8FvJWbyKyyGSDEwPFVADIRxDPMpVoHx0C0nwr_GudnIX7YG6p2HCsoGm2C04ZxKpifSixB3-xNB6k9u1ESWh0KjMCYzBQ2x9wbQ_S6kFtio075PFYcZ3iRQz8oD15NsZDd2czzZkRnGTGlpG0sAvScLXMvDDOWBIu-4wvOEOT7avunJQ_rOCYUlyJe7JGh0QllpeJNau8kx-4YGMeFTkeGM_hPIKsRF1e6o_rWp5CMJnmJDPme-zlJxWodyaHNed5XW-4DR7blv_PFOJNrRvymRoTOd74LIpS21GRCNYrphj7N6-TsSfO9hMQ9ehxrgNAryWbVtTM_3VvWyzX-SRa7BcRkS97sokxc04s3cbXra3x6brE3uL1yoOWNf8GDZNkv1uUAnrOZcTuLacrPjkQgOPb-chMiWS1L0Zd1wX3rqpeCyEswsGKxRRkpgwoBaVVQmLB9m51B6SXEvURTcy2Hx8KzgfXQ_-uC-KrniQxWzYms8A1lypKXkEcyMD2E4Q7EB4UeD2qZAk4tZo611uHegaHaEM7EQyFN3nxvibaqFpXzdxVmOCX0_wQr1nDNA
+      - $ref: '#/components/schemas/base-oauth-token-response'
+    error:
+      type: object
+      required:
+      - .tag
+      - message
+      properties:
+        .tag:
+          type: string
+          enum:
+          - unauthorized
+          - forbidden
+          - unprocessable_request
+          - not_found
+          description: The type of error returned
+          example: unprocessable_request
+        message:
+          type: string
+          description: A human-readable error message, which might include information specific to the request that was made.
+          example: We were unable to process your request.
     authorization-code-request:
       type: object
       description: Perform the initial token exchange, using the authorization code provided by Bolt's Login Modal.
@@ -422,34 +382,28 @@ components:
           description: Fetched value using OTP value from the Authorization Modal.
           type: string
           example: 7GSjMRSHs6Ak7C_zvVW6P2IhZOHxMK7HZKW1fMX85ms
-    get-access-token-response:
-      allOf:
-      - type: object
-        properties:
-          id_token:
-            description: A JSON Web Token (JWT) issued when the request includes the scope open_id.
-            type: string
-            example: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsaWNlQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImV4cCI6MTcwNTY1MTczMSwiZmlyc3RfbmFtZSI6IkFsaWNlIiwiaXNzIjoiaHR0cDovL2FwaS5ib2x0LmNvbSIsImxhc3RfbmFtZSI6IkJha2VyIiwicGhvbmVfbnVtYmVyIjoiKzE0MTU1NTUwMTk5IiwicGhvbmVfbnVtYmVyX3ZlcmlmaWVkIjp0cnVlLCJpYXQiOjE3MDU2NDg0MjF9.Ir0aKx40zfNCZol1DnqchFx9ciHlyZY9y10mndEjOBHhpHif8-7aZl2UoJVs_0Hj-5ArEouUD6n-y1SJD0Wns-gDMoA0Etoc5dT_0zt0Kw5T8FvJWbyKyyGSDEwPFVADIRxDPMpVoHx0C0nwr_GudnIX7YG6p2HCsoGm2C04ZxKpifSixB3-xNB6k9u1ESWh0KjMCYzBQ2x9wbQ_S6kFtio075PFYcZ3iRQz8oD15NsZDd2czzZkRnGTGlpG0sAvScLXMvDDOWBIu-4wvOEOT7avunJQ_rOCYUlyJe7JGh0QllpeJNau8kx-4YGMeFTkeGM_hPIKsRF1e6o_rWp5CMJnmJDPme-zlJxWodyaHNed5XW-4DR7blv_PFOJNrRvymRoTOd74LIpS21GRCNYrphj7N6-TsSfO9hMQ9ehxrgNAryWbVtTM_3VvWyzX-SRa7BcRkS97sokxc04s3cbXra3x6brE3uL1yoOWNf8GDZNkv1uUAnrOZcTuLacrPjkQgOPb-chMiWS1L0Zd1wX3rqpeCyEswsGKxRRkpgwoBaVVQmLB9m51B6SXEvURTcy2Hx8KzgfXQ_-uC-KrniQxWzYms8A1lypKXkEcyMD2E4Q7EB4UeD2qZAk4tZo611uHegaHaEM7EQyFN3nxvibaqFpXzdxVmOCX0_wQr1nDNA
-      - $ref: '#/components/schemas/base-oauth-token-response'
-    error:
+    field-error:
       type: object
+      description: An error that pertains to validation of a specific field in the request.
       required:
       - .tag
       - message
+      - field
       properties:
         .tag:
           type: string
           enum:
-          - unauthorized
-          - forbidden
-          - unprocessable_request
-          - not_found
+          - invalid_input_parameter
           description: The type of error returned
-          example: unprocessable_request
+          example: invalid_input_parameter
         message:
           type: string
           description: A human-readable error message, which might include information specific to the request that was made.
           example: We were unable to process your request.
+        field:
+          type: string
+          description: The field (in its hierarchical form) that is failing validation.
+          example: address.phone
   parameters:
     x-publishable-key:
       description: The publicly viewable identifier used to identify a merchant division. This key is found in the Developer > API section of the Bolt Merchant Dashboard [RECOMMENDED].
@@ -458,7 +412,68 @@ components:
       required: false
       schema:
         type: string
+  responses:
+    oauth_422:
+      content:
+        application/json:
+          example:
+            error: invalid _grant
+            error_description: The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client.
+          schema:
+            $ref: '#/components/schemas/errors_oauth_server_response'
+      description: Unprocessable request to OAuth Token.
+    oauth_400:
+      content:
+        application/json:
+          examples:
+            invalid_request:
+              value:
+                error: invalid_request
+                error_description: The request is missing a required parameter, includes an invalid parameter value, includes a parameter more than once, or is otherwise malformed.
+            invalid_scope:
+              value:
+                error: invalid_scope
+                error_description: The request scope is invalid, unknown, or malformed.
+          schema:
+            $ref: '#/components/schemas/errors_oauth_server_response'
+      description: Invalid request to OAuth Token.
+    oauth_403:
+      content:
+        application/json:
+          examples:
+            request_forbidden:
+              value:
+                error: request_forbidden
+                error_description: The request is forbidden. You are not allowed to perform this action.
+            unsupported_grant_type:
+              value:
+                error: unsupported_grant_type
+                error_description: The grant type is not supported by Bolt’s authorization server.
+          schema:
+            $ref: '#/components/schemas/errors_oauth_server_response'
+      description: Forbidden request to OAuth Token.
+    response-default:
+      description: An error has occurred, and no further details are provided (e.g. 5xx errors)
+    response-4xx:
+      description: An error has occurred, and further details are contained in the response
+      content:
+        application/json:
+          schema:
+            oneOf:
+            - $ref: '#/components/schemas/error'
+            - $ref: '#/components/schemas/field-error'
   examples:
+    refresh-token:
+      summary: Refresh an existing token.
+      description: Refresh an existing access token, using the refresh token provided in the initial authorization.
+      value:
+        client_id: 8fd9diIy59sj.IraJdeIgmdsO.fd233434fg2c616cgo932aa6e1e4fc627a9385045gr395222a127gi93c595rg4
+        client_secret: 23ee7ec7301779eaff451d7c6f6cba322499e3c0ec752f800c72a8f99217e3a8
+        scope:
+        - bolt.account.view
+        state: xyzABC123
+        grant_type: refresh_token
+        refresh_token: 4hJYNO4GHvALZoocXoLenfNeFy1RR5ZT6G5JYrFbvkI.Q_PqV0lIszCNoN-85EwD-2nYZOVEepVgJSolx-Jbzrs
     authorization-code:
       summary: Exchange an authorization code
       description: Perform the initial token exchange, using the authorization code provided by Bolt's Login Modal.
@@ -472,17 +487,6 @@ components:
         state: xyzABC123
         grant_type: authorization_code
         code: 7GSjMRSHs6Ak7C_zvVW6P2IhZOHxMK7HZKW1fMX85ms
-    refresh-token:
-      summary: Refresh an existing token.
-      description: Refresh an existing access token, using the refresh token provided in the initial authorization.
-      value:
-        client_id: 8fd9diIy59sj.IraJdeIgmdsO.fd233434fg2c616cgo932aa6e1e4fc627a9385045gr395222a127gi93c595rg4
-        client_secret: 23ee7ec7301779eaff451d7c6f6cba322499e3c0ec752f800c72a8f99217e3a8
-        scope:
-        - bolt.account.view
-        state: xyzABC123
-        grant_type: refresh_token
-        refresh_token: 4hJYNO4GHvALZoocXoLenfNeFy1RR5ZT6G5JYrFbvkI.Q_PqV0lIszCNoN-85EwD-2nYZOVEepVgJSolx-Jbzrs
   securitySchemes:
     OAuth:
       description: 'Bolt utilizes the OAuth flow that developers can use to attain access to Bolt Account data via APIs.

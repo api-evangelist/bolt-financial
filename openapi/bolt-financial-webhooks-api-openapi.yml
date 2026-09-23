@@ -2,7 +2,10 @@ openapi: 3.2.0
 info:
   version: 1.0.1
   title: Bolt API Reference Webhooks API
-  description: "Postman Collection:\n\n[![](https://run.pstmn.io/button.svg)](https://god.gw.postman.com/run-collection/9136127-55d2bde1-a248-473f-95b5-64cfd02fb445?action=collection%2Ffork&collection-url=entityId%3D9136127-55d2bde1-a248-473f-95b5-64cfd02fb445%26entityType%3Dcollection%26workspaceId%3D78beee89-4238-4c5f-bd1f-7e98978744b4#?env%5BBolt%20Sandbox%20Environment%5D=W3sia2V5IjoiYXBpX2Jhc2VfdXJsIiwidmFsdWUiOiJodHRwczovL2FwaS1zYW5kYm94LmJvbHQuY29tIiwidHlwZSI6ImRlZmF1bHQiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InRrX2Jhc2UiLCJ2YWx1ZSI6Imh0dHBzOi8vc2FuZGJveC5ib2x0dGsuY29tIiwidHlwZSI6ImRlZmF1bHQiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6ImFwaV9rZXkiLCJ2YWx1ZSI6IjxyZXBsYWNlIHdpdGggeW91ciBCb2x0IFNhbmRib3ggQVBJIGtleT4iLCJ0eXBlIjoic2VjcmV0IiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJwdWJsaXNoYWJsZV9rZXkiLCJ2YWx1ZSI6IjxyZXBsYWNlIHdpdGggeW91ciBCb2x0IFNhbmRib3ggcHVibGlzaGFibGUga2V5PiIsInR5cGUiOiJkZWZhdWx0IiwiZW5hYmxlZCI6dHJ1ZX0seyJrZXkiOiJkaXZpc2lvbl9pZCIsInZhbHVlIjoiPHJlcGxhY2Ugd2l0aCB5b3VyIEJvbHQgU2FuZGJveCBwdWJsaWMgZGl2aXNpb24gSUQ+IiwidHlwZSI6ImRlZmF1bHQiLCJlbmFibGVkIjp0cnVlfV0=)\n\n## About\n A comprehensive Bolt API reference for interacting with Transactions, Orders, Product Catalog, Configuration, Testing, and much more.\n\n Note: You must also reference the [Merchant Callback API](/api-merchant) when building a managed checkout custom cart integration\n"
+  description: 'Postman Collection:
+
+
+    ![](https://god.gw.postman.com/run-collection/9136127-55d2bde1-a248-473f-95b5-64cfd02fb445?action=collection%2Ffork&collection-url=entityId%3D9136127-55d2bde1-a248-473f-95b5-64cfd02fb445%26entityType%3Dcollection%26workspaceId%3D78beee89-4238-4c5f-bd1f-7e98978744b4#?env%5BBolt%20Sandbox%20Environment%5D=W3sia2V5IjoiYXBpX2Jhc2VfdXJsIiwidmFsdWUiOiJodHRwczovL2FwaS1zYW5kYm94LmJvbHQuY29tIiwidHlwZSI6ImRlZmF1bHQiLCJlbmFibGVkIjp0cnVlfSx7ImtleSI6InRrX2Jhc2UiLCJ2YWx1ZSI6Imh0dHBzOi8vc2…'
 servers:
 - url: https://api.boltapp.com
   description: The Production URL (Live Data).
@@ -17,9 +20,7 @@ security:
   - bolt.account.view
 tags:
 - name: Webhooks
-  description: 'Set up webhooks to notify your backend of events within Bolt. These webhooks can communicate with your OMS or other systems to keep them up to date with Bolt. See our related guide on [Webhooks](https://help.boltapp.com/get-started/during-checkout/webhooks/).
-
-    '
+  description: Set up webhooks to notify your backend of events within Bolt. These webhooks can communicate with your OMS or other systems to keep them up to date with Bolt. See our related guide on Webhooks.
 paths:
   /v1/webhooks:
     get:
@@ -106,9 +107,7 @@ paths:
 
         * `subscription_unpaused` - A paused subscription was resumed, by the merchant or by the shopper.
 
-        * `subscription_ended` - A subscription was permanently ended after its dunning retry schedule was exhausted. Sent alongside `subscription_canceled` for this case.
-
-        '
+        * `subscription_ended` - A subscription was permanently ended after its dunning retry schedule was exhausted. Sent alongside `subscription_canceled` for this case.'
       operationId: createWebhook
       requestBody:
         content:
@@ -233,6 +232,43 @@ paths:
       - Webhooks
 components:
   schemas:
+    request_result:
+      description: Custom-defined Bolt result object.
+      properties:
+        success:
+          $ref: '#/components/schemas/request_failed'
+      type: object
+    url:
+      description: The full URL to receive webhook notifications.
+      example: https://eva-nerv.shop.com/path/to/hook
+      type: string
+    errors_bolt_api_response:
+      properties:
+        errors:
+          $ref: '#/components/schemas/errors_bolt_api'
+        result:
+          $ref: '#/components/schemas/request_result'
+      type: object
+    webhook_id:
+      description: A unique webhook ID. Reference this value to modify or delete the webhook subscription. operations as well.
+      example: wh_za7VbYcSQU2zRgGQXQAm-g
+      type: string
+    errors_bolt_api:
+      items:
+        $ref: '#/components/schemas/error_bolt_api'
+      type: array
+    webhook_event_group:
+      description: 'Subscribe to a group of events.
+
+        `all`: subscribe to all existing and future event types
+
+        '
+      enum:
+      - all
+      - 'null'
+      type:
+      - string
+      - 'null'
     error_bolt_api:
       properties:
         code:
@@ -241,36 +277,15 @@ components:
           $ref: '#/components/schemas/message'
       type: object
       description: Error object containing custom error information
-    message:
-      description: Human-readable description of the error for developers. Should not be shown to users and is not localized.
-      example: The input is missing a required parameter.
-      type: string
-    url:
-      description: The full URL to receive webhook notifications.
-      example: https://eva-nerv.shop.com/path/to/hook
-      type: string
-    request_result:
-      description: Custom-defined Bolt result object.
-      properties:
-        success:
-          $ref: '#/components/schemas/request_failed'
-      type: object
-    events_array_create_webhook:
-      allOf:
-      - $ref: '#/components/schemas/base_create_webhook'
-      - type: object
-      properties:
-        events:
-          description: 'If `webhook_event_group` is null, pick a list of notification events to subscribe to.
-
-            '
-          items:
-            $ref: '#/components/schemas/webhooks_type'
-          type: array
-    errors_bolt_api:
-      items:
-        $ref: '#/components/schemas/error_bolt_api'
-      type: array
+    code:
+      description: Custom-defined Bolt error code. This can be used to programmatically react to specific errors.
+      example: 2001005
+      format: int64
+      type: integer
+    request_failed:
+      example: false
+      type: boolean
+      description: Indicates that the request failed. This value is always false.
     webhook:
       properties:
         created_at:
@@ -309,41 +324,6 @@ components:
       - division_id
       - url
       type: object
-    webhook_id:
-      description: A unique webhook ID. Reference this value to modify or delete the webhook subscription. operations as well.
-      example: wh_za7VbYcSQU2zRgGQXQAm-g
-      type: string
-    webhook_event_group:
-      description: 'Subscribe to a group of events.
-
-        `all`: subscribe to all existing and future event types
-
-        '
-      enum:
-      - all
-      - 'null'
-      type:
-      - string
-      - 'null'
-    errors_bolt_api_response:
-      properties:
-        errors:
-          $ref: '#/components/schemas/errors_bolt_api'
-        result:
-          $ref: '#/components/schemas/request_result'
-      type: object
-    code:
-      description: Custom-defined Bolt error code. This can be used to programmatically react to specific errors.
-      example: 2001005
-      format: int64
-      type: integer
-    event_group_create_webhook:
-      allOf:
-      - $ref: '#/components/schemas/base_create_webhook'
-      - type: object
-      properties:
-        event_group:
-          $ref: '#/components/schemas/webhook_event_group'
     webhooks_type:
       description: '[Webhook events](https://help.boltapp.com/developers/guides/webhooks/#transaction-hook-types) that trigger a notification to the URL.  **Note**:`newsletter_subscription` is only for merchant use cases.
 
@@ -387,10 +367,29 @@ components:
       - subscription_ended
       example: pending
       type: string
-    request_failed:
-      example: false
-      type: boolean
-      description: Indicates that the request failed. This value is always false.
+    event_group_create_webhook:
+      allOf:
+      - $ref: '#/components/schemas/base_create_webhook'
+      - type: object
+      properties:
+        event_group:
+          $ref: '#/components/schemas/webhook_event_group'
+    message:
+      description: Human-readable description of the error for developers. Should not be shown to users and is not localized.
+      example: The input is missing a required parameter.
+      type: string
+    events_array_create_webhook:
+      allOf:
+      - $ref: '#/components/schemas/base_create_webhook'
+      - type: object
+      properties:
+        events:
+          description: 'If `webhook_event_group` is null, pick a list of notification events to subscribe to.
+
+            '
+          items:
+            $ref: '#/components/schemas/webhooks_type'
+          type: array
   parameters:
     division_id:
       description: The unique ID associated to the merchant's Bolt Account division; Merchants can have different divisions to suit multiple use cases (storefronts, pay-by-link, phone order processing). You can view and switch between these divisions from the Bolt Merchant Dashboard.

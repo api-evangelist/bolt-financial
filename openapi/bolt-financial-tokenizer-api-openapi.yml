@@ -2,7 +2,17 @@ openapi: 3.2.0
 info:
   title: Endpoint Tokenizer API
   version: 1.0.0
-  description: "## About\nThe Tokenizer API provides an alternative to our [public npm package](https://www.npmjs.com/package/@boltpay/tokenizer). If you would prefer to use that, you can follow our [Tokenizer documentation](/developers/references/bolt-tokenizer). \n\n## How It Works\nThis API uses two endpoints to implement custom back-office integrations such as direct payment processing.\n\nThe `/public_key` endpoint returns a key used in the `/token` endpoint, used to encrypt and decrypt the payload containing credit card information.\n"
+  description: '## About
+
+    The Tokenizer API provides an alternative to our public npm package. If you would prefer to use that, you can follow our Tokenizer documentation.
+
+
+    ## How It Works
+
+    This API uses two endpoints to implement custom back-office integrations such as direct payment processing.
+
+
+    The `/public_key` endpoint returns a key used in the `/token` endpoint, used to encrypt and decrypt the payload containing credit card information.'
 servers:
 - url: https://staging.bolttk.com
   description: The Staging URL (Staged Data).
@@ -15,9 +25,7 @@ tags:
 paths:
   /public_key:
     get:
-      description: 'Returns current `public_key` to be used to sign `/token` requests. There is no need for authorization or authentication with this endpoint, nor headers.
-
-        '
+      description: Returns current `public_key` to be used to sign `/token` requests. There is no need for authorization or authentication with this endpoint, nor headers.
       operationId: tokenizerPublicKey
       responses:
         '200':
@@ -38,7 +46,10 @@ paths:
       - Tokenizer
   /token:
     post:
-      description: "Collects and stores the credit card information and returns a token representing the stored card. \n\nAlternatively, Bolt also provides an [NPM package](https://help.boltapp.com/developers/references/bolt-tokenizer/) for ease of use. \n"
+      description: 'Collects and stores the credit card information and returns a token representing the stored card.
+
+
+        Alternatively, Bolt also provides an NPM package for ease of use.'
       operationId: tokenizerToken
       requestBody:
         content:
@@ -89,13 +100,6 @@ components:
         public_key:
           $ref: '#/components/schemas/public_key_response'
       type: object
-    public_key_response:
-      description: 'A client public key, generated locally.
-
-        '
-      example: /v7FsRGXEErA7f9y1uyMW0ApMUnC32RenDPpueLcYV8=
-      format: base64
-      type: string
     payload_response:
       description: "The encrypted card information and the newly generated card token. It can be decrypted with client private key, server public key and nonce. \n\nAfter decoding and decrypting, the payload is an object: \n| Object | Value | \n| ------ | ----- | \n| `token` | The token is the newly generated credit card token. | \n| `expiry` | The date at which the token expires. | \n| `last4` | The last 4 digits of the card number. | \n| `bin` | The credit card bin. | \n| `network` | The credit card network. | \n"
       example: T5m0ig7ROC/6WVJ9f8NcKRPhjEmn9833i3T4lZiTTNbZgOXM8gRXKeNDSH9BrzicqgjEXNriuZn9E8/xL5mb3lpIPAtX0L0dBDpojb/xa/QNi9/zEiZ6+MmBa6EQCEfKZxiOG9l9BMi3gS+UZxGcF18yfra/UXdhnvQW7PGk0Ex2F6MggwjdJOWoPgKG8UROTBMstoL23plFwfGScyZ+g0uo
@@ -114,3 +118,10 @@ components:
         payload:
           $ref: '#/components/schemas/payload_response'
       type: object
+    public_key_response:
+      description: 'A client public key, generated locally.
+
+        '
+      example: /v7FsRGXEErA7f9y1uyMW0ApMUnC32RenDPpueLcYV8=
+      format: base64
+      type: string

@@ -1,10 +1,10 @@
 {
   "provider": "bolt-financial",
   "sources": [
-    "bolt-financial-bolt-api-openapi.yml",
-    "bolt-financial-embeddable-checkout-v1-openapi.yml",
-    "bolt-financial-embeddable-checkout-v3-openapi.yml",
-    "bolt-financial-tokenizer-openapi.yml"
+    "_original/bolt-financial-bolt-api-openapi.yml",
+    "_original/bolt-financial-embeddable-checkout-v1-openapi.yml",
+    "_original/bolt-financial-embeddable-checkout-v3-openapi.yml",
+    "_original/bolt-financial-tokenizer-openapi.yml"
   ],
   "outputs": [
     "bolt-financial-account-api-openapi.yml",
@@ -21,14 +21,12 @@
     "bolt-financial-tokenizer-api-openapi.yml"
   ],
   "archived": [
-    "archived openapi/bolt-financial-bolt-api-openapi.yml",
-    "archived openapi/bolt-financial-embeddable-checkout-v1-openapi.yml",
-    "archived openapi/bolt-financial-embeddable-checkout-v3-openapi.yml",
-    "archived openapi/bolt-financial-tokenizer-openapi.yml"
+    "deleted 1 superseded output(s) from the previous generation"
   ],
   "errors": [],
   "warnings": [],
   "notes": [
+    "sourced from openapi/_original/ (4 archived document(s)); previously refined output at the top level was skipped rather than re-split",
     "bolt-financial-bolt-api-openapi.yml: upgraded openapi 3.0.0 -> OpenAPI 3.2.0",
     "bolt-financial-embeddable-checkout-v1-openapi.yml: upgraded openapi 3.0.0 -> OpenAPI 3.2.0",
     "bolt-financial-embeddable-checkout-v3-openapi.yml: upgraded openapi 3.0.0 -> OpenAPI 3.2.0",
@@ -38,7 +36,21 @@
     "tag 'Orders' spans 2 source specs (bolt-financial-bolt-api-openapi.yml, bolt-financial-embeddable-checkout-v3-openapi.yml): per-path servers applied",
     "tag 'Testing' spans 3 source specs (bolt-financial-bolt-api-openapi.yml, bolt-financial-embeddable-checkout-v1-openapi.yml, bolt-financial-embeddable-checkout-v3-openapi.yml): per-path servers applied",
     "tag 'Transactions' spans 2 source specs (bolt-financial-bolt-api-openapi.yml, bolt-financial-embeddable-checkout-v1-openapi.yml): per-path servers applied",
-    "apis.yml register: written (+12 apis, 13 total)"
+    "superseded outputs removed: bolt-financial-o-auth-api-openapi.yml",
+    "apis.yml register: written (+1 apis, 13 total)"
   ],
-  "skipped": []
+  "skipped": [
+    "bolt-financial-account-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "bolt-financial-callbacks-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "bolt-financial-configuration-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "bolt-financial-o-auth-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "bolt-financial-orders-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "bolt-financial-payments-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "bolt-financial-statements-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "bolt-financial-subscriptions-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "bolt-financial-testing-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "bolt-financial-tokenizer-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "bolt-financial-transactions-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "bolt-financial-webhooks-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }
