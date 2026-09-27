@@ -45,18 +45,37 @@ paths:
       - Statements
 components:
   schemas:
+    error_bolt_api:
+      properties:
+        code:
+          $ref: '#/components/schemas/code'
+        message:
+          $ref: '#/components/schemas/message'
+      type: object
+      description: Error object containing custom error information
+    request_failed:
+      example: false
+      type: boolean
+      description: Indicates that the request failed. This value is always false.
+    message:
+      description: Human-readable description of the error for developers. Should not be shown to users and is not localized.
+      example: The input is missing a required parameter.
+      type: string
     statements_file_type:
       description: This is the type of the file. Currently, Bolt only supports CSV statements.
       enum:
       - csv
       example: csv
       type: string
-    request_result:
-      description: Custom-defined Bolt result object.
-      properties:
-        success:
-          $ref: '#/components/schemas/request_failed'
-      type: object
+    statements_date:
+      description: This is the date of the statement, in milliseconds since the Unix epoch time.
+      example: 1586480400000
+      type: integer
+    code:
+      description: Custom-defined Bolt error code. This can be used to programmatically react to specific errors.
+      example: 2001005
+      format: int64
+      type: integer
     errors_bolt_api_response:
       properties:
         errors:
@@ -73,35 +92,10 @@ components:
       - monthly_dispute
       example: daily_transaction
       type: string
-    error_bolt_api:
-      properties:
-        code:
-          $ref: '#/components/schemas/code'
-        message:
-          $ref: '#/components/schemas/message'
-      type: object
-      description: Error object containing custom error information
     errors_bolt_api:
       items:
         $ref: '#/components/schemas/error_bolt_api'
       type: array
-    code:
-      description: Custom-defined Bolt error code. This can be used to programmatically react to specific errors.
-      example: 2001005
-      format: int64
-      type: integer
-    request_failed:
-      example: false
-      type: boolean
-      description: Indicates that the request failed. This value is always false.
-    message:
-      description: Human-readable description of the error for developers. Should not be shown to users and is not localized.
-      example: The input is missing a required parameter.
-      type: string
-    statements_date:
-      description: This is the date of the statement, in milliseconds since the Unix epoch time.
-      example: 1586480400000
-      type: integer
     statements_url:
       description: 'This is the pre-signed URL of the requested statement. The URL has an expiration period of 5 minutes.
 
@@ -110,6 +104,12 @@ components:
         '
       example: https://bolt-statements-production.s3.us-west-2.amazonaws.com/00_daily_transaction_20200410.csv
       type: string
+    request_result:
+      description: Custom-defined Bolt result object.
+      properties:
+        success:
+          $ref: '#/components/schemas/request_failed'
+      type: object
   responses:
     statements_view:
       content:
@@ -122,13 +122,13 @@ components:
             - url
             type: object
       description: Statements Fetch Successful
-    statements_view_error_403:
+    statements_view_error_422:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/errors_bolt_api_response'
       description: Generic Error Schema
-    statements_view_error_422:
+    statements_view_error_403:
       content:
         application/json:
           schema:

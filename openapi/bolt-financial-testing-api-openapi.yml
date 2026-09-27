@@ -245,24 +245,32 @@ paths:
           default: api-sandbox
 components:
   schemas:
-    phone:
-      description: A phone number following E164 standards, in its globalized format, i.e. prepended with a plus sign.
-      example: '+12125550199'
-      maxLength: 16
-      type: string
-    errors_bolt_api_response:
+    testing_account_request:
       properties:
-        errors:
-          $ref: '#/components/schemas/errors_bolt_api'
-        result:
-          $ref: '#/components/schemas/request_result'
+        deactivate_in_days:
+          description: 'Number of days after which the test account is deactivated. Default: 30 days. Maximum: 180 days.'
+          type: integer
+        email:
+          description: Deprecated. Please leave this field absent and let the API automatically generate a random email.
+          type: string
+        email_state:
+          $ref: '#/components/schemas/account_identifier_status'
+        phone:
+          description: Deprecated. Please leave this field absent and let the API automatically generate a random phone number.
+          type: string
+        phone_state:
+          $ref: '#/components/schemas/account_identifier_status'
+        migrated:
+          description: Set this account as migrated by the merchant in the request
+          type: boolean
+        has_address:
+          description: Add a random U.S. address to the created account if set to `true`
+          type: boolean
       type: object
-    request_result:
-      description: Custom-defined Bolt result object.
-      properties:
-        success:
-          $ref: '#/components/schemas/request_failed'
-      type: object
+      example:
+        deactivate_in_days: 30
+        email_state: verified
+        phone_state: verified
     testing_account_details:
       properties:
         email:
@@ -294,98 +302,16 @@ components:
           example: 7GSjMRSHs6Ak7C_zvVW6P2IhZOHxMK7HZKW1fMX85ms.-DUXvwr1Yg-bfvqXUlMaz49fPn7OdiPa3TwVBlUI-wc
           type: string
       type: object
-    errors_bolt_api:
-      items:
-        $ref: '#/components/schemas/error_bolt_api'
-      type: array
-    testing_account_request:
-      properties:
-        deactivate_in_days:
-          description: 'Number of days after which the test account is deactivated. Default: 30 days. Maximum: 180 days.'
-          type: integer
-        email:
-          description: Deprecated. Please leave this field absent and let the API automatically generate a random email.
-          type: string
-        email_state:
-          $ref: '#/components/schemas/account_identifier_status'
-        phone:
-          description: Deprecated. Please leave this field absent and let the API automatically generate a random phone number.
-          type: string
-        phone_state:
-          $ref: '#/components/schemas/account_identifier_status'
-        migrated:
-          description: Set this account as migrated by the merchant in the request
-          type: boolean
-        has_address:
-          description: Add a random U.S. address to the created account if set to `true`
-          type: boolean
-      type: object
-      example:
-        deactivate_in_days: 30
-        email_state: verified
-        phone_state: verified
-    error_bolt_api:
-      properties:
-        code:
-          $ref: '#/components/schemas/code'
-        message:
-          $ref: '#/components/schemas/message'
-      type: object
-      description: Error object containing custom error information
-    code:
-      description: Custom-defined Bolt error code. This can be used to programmatically react to specific errors.
-      example: 2001005
-      format: int64
-      type: integer
+    message:
+      description: Human-readable description of the error for developers. Should not be shown to users and is not localized.
+      example: The input is missing a required parameter.
+      type: string
     email:
       description: An email address.
       example: alan.watts@example.com
       format: email
       type: string
       maxLength: 255
-    mock_tracking_input:
-      properties:
-        delivery_estimate:
-          type: string
-        status:
-          description: The shipment status of a simulated order.
-          enum:
-          - in_transit
-          - cancelled
-          - failure
-          - delivered
-          type: string
-        tracking_detail:
-          description: A list of tracking updates that contain the shipment's status, location, and any unique messages.
-          items:
-            $ref: '#/components/schemas/tracking_detail'
-          type: array
-        tracking_number:
-          description: The carrier's tracking number for the shipment (Order Tracking Testing). Must begin with `MockBolt`.
-          example: MockBolt1234
-          type: string
-      required:
-      - tracking_number
-      - status
-      - delivery_estimate
-      - tracking_detail
-      type: object
-    message:
-      description: Human-readable description of the error for developers. Should not be shown to users and is not localized.
-      example: The input is missing a required parameter.
-      type: string
-    request_failed:
-      example: false
-      type: boolean
-      description: Indicates that the request failed. This value is always false.
-    account_identifier_status:
-      description: The status of the shopper account identifier (email or phone). If the account does not have this identifier, the status is "missing"; If the identifier has been used to receive an OTP code, the status is "verified"; If the identifier has not been used to receive an OTP code, the status is "unverified".
-      enum:
-      - missing
-      - verified
-      - unverified
-      example: verified
-      type: string
     tracking_detail:
       properties:
         city:
@@ -431,73 +357,110 @@ components:
       - status
       - message
       type: object
-    credit-card-network:
-      type: string
-      description: The credit card's network.
+    account_identifier_status:
+      description: The status of the shopper account identifier (email or phone). If the account does not have this identifier, the status is "missing"; If the identifier has been used to receive an OTP code, the status is "verified"; If the identifier has not been used to receive an OTP code, the status is "unverified".
       enum:
-      - visa
-      - mastercard
-      - amex
-      - discover
-      - jcb
-      - dinersclub
-      - unionpay
-      - alliancedata
-      - citiplcc
-      example: visa
-      x-oapi-codegen-extra-tags:
-        validate: required
-    account-test-phone-data:
-      type: object
-      required:
-      - phone
+      - missing
+      - verified
+      - unverified
+      example: verified
+      type: string
+    phone:
+      description: A phone number following E164 standards, in its globalized format, i.e. prepended with a plus sign.
+      example: '+12125550199'
+      maxLength: 16
+      type: string
+    code:
+      description: Custom-defined Bolt error code. This can be used to programmatically react to specific errors.
+      example: 2001005
+      format: int64
+      type: integer
+    errors_bolt_api_response:
       properties:
-        phone:
-          type: string
-          format: phone
-          description: A random, fictitious, unassigned phone number.
-          example: '+14155550199'
-    error:
+        errors:
+          $ref: '#/components/schemas/errors_bolt_api'
+        result:
+          $ref: '#/components/schemas/request_result'
       type: object
-      required:
-      - .tag
-      - message
+    errors_bolt_api:
+      items:
+        $ref: '#/components/schemas/error_bolt_api'
+      type: array
+    error_bolt_api:
       properties:
-        .tag:
-          type: string
-          enum:
-          - unauthorized
-          - forbidden
-          - unprocessable_request
-          - not_found
-          description: The type of error returned
-          example: unprocessable_request
+        code:
+          $ref: '#/components/schemas/code'
         message:
-          type: string
-          description: A human-readable error message, which might include information specific to the request that was made.
-          example: We were unable to process your request.
-    field-error:
+          $ref: '#/components/schemas/message'
       type: object
-      description: An error that pertains to validation of a specific field in the request.
-      required:
-      - .tag
-      - message
-      - field
+      description: Error object containing custom error information
+    mock_tracking_input:
       properties:
-        .tag:
+        delivery_estimate:
           type: string
+        status:
+          description: The shipment status of a simulated order.
           enum:
-          - invalid_input_parameter
-          description: The type of error returned
-          example: invalid_input_parameter
-        message:
+          - in_transit
+          - cancelled
+          - failure
+          - delivered
           type: string
-          description: A human-readable error message, which might include information specific to the request that was made.
-          example: We were unable to process your request.
-        field:
+        tracking_detail:
+          description: A list of tracking updates that contain the shipment's status, location, and any unique messages.
+          items:
+            $ref: '#/components/schemas/tracking_detail'
+          type: array
+        tracking_number:
+          description: The carrier's tracking number for the shipment (Order Tracking Testing). Must begin with `MockBolt`.
+          example: MockBolt1234
           type: string
-          description: The field (in its hierarchical form) that is failing validation.
-          example: address.phone
+      required:
+      - tracking_number
+      - status
+      - delivery_estimate
+      - tracking_detail
+      type: object
+    request_failed:
+      example: false
+      type: boolean
+      description: Indicates that the request failed. This value is always false.
+    request_result:
+      description: Custom-defined Bolt result object.
+      properties:
+        success:
+          $ref: '#/components/schemas/request_failed'
+      type: object
+    test-credit-card:
+      required:
+      - network
+      - bin
+      - last4
+      - expiration
+      - token
+      type: object
+      properties:
+        network:
+          $ref: '#/components/schemas/credit-card-network'
+        bin:
+          type: string
+          description: The Bank Identification Number (BIN). This is typically the first 4 to 6 digits of the account number.
+          pattern: ^\d+$
+          example: '411111'
+        last4:
+          type: string
+          description: The account number's last four digits.
+          pattern: ^\d{4}$
+          example: '1004'
+        expiration:
+          type: string
+          format: date-time
+          description: The token's expiration date. Tokens used past their expiration will be rejected.
+          example: '2023-10-31T06:00:00Z'
+        token:
+          type: string
+          description: The Bolt token associated with the credit card.
+          example: a1B2c3D4e5F6G7H8i9J0k1L2m3N4o5P6Q7r8S9t0
     account-test-creation-data:
       type: object
       required:
@@ -552,36 +515,73 @@ components:
           type: string
           readOnly: true
           example: 7GSjMRSHs6Ak7C_zvVW6P2IhZOHxMK7HZKW1fMX85ms
-    test-credit-card:
-      required:
-      - network
-      - bin
-      - last4
-      - expiration
-      - token
+    field-error:
       type: object
+      description: An error that pertains to validation of a specific field in the request.
+      required:
+      - .tag
+      - message
+      - field
       properties:
-        network:
-          $ref: '#/components/schemas/credit-card-network'
-        bin:
+        .tag:
           type: string
-          description: The Bank Identification Number (BIN). This is typically the first 4 to 6 digits of the account number.
-          pattern: ^\d+$
-          example: '411111'
-        last4:
+          enum:
+          - invalid_input_parameter
+          description: The type of error returned
+          example: invalid_input_parameter
+        message:
           type: string
-          description: The account number's last four digits.
-          pattern: ^\d{4}$
-          example: '1004'
-        expiration:
+          description: A human-readable error message, which might include information specific to the request that was made.
+          example: We were unable to process your request.
+        field:
           type: string
-          format: date-time
-          description: The token's expiration date. Tokens used past their expiration will be rejected.
-          example: '2023-10-31T06:00:00Z'
-        token:
+          description: The field (in its hierarchical form) that is failing validation.
+          example: address.phone
+    error:
+      type: object
+      required:
+      - .tag
+      - message
+      properties:
+        .tag:
           type: string
-          description: The Bolt token associated with the credit card.
-          example: a1B2c3D4e5F6G7H8i9J0k1L2m3N4o5P6Q7r8S9t0
+          enum:
+          - unauthorized
+          - forbidden
+          - unprocessable_request
+          - not_found
+          description: The type of error returned
+          example: unprocessable_request
+        message:
+          type: string
+          description: A human-readable error message, which might include information specific to the request that was made.
+          example: We were unable to process your request.
+    account-test-phone-data:
+      type: object
+      required:
+      - phone
+      properties:
+        phone:
+          type: string
+          format: phone
+          description: A random, fictitious, unassigned phone number.
+          example: '+14155550199'
+    credit-card-network:
+      type: string
+      description: The credit card's network.
+      enum:
+      - visa
+      - mastercard
+      - amex
+      - discover
+      - jcb
+      - dinersclub
+      - unionpay
+      - alliancedata
+      - citiplcc
+      example: visa
+      x-oapi-codegen-extra-tags:
+        validate: required
   parameters:
     x-publishable-key:
       description: The publicly viewable identifier used to identify a merchant division. This key is found in the Developer > API section of the Bolt Merchant Dashboard [RECOMMENDED].
