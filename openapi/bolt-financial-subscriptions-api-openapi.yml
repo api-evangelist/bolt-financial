@@ -355,37 +355,15 @@ paths:
       - Subscriptions
 components:
   schemas:
-    currency_iso:
-      description: The 3-digit ISO code for the currency. **Nullable** for Transactions Details.
-      example: USD
+    subscription_v2_id:
+      description: The unique ID for a Bolt subscription.
+      example: sub_1a2b3c4d5e
+      title: Subscription ID
       type: string
-    errors_bolt_api_response:
-      properties:
-        errors:
-          $ref: '#/components/schemas/errors_bolt_api'
-        result:
-          $ref: '#/components/schemas/request_result'
-      type: object
     amount:
       description: The amount in cents. **Nullable** for Transactions Details.
       example: 754
       type: integer
-    subscription_v2_payment_method:
-      description: The card currently used to pay for this subscription.
-      properties:
-        card_last_4:
-          description: The last 4 digits of the card number.
-          example: '4242'
-          type: string
-        card_network:
-          description: The card network (e.g. Visa, Mastercard).
-          example: visa
-          type: string
-      required:
-      - card_last_4
-      - card_network
-      title: Subscription Payment Method
-      type: object
     subscription_v2_initial_period:
       description: An initial billing period, such as a trial or introductory offer, that differs from the plan's regular frequency.
       properties:
@@ -407,6 +385,47 @@ components:
       - frequency_unit
       title: Subscription Initial Period
       type: object
+    error_bolt_api:
+      properties:
+        code:
+          $ref: '#/components/schemas/code'
+        message:
+          $ref: '#/components/schemas/message'
+      type: object
+      description: Error object containing custom error information
+    subscription_v2_order_list:
+      description: A list of subscription orders.
+      properties:
+        orders:
+          items:
+            $ref: '#/components/schemas/subscription_v2_order'
+          type: array
+      required:
+      - orders
+      title: Subscription Order List
+      type: object
+    errors_bolt_api_response:
+      properties:
+        errors:
+          $ref: '#/components/schemas/errors_bolt_api'
+        result:
+          $ref: '#/components/schemas/request_result'
+      type: object
+    subscription_v2_status:
+      description: The current status of the subscription.
+      enum:
+      - active
+      - paused
+      - canceled
+      - payment_failed
+      example: active
+      title: Subscription Status
+      type: string
+    code:
+      description: Custom-defined Bolt error code. This can be used to programmatically react to specific errors.
+      example: 2001005
+      format: int64
+      type: integer
     subscription_v2:
       description: A Bolt subscription.
       properties:
@@ -480,173 +499,10 @@ components:
       - metadata
       title: Subscription
       type: object
-    amounts:
-      description: The amount. **Nullable** for Transactions Details.
-      properties:
-        amount:
-          $ref: '#/components/schemas/amount'
-        currency:
-          $ref: '#/components/schemas/currency_iso'
-        currency_symbol:
-          $ref: '#/components/schemas/currency_symbol'
-      required:
-      - amount
-      - currency
-      - currency_symbol
-      type: object
-    message:
-      description: Human-readable description of the error for developers. Should not be shown to users and is not localized.
-      example: The input is missing a required parameter.
-      type: string
-    subscription_v2_id:
-      description: The unique ID for a Bolt subscription.
-      example: sub_1a2b3c4d5e
-      title: Subscription ID
-      type: string
-    subscription_v2_status:
-      description: The current status of the subscription.
-      enum:
-      - active
-      - paused
-      - canceled
-      - payment_failed
-      example: active
-      title: Subscription Status
-      type: string
-    code:
-      description: Custom-defined Bolt error code. This can be used to programmatically react to specific errors.
-      example: 2001005
-      format: int64
-      type: integer
     currency_symbol:
       description: The currency symbol used for the amount. **Nullable** for Transactions Details.
       example: $
       type: string
-    subscription_v2_status_details:
-      description: Details about the subscription's current status.
-      properties:
-        type:
-          $ref: '#/components/schemas/subscription_v2_status'
-        reason:
-          description: Additional context for the current status, when available.
-          example: payment_failed
-          type: string
-      required:
-      - type
-      title: Subscription Status Details
-      type: object
-    request_result:
-      description: Custom-defined Bolt result object.
-      properties:
-        success:
-          $ref: '#/components/schemas/request_failed'
-      type: object
-    subscription_v2_order_list:
-      description: A list of subscription orders.
-      properties:
-        orders:
-          items:
-            $ref: '#/components/schemas/subscription_v2_order'
-          type: array
-      required:
-      - orders
-      title: Subscription Order List
-      type: object
-    subscription_v2_order:
-      description: A single billing cycle (order) generated by a subscription.
-      properties:
-        id:
-          description: The unique ID for the subscription order.
-          example: sorder_5d4c3b2a19
-          type: string
-        subscription_id:
-          $ref: '#/components/schemas/subscription_v2_id'
-        order_id:
-          description: The associated Bolt order ID, once the order has been placed.
-          example: 123456789
-          type: integer
-        transaction_reference:
-          description: The transaction reference for this order's payment attempt.
-          example: 6CEA-ZME1-DACE
-          type: string
-        placement_time:
-          description: The scheduled or actual placement time of this order.
-          format: date-time
-          type: string
-        status:
-          $ref: '#/components/schemas/subscription_v2_order_status'
-        cancel_reason:
-          deprecated: true
-          description: Deprecated.
-          type:
-          - string
-          - 'null'
-        created_at:
-          format: date-time
-          type: string
-        updated_at:
-          format: date-time
-          type: string
-        sequence_number:
-          description: The 1-indexed position of this order within the subscription's billing history.
-          example: 3
-          type: integer
-        total_amount:
-          $ref: '#/components/schemas/amounts'
-      required:
-      - id
-      - subscription_id
-      - transaction_reference
-      - placement_time
-      - status
-      - created_at
-      - updated_at
-      - sequence_number
-      title: Subscription Order
-      type: object
-    subscription_v2_success:
-      description: A generic confirmation response.
-      properties:
-        success:
-          example: true
-          type: boolean
-      required:
-      - success
-      title: Success
-      type: object
-    subscription_v2_order_status:
-      description: The status of a subscription order.
-      enum:
-      - scheduled
-      - done
-      - paused
-      - payment_failed
-      - canceled
-      example: scheduled
-      title: Subscription Order Status
-      type: string
-    subscription_v2_pagination:
-      description: Pagination details for a list response.
-      properties:
-        page_size:
-          example: 25
-          type: integer
-        total_count:
-          example: 132
-          type: integer
-      required:
-      - page_size
-      - total_count
-      title: Pagination
-      type: object
-    errors_bolt_api:
-      items:
-        $ref: '#/components/schemas/error_bolt_api'
-      type: array
-    request_failed:
-      example: false
-      type: boolean
-      description: Indicates that the request failed. This value is always false.
     subscription_v2_plan:
       description: The billing plan the subscription is enrolled in.
       properties:
@@ -702,6 +558,154 @@ components:
       - product_id
       title: Subscription Plan
       type: object
+    amounts:
+      description: The amount. **Nullable** for Transactions Details.
+      properties:
+        amount:
+          $ref: '#/components/schemas/amount'
+        currency:
+          $ref: '#/components/schemas/currency_iso'
+        currency_symbol:
+          $ref: '#/components/schemas/currency_symbol'
+      required:
+      - amount
+      - currency
+      - currency_symbol
+      type: object
+    subscription_v2_status_details:
+      description: Details about the subscription's current status.
+      properties:
+        type:
+          $ref: '#/components/schemas/subscription_v2_status'
+        reason:
+          description: Additional context for the current status, when available.
+          example: payment_failed
+          type: string
+      required:
+      - type
+      title: Subscription Status Details
+      type: object
+    subscription_v2_pagination:
+      description: Pagination details for a list response.
+      properties:
+        page_size:
+          example: 25
+          type: integer
+        total_count:
+          example: 132
+          type: integer
+      required:
+      - page_size
+      - total_count
+      title: Pagination
+      type: object
+    request_failed:
+      example: false
+      type: boolean
+      description: Indicates that the request failed. This value is always false.
+    subscription_v2_success:
+      description: A generic confirmation response.
+      properties:
+        success:
+          example: true
+          type: boolean
+      required:
+      - success
+      title: Success
+      type: object
+    subscription_v2_list:
+      description: A paginated list of subscriptions.
+      properties:
+        subscriptions:
+          items:
+            $ref: '#/components/schemas/subscription_v2'
+          type: array
+        pagination:
+          $ref: '#/components/schemas/subscription_v2_pagination'
+      required:
+      - subscriptions
+      - pagination
+      title: Subscription List
+      type: object
+    subscription_v2_payment_method:
+      description: The card currently used to pay for this subscription.
+      properties:
+        card_last_4:
+          description: The last 4 digits of the card number.
+          example: '4242'
+          type: string
+        card_network:
+          description: The card network (e.g. Visa, Mastercard).
+          example: visa
+          type: string
+      required:
+      - card_last_4
+      - card_network
+      title: Subscription Payment Method
+      type: object
+    subscription_v2_order_status:
+      description: The status of a subscription order.
+      enum:
+      - scheduled
+      - done
+      - paused
+      - payment_failed
+      - canceled
+      example: scheduled
+      title: Subscription Order Status
+      type: string
+    subscription_v2_order:
+      description: A single billing cycle (order) generated by a subscription.
+      properties:
+        id:
+          description: The unique ID for the subscription order.
+          example: sorder_5d4c3b2a19
+          type: string
+        subscription_id:
+          $ref: '#/components/schemas/subscription_v2_id'
+        order_id:
+          description: The associated Bolt order ID, once the order has been placed.
+          example: 123456789
+          type: integer
+        transaction_reference:
+          description: The transaction reference for this order's payment attempt.
+          example: 6CEA-ZME1-DACE
+          type: string
+        placement_time:
+          description: The scheduled or actual placement time of this order.
+          format: date-time
+          type: string
+        status:
+          $ref: '#/components/schemas/subscription_v2_order_status'
+        cancel_reason:
+          deprecated: true
+          description: Deprecated.
+          type:
+          - string
+          - 'null'
+        created_at:
+          format: date-time
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+        sequence_number:
+          description: The 1-indexed position of this order within the subscription's billing history.
+          example: 3
+          type: integer
+        total_amount:
+          $ref: '#/components/schemas/amounts'
+      required:
+      - id
+      - subscription_id
+      - transaction_reference
+      - placement_time
+      - status
+      - created_at
+      - updated_at
+      - sequence_number
+      title: Subscription Order
+      type: object
     subscription_v2_dunning_settings:
       description: A merchant division's dunning (failed payment recovery) configuration.
       properties:
@@ -742,28 +746,24 @@ components:
       - sms_enabled
       title: Dunning Settings
       type: object
-    subscription_v2_list:
-      description: A paginated list of subscriptions.
+    errors_bolt_api:
+      items:
+        $ref: '#/components/schemas/error_bolt_api'
+      type: array
+    request_result:
+      description: Custom-defined Bolt result object.
       properties:
-        subscriptions:
-          items:
-            $ref: '#/components/schemas/subscription_v2'
-          type: array
-        pagination:
-          $ref: '#/components/schemas/subscription_v2_pagination'
-      required:
-      - subscriptions
-      - pagination
-      title: Subscription List
+        success:
+          $ref: '#/components/schemas/request_failed'
       type: object
-    error_bolt_api:
-      properties:
-        code:
-          $ref: '#/components/schemas/code'
-        message:
-          $ref: '#/components/schemas/message'
-      type: object
-      description: Error object containing custom error information
+    message:
+      description: Human-readable description of the error for developers. Should not be shown to users and is not localized.
+      example: The input is missing a required parameter.
+      type: string
+    currency_iso:
+      description: The 3-digit ISO code for the currency. **Nullable** for Transactions Details.
+      example: USD
+      type: string
   parameters:
     subscription_v2_id_path:
       description: The unique ID for the subscription.
@@ -772,11 +772,11 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/subscription_v2_id'
-    x_publishable_key_required:
-      description: The publicly viewable identifier used to identify a merchant division. This key is found in the Developer > API section of the Bolt Merchant Dashboard.
+    bolt_connect_seller_id_header:
+      description: For Bolt Connect marketplace integrations, the seller's external ID. When provided, the request acts on the seller's division rather than the caller's own division. Ignored if the `seller_id` query parameter is also set.
       in: header
-      name: X-Publishable-Key
-      required: true
+      name: X-Bolt-Connect-Seller-Id
+      required: false
       schema:
         type: string
     bolt_connect_seller_id_query:
@@ -786,11 +786,11 @@ components:
       required: false
       schema:
         type: string
-    bolt_connect_seller_id_header:
-      description: For Bolt Connect marketplace integrations, the seller's external ID. When provided, the request acts on the seller's division rather than the caller's own division. Ignored if the `seller_id` query parameter is also set.
+    x_publishable_key_required:
+      description: The publicly viewable identifier used to identify a merchant division. This key is found in the Developer > API section of the Bolt Merchant Dashboard.
       in: header
-      name: X-Bolt-Connect-Seller-Id
-      required: false
+      name: X-Publishable-Key
+      required: true
       schema:
         type: string
   securitySchemes:

@@ -44,85 +44,8 @@ paths:
       tags:
       - Statements
 components:
-  schemas:
-    error_bolt_api:
-      properties:
-        code:
-          $ref: '#/components/schemas/code'
-        message:
-          $ref: '#/components/schemas/message'
-      type: object
-      description: Error object containing custom error information
-    request_failed:
-      example: false
-      type: boolean
-      description: Indicates that the request failed. This value is always false.
-    message:
-      description: Human-readable description of the error for developers. Should not be shown to users and is not localized.
-      example: The input is missing a required parameter.
-      type: string
-    statements_file_type:
-      description: This is the type of the file. Currently, Bolt only supports CSV statements.
-      enum:
-      - csv
-      example: csv
-      type: string
-    statements_date:
-      description: This is the date of the statement, in milliseconds since the Unix epoch time.
-      example: 1586480400000
-      type: integer
-    code:
-      description: Custom-defined Bolt error code. This can be used to programmatically react to specific errors.
-      example: 2001005
-      format: int64
-      type: integer
-    errors_bolt_api_response:
-      properties:
-        errors:
-          $ref: '#/components/schemas/errors_bolt_api'
-        result:
-          $ref: '#/components/schemas/request_result'
-      type: object
-    statements_type:
-      description: "The time period and statement type: \n  * [Funding details statement](https://help.boltapp.com/operations/financials/export-funding-detail-statements/) with transactional events: Use `daily_transaction` or `monthly_transaction`\n  * [Bank transfer statement](https://help.boltapp.com/operations/financials/export-bank-transfer-statements/) with settlement and funding events: Use `daily_funding`\n  * [Dispute statement](https://help.boltapp.com/operations/disputes/dispute-statements/#how-to-read-dispute-statements): Use `monthly_dispute`\n"
-      enum:
-      - daily_transaction
-      - monthly_transaction
-      - daily_funding
-      - monthly_dispute
-      example: daily_transaction
-      type: string
-    errors_bolt_api:
-      items:
-        $ref: '#/components/schemas/error_bolt_api'
-      type: array
-    statements_url:
-      description: 'This is the pre-signed URL of the requested statement. The URL has an expiration period of 5 minutes.
-
-        Sharing the URL implies sharing the statement and its contents, please be careful.
-
-        '
-      example: https://bolt-statements-production.s3.us-west-2.amazonaws.com/00_daily_transaction_20200410.csv
-      type: string
-    request_result:
-      description: Custom-defined Bolt result object.
-      properties:
-        success:
-          $ref: '#/components/schemas/request_failed'
-      type: object
   responses:
-    statements_view:
-      content:
-        application/json:
-          schema:
-            properties:
-              url:
-                $ref: '#/components/schemas/statements_url'
-            required:
-            - url
-            type: object
-      description: Statements Fetch Successful
-    statements_view_error_422:
+    statements_view_error_404:
       content:
         application/json:
           schema:
@@ -134,12 +57,89 @@ components:
           schema:
             $ref: '#/components/schemas/errors_bolt_api_response'
       description: Generic Error Schema
-    statements_view_error_404:
+    statements_view_error_422:
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/errors_bolt_api_response'
       description: Generic Error Schema
+    statements_view:
+      content:
+        application/json:
+          schema:
+            properties:
+              url:
+                $ref: '#/components/schemas/statements_url'
+            required:
+            - url
+            type: object
+      description: Statements Fetch Successful
+  schemas:
+    errors_bolt_api_response:
+      properties:
+        errors:
+          $ref: '#/components/schemas/errors_bolt_api'
+        result:
+          $ref: '#/components/schemas/request_result'
+      type: object
+    errors_bolt_api:
+      items:
+        $ref: '#/components/schemas/error_bolt_api'
+      type: array
+    statements_date:
+      description: This is the date of the statement, in milliseconds since the Unix epoch time.
+      example: 1586480400000
+      type: integer
+    request_failed:
+      example: false
+      type: boolean
+      description: Indicates that the request failed. This value is always false.
+    error_bolt_api:
+      properties:
+        code:
+          $ref: '#/components/schemas/code'
+        message:
+          $ref: '#/components/schemas/message'
+      type: object
+      description: Error object containing custom error information
+    statements_type:
+      description: "The time period and statement type: \n  * [Funding details statement](https://help.boltapp.com/operations/financials/export-funding-detail-statements/) with transactional events: Use `daily_transaction` or `monthly_transaction`\n  * [Bank transfer statement](https://help.boltapp.com/operations/financials/export-bank-transfer-statements/) with settlement and funding events: Use `daily_funding`\n  * [Dispute statement](https://help.boltapp.com/operations/disputes/dispute-statements/#how-to-read-dispute-statements): Use `monthly_dispute`\n"
+      enum:
+      - daily_transaction
+      - monthly_transaction
+      - daily_funding
+      - monthly_dispute
+      example: daily_transaction
+      type: string
+    request_result:
+      description: Custom-defined Bolt result object.
+      properties:
+        success:
+          $ref: '#/components/schemas/request_failed'
+      type: object
+    message:
+      description: Human-readable description of the error for developers. Should not be shown to users and is not localized.
+      example: The input is missing a required parameter.
+      type: string
+    statements_file_type:
+      description: This is the type of the file. Currently, Bolt only supports CSV statements.
+      enum:
+      - csv
+      example: csv
+      type: string
+    code:
+      description: Custom-defined Bolt error code. This can be used to programmatically react to specific errors.
+      example: 2001005
+      format: int64
+      type: integer
+    statements_url:
+      description: 'This is the pre-signed URL of the requested statement. The URL has an expiration period of 5 minutes.
+
+        Sharing the URL implies sharing the statement and its contents, please be careful.
+
+        '
+      example: https://bolt-statements-production.s3.us-west-2.amazonaws.com/00_daily_transaction_20200410.csv
+      type: string
   requestBodies:
     statements_view:
       content:

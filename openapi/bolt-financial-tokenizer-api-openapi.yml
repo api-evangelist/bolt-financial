@@ -84,19 +84,6 @@ paths:
       - Tokenizer
 components:
   schemas:
-    post_token_api_response:
-      description: Token Successfully Created
-      properties:
-        nonce:
-          description: 'An artificial random string used to decrypt the `payload`.
-
-            '
-          example: ObJS+95BqxwqGgPMrvg//XAogXeBsMdP
-          format: base64
-          type: string
-        payload:
-          $ref: '#/components/schemas/payload_response'
-      type: object
     post_token_request:
       description: Post Token
       properties:
@@ -112,6 +99,19 @@ components:
           type: string
         public_key:
           $ref: '#/components/schemas/public_key_response'
+      type: object
+    post_token_api_response:
+      description: Token Successfully Created
+      properties:
+        nonce:
+          description: 'An artificial random string used to decrypt the `payload`.
+
+            '
+          example: ObJS+95BqxwqGgPMrvg//XAogXeBsMdP
+          format: base64
+          type: string
+        payload:
+          $ref: '#/components/schemas/payload_response'
       type: object
     public_key_response:
       description: 'A client public key, generated locally.
