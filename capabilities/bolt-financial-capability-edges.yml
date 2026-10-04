@@ -1,0 +1,49 @@
+slug: bolt-financial
+provider: Bolt Financial
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Software & Technology
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 3
+edges:
+- tag: Webhooks
+  spec_file: bolt-financial-webhooks-api-openapi.yml
+  capability_id: BC-4270.80
+  capability_id_l1: BC-4270
+  capability_name: Webhook & Event Subscription Management
+  confidence: 0.85
+  evidence: POST /v1/webhooks createWebhook Create Bolt Webhook; DELETE /v1/webhooks/{webhook_id}; schemas
+    events_array_create_webhook, webhook_event_group
+  reason: CRUD over outbound webhook subscriptions with event group selection — this is exactly the lifecycle
+    of outbound webhook/event subscriptions exposed to integrators, which the frame names explicitly as
+    BC-4270.80.
+- tag: Subscriptions
+  spec_file: bolt-financial-subscriptions-api-openapi.yml
+  capability_id: BC-4240
+  capability_id_l1: BC-4240
+  capability_name: Subscription Lifecycle Management
+  confidence: 0.8
+  evidence: POST /v1/subscriptions/{subscription_id}/cancel Cancel Subscription; pauseSubscription; unpauseSubscription;
+    GET /v1/subscriptions/dunning_settings
+  reason: Operations manage the in-life state of recurring subscriptions — retrieve, pause/unpause, cancel,
+    list subscription orders — which is subscription lifecycle management. L2 left blank because evidence
+    spans modification, cancellation and dunning settings rather than naming one narrower sub-capability.
+- tag: Account
+  spec_file: bolt-financial-account-api-openapi.yml
+  capability_id: BC-420.10
+  capability_id_l1: BC-420
+  capability_name: Customer Data Management
+  confidence: 0.7
+  evidence: POST /v1/account createAccount Create Bolt Account; PATCH /v1/account/profile updateAccountProfile
+    Update Profile; POST /v1/account/addresses addAddress Add Address
+  reason: Operations create and maintain shopper account records — profile, addresses, saved payment methods
+    — plus 'GET /v1/account/exists detectAccount' for identity detection. That is customer master/identity
+    record management (BC-420.10). Moderate confidence because part of the surface is payment-instrument
+    storage rather than pure customer data.
