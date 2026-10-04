@@ -84,6 +84,11 @@ paths:
       - Tokenizer
 components:
   schemas:
+    payload_response:
+      description: "The encrypted card information and the newly generated card token. It can be decrypted with client private key, server public key and nonce. \n\nAfter decoding and decrypting, the payload is an object: \n| Object | Value | \n| ------ | ----- | \n| `token` | The token is the newly generated credit card token. | \n| `expiry` | The date at which the token expires. | \n| `last4` | The last 4 digits of the card number. | \n| `bin` | The credit card bin. | \n| `network` | The credit card network. | \n"
+      example: T5m0ig7ROC/6WVJ9f8NcKRPhjEmn9833i3T4lZiTTNbZgOXM8gRXKeNDSH9BrzicqgjEXNriuZn9E8/xL5mb3lpIPAtX0L0dBDpojb/xa/QNi9/zEiZ6+MmBa6EQCEfKZxiOG9l9BMi3gS+UZxGcF18yfra/UXdhnvQW7PGk0Ex2F6MggwjdJOWoPgKG8UROTBMstoL23plFwfGScyZ+g0uo
+      format: base64
+      type: string
     post_token_request:
       description: Post Token
       properties:
@@ -100,6 +105,13 @@ components:
         public_key:
           $ref: '#/components/schemas/public_key_response'
       type: object
+    public_key_response:
+      description: 'A client public key, generated locally.
+
+        '
+      example: /v7FsRGXEErA7f9y1uyMW0ApMUnC32RenDPpueLcYV8=
+      format: base64
+      type: string
     post_token_api_response:
       description: Token Successfully Created
       properties:
@@ -113,15 +125,3 @@ components:
         payload:
           $ref: '#/components/schemas/payload_response'
       type: object
-    public_key_response:
-      description: 'A client public key, generated locally.
-
-        '
-      example: /v7FsRGXEErA7f9y1uyMW0ApMUnC32RenDPpueLcYV8=
-      format: base64
-      type: string
-    payload_response:
-      description: "The encrypted card information and the newly generated card token. It can be decrypted with client private key, server public key and nonce. \n\nAfter decoding and decrypting, the payload is an object: \n| Object | Value | \n| ------ | ----- | \n| `token` | The token is the newly generated credit card token. | \n| `expiry` | The date at which the token expires. | \n| `last4` | The last 4 digits of the card number. | \n| `bin` | The credit card bin. | \n| `network` | The credit card network. | \n"
-      example: T5m0ig7ROC/6WVJ9f8NcKRPhjEmn9833i3T4lZiTTNbZgOXM8gRXKeNDSH9BrzicqgjEXNriuZn9E8/xL5mb3lpIPAtX0L0dBDpojb/xa/QNi9/zEiZ6+MmBa6EQCEfKZxiOG9l9BMi3gS+UZxGcF18yfra/UXdhnvQW7PGk0Ex2F6MggwjdJOWoPgKG8UROTBMstoL23plFwfGScyZ+g0uo
-      format: base64
-      type: string

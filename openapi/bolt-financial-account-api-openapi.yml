@@ -589,42 +589,33 @@ paths:
           default: api-sandbox
 components:
   schemas:
-    update_profile:
-      description: The profile fields that can be updated for a shopper.
-      properties:
-        first_name:
-          description: The given name of the person associated with this record.
-          example: Alan
-          type: string
-        last_name:
-          description: The surname of the person associated with this record.
-          example: Watts
-          type: string
-        metadata:
-          $ref: '#/components/schemas/shopper_metadata'
+    email:
+      description: An email address.
+      example: alan.watts@example.com
+      format: email
+      type: string
+      maxLength: 255
+    address_account:
+      allOf:
+      - $ref: '#/components/schemas/address'
+      - properties:
+          default:
+            description: Set this to true to make this the default shipping address. There can be only one address with default set to true.
+            type: boolean
+          metadata:
+            $ref: '#/components/schemas/shopper_metadata'
+        type: object
       type: object
-    error_bolt_api:
+    request_result:
+      description: Custom-defined Bolt result object.
       properties:
-        code:
-          $ref: '#/components/schemas/code'
-        message:
-          $ref: '#/components/schemas/message'
+        success:
+          $ref: '#/components/schemas/request_failed'
       type: object
-      description: Error object containing custom error information
-    door_code:
-      description: The building door code or community gate code.
-      example: '123456'
-      maxLength: 1024
-      type:
-      - string
-      - 'null'
-    errors_bolt_api_response:
-      properties:
-        errors:
-          $ref: '#/components/schemas/errors_bolt_api'
-        result:
-          $ref: '#/components/schemas/request_result'
-      type: object
+    message:
+      description: Human-readable description of the error for developers. Should not be shown to users and is not localized.
+      example: The input is missing a required parameter.
+      type: string
     address:
       description: The Address object is used for billing, shipping, and physical store address use cases.
       properties:
@@ -727,119 +718,29 @@ components:
       - first_name
       - last_name
       type: object
-    saved_paypal_account_view:
-      properties:
-        id:
-          description: The ID of the payment method associated with the Shopper's account.
-          type: string
-        type:
-          description: Type field indicates this is a saved PayPal to differentiate it from a saved card.
-          enum:
-          - paypal
-          type: string
-        description:
-          description: The email associated with a shopper's saved PayPal account.
-          type: string
-        metadata:
-          $ref: '#/components/schemas/shopper_metadata'
-      type: object
-      description: Saved PayPal account details.
-    email:
-      description: An email address.
-      example: alan.watts@example.com
-      format: email
-      type: string
-      maxLength: 255
-    profile_view:
-      description: The shopper's account profile.
-      properties:
-        email:
-          $ref: '#/components/schemas/email'
-        first_name:
-          description: The given name of the person associated with this record.
-          example: Alan
-          type: string
-        last_name:
-          description: The surname of the person associated with this record.
-          example: Watts
-          type: string
-        metadata:
-          $ref: '#/components/schemas/shopper_metadata'
-        name:
-          description: The given and surname of the person associated with this address.
-          example: Alan Watts
-          type: string
-        phone:
-          $ref: '#/components/schemas/phone'
-      type: object
-    v1_accounts_view:
-      properties:
-        has_bolt_account:
-          type: boolean
-      type: object
-    payment_method_account:
-      allOf:
-      - $ref: '#/components/schemas/credit_card_account'
-      - properties:
-          default:
-            description: Set this to true to make this the default payment method. There can be only one payment method with default set to true.
-            type: boolean
-        type: object
-      type: object
-    create_account_input:
-      description: The details needed to create a Bolt account.
-      properties:
-        addresses:
-          description: A list of physical shipping addresses associated with this account.
-          items:
-            $ref: '#/components/schemas/address_account'
-          type: array
-        payment_methods:
-          description: A list of payment methods associated with this account.
-          items:
-            $ref: '#/components/schemas/payment_method_account'
-          type: array
-        profile:
-          $ref: '#/components/schemas/profile'
-      required:
-      - profile
-      type: object
-    address_view_account:
-      description: The address object returned in the response.
-      allOf:
-      - $ref: '#/components/schemas/address_view'
-      - properties:
-          metadata:
-            $ref: '#/components/schemas/shopper_metadata'
-      type: object
-    card_network:
-      description: 'The card''s network code. **Nullable** for Transactions Details. Note: LEGACY diners_club_us_ca now tagged as mastercard
+    errors_bolt_api:
+      items:
+        $ref: '#/components/schemas/error_bolt_api'
+      type: array
+    shopper_metadata:
+      description: 'A key-value pair object that allows users to store arbitrary information associated with an object. For any individual account object, we allow up to 50 keys. Keys can be up to 40 characters long and values can be up to 500 characters long. Metadata should not contain any sensitive customer information, like PII (Personally Identifiable Information). For more information about metadata, see our [documentation](https://help.boltapp.com/developers/references/embedded-metadata/).
 
         '
-      enum:
-      - visa
-      - mastercard
-      - amex
-      - discover
-      - dinersclub
-      - jcb
-      - unionpay
-      - alliancedata
-      - citiplcc
-      - unknown
-      example: visa
-      type: string
-    account_details_address_view:
-      description: The address object returned in the response.
-      allOf:
-      - $ref: '#/components/schemas/address_view'
-      - type: object
-        properties:
-          default:
-            description: The default shipping address chosen by the shopper.
-            type: boolean
-          metadata:
-            $ref: '#/components/schemas/shopper_metadata'
+      example:
+        customer_id: 234
+      properties:
+        additionalProperties:
+          type: string
+      type:
+      - object
+      - 'null'
+    door_code:
+      description: The building door code or community gate code.
+      example: '123456'
+      maxLength: 1024
+      type:
+      - string
+      - 'null'
     account_details:
       properties:
         addresses:
@@ -860,6 +761,92 @@ components:
         profile:
           $ref: '#/components/schemas/profile_view'
       type: object
+    errors_bolt_api_response:
+      properties:
+        errors:
+          $ref: '#/components/schemas/errors_bolt_api'
+        result:
+          $ref: '#/components/schemas/request_result'
+      type: object
+    update_profile:
+      description: The profile fields that can be updated for a shopper.
+      properties:
+        first_name:
+          description: The given name of the person associated with this record.
+          example: Alan
+          type: string
+        last_name:
+          description: The surname of the person associated with this record.
+          example: Watts
+          type: string
+        metadata:
+          $ref: '#/components/schemas/shopper_metadata'
+      type: object
+    saved_credit_card_view:
+      properties:
+        billing_address:
+          $ref: '#/components/schemas/address_view'
+        id:
+          description: The ID of the payment method associated with the Shopper's account.
+          type: string
+        last4:
+          $ref: '#/components/schemas/card_last4'
+        exp_month:
+          description: The expiration month of the credit card.
+          example: 11
+          maxLength: 2
+          minLength: 1
+          type: integer
+        exp_year:
+          description: The expiration year of the credit card.
+          example: 2024
+          maxLength: 4
+          minLength: 4
+          type: integer
+        network:
+          $ref: '#/components/schemas/card_network'
+        default:
+          description: The default card payment method chosen by the shopper.
+          type: boolean
+        type:
+          description: The payment method type. If empty, the property defaults to `card`.
+          enum:
+          - card
+          - paypal
+          type: string
+        description:
+          description: The APM account identifier; usually the email address.
+          type: string
+        metadata:
+          $ref: '#/components/schemas/shopper_metadata'
+      type: object
+      description: Saved Credit Card Detail
+    saved_paypal_account_view:
+      properties:
+        id:
+          description: The ID of the payment method associated with the Shopper's account.
+          type: string
+        type:
+          description: Type field indicates this is a saved PayPal to differentiate it from a saved card.
+          enum:
+          - paypal
+          type: string
+        description:
+          description: The email associated with a shopper's saved PayPal account.
+          type: string
+        metadata:
+          $ref: '#/components/schemas/shopper_metadata'
+      type: object
+      description: Saved PayPal account details.
+    v1_accounts_view:
+      properties:
+        has_bolt_account:
+          type: boolean
+      type: object
+    request_failed:
+      example: false
+      type: boolean
+      description: Indicates that the request failed. This value is always false.
     profile:
       description: The first name, last name, email address, and phone number of a shopper.
       properties:
@@ -884,32 +871,196 @@ components:
       - last_name
       - email
       type: object
+    address_view_account:
+      description: The address object returned in the response.
+      allOf:
+      - $ref: '#/components/schemas/address_view'
+      - properties:
+          metadata:
+            $ref: '#/components/schemas/shopper_metadata'
+      type: object
+    profile_view:
+      description: The shopper's account profile.
+      properties:
+        email:
+          $ref: '#/components/schemas/email'
+        first_name:
+          description: The given name of the person associated with this record.
+          example: Alan
+          type: string
+        last_name:
+          description: The surname of the person associated with this record.
+          example: Watts
+          type: string
+        metadata:
+          $ref: '#/components/schemas/shopper_metadata'
+        name:
+          description: The given and surname of the person associated with this address.
+          example: Alan Watts
+          type: string
+        phone:
+          $ref: '#/components/schemas/phone'
+      type: object
+    payment_method_account:
+      allOf:
+      - $ref: '#/components/schemas/credit_card_account'
+      - properties:
+          default:
+            description: Set this to true to make this the default payment method. There can be only one payment method with default set to true.
+            type: boolean
+        type: object
+      type: object
+    address_view:
+      description: The address object returned in the response.
+      properties:
+        company:
+          description: The company name associated with this address.
+          example: Bolt
+          type: string
+        country:
+          description: The name of the country associated with this address.
+          example: United States
+          type: string
+        country_code:
+          description: The ISO 3166-1 alpha-2 country code associated with this address.
+          example: US
+          type: string
+        door_code:
+          $ref: '#/components/schemas/door_code'
+        email_address:
+          description: The email address associated with this address.
+          $ref: '#/components/schemas/email'
+        first_name:
+          description: The given name of the person associated with this address.
+          example: Alan
+          type: string
+        id:
+          description: The unique Bolt ID associated with this address.
+          type: string
+        last_name:
+          description: The surname of the person associated with this address.
+          example: Watts
+          type: string
+        locality:
+          description: The city name details associated with this address.
+          example: Brooklyn
+          type: string
+        name:
+          description: The given and surname of the person associated with this address.
+          example: Alan Watts
+          type: string
+        phone_number:
+          description: The phone number associated with this address.
+          $ref: '#/components/schemas/phone'
+        postal_code:
+          description: The postal or zip code associated with this address.
+          example: '10044'
+          maxLength: 32
+          type: string
+        priority:
+          description: The shopper-indicated priority of this address compared to other addresses on their account.
+          example: primary
+          type:
+          - string
+          - 'null'
+          enum:
+          - primary
+          - listed
+        region:
+          description: The region details such as state or province associated with this address.
+          example: NY
+          type: string
+        region_code:
+          description: The the ISO 3166-2 region code associated with this address.
+          example: NY
+          type:
+          - string
+          - 'null'
+        street_address1:
+          description: The street number and street name of the address.
+          example: 888 main street
+          type: string
+        street_address2:
+          description: Any apartment, floor, or unit details.
+          example: apt 3021
+          type: string
+        street_address3:
+          description: Any additional street address details.
+          example: c/o Alicia Watts
+          type:
+          - string
+          - 'null'
+        street_address4:
+          description: Any additional street address details.
+          example: Bridge Street Apartment Building B
+          type:
+          - string
+          - 'null'
+      type: object
+    code:
+      description: Custom-defined Bolt error code. This can be used to programmatically react to specific errors.
+      example: 2001005
+      format: int64
+      type: integer
+    error_bolt_api:
+      properties:
+        code:
+          $ref: '#/components/schemas/code'
+        message:
+          $ref: '#/components/schemas/message'
+      type: object
+      description: Error object containing custom error information
+    card_network:
+      description: 'The card''s network code. **Nullable** for Transactions Details. Note: LEGACY diners_club_us_ca now tagged as mastercard
+
+        '
+      enum:
+      - visa
+      - mastercard
+      - amex
+      - discover
+      - dinersclub
+      - jcb
+      - unionpay
+      - alliancedata
+      - citiplcc
+      - unknown
+      example: visa
+      type: string
+    create_account_input:
+      description: The details needed to create a Bolt account.
+      properties:
+        addresses:
+          description: A list of physical shipping addresses associated with this account.
+          items:
+            $ref: '#/components/schemas/address_account'
+          type: array
+        payment_methods:
+          description: A list of payment methods associated with this account.
+          items:
+            $ref: '#/components/schemas/payment_method_account'
+          type: array
+        profile:
+          $ref: '#/components/schemas/profile'
+      required:
+      - profile
+      type: object
     phone:
       description: A phone number following E164 standards, in its globalized format, i.e. prepended with a plus sign.
       example: '+12125550199'
       maxLength: 16
       type: string
-    request_failed:
-      example: false
-      type: boolean
-      description: Indicates that the request failed. This value is always false.
-    card_last4:
-      description: The card's last 4 digits. **Nullable** for Transactions Details.
-      example: '4021'
-      maxLength: 4
-      minLength: 4
-      type: string
-    address_account:
+    account_details_address_view:
+      description: The address object returned in the response.
       allOf:
-      - $ref: '#/components/schemas/address'
-      - properties:
+      - $ref: '#/components/schemas/address_view'
+      - type: object
+        properties:
           default:
-            description: Set this to true to make this the default shipping address. There can be only one address with default set to true.
+            description: The default shipping address chosen by the shopper.
             type: boolean
           metadata:
             $ref: '#/components/schemas/shopper_metadata'
-        type: object
-      type: object
     credit_card_account:
       description: 'The `credit_card` object is used to to pay for guest checkout transactions or save payment method details to an account. Once saved, you can reference the credit card with the associated `credit_card_id` for future transactions.
 
@@ -1002,174 +1153,427 @@ components:
       - expiration
       - billing_address
       type: object
-    shopper_metadata:
-      description: 'A key-value pair object that allows users to store arbitrary information associated with an object. For any individual account object, we allow up to 50 keys. Keys can be up to 40 characters long and values can be up to 500 characters long. Metadata should not contain any sensitive customer information, like PII (Personally Identifiable Information). For more information about metadata, see our [documentation](https://help.boltapp.com/developers/references/embedded-metadata/).
-
-        '
-      example:
-        customer_id: 234
-      properties:
-        additionalProperties:
-          type: string
-      type:
-      - object
-      - 'null'
-    errors_bolt_api:
-      items:
-        $ref: '#/components/schemas/error_bolt_api'
-      type: array
-    address_view:
-      description: The address object returned in the response.
-      properties:
-        company:
-          description: The company name associated with this address.
-          example: Bolt
-          type: string
-        country:
-          description: The name of the country associated with this address.
-          example: United States
-          type: string
-        country_code:
-          description: The ISO 3166-1 alpha-2 country code associated with this address.
-          example: US
-          type: string
-        door_code:
-          $ref: '#/components/schemas/door_code'
-        email_address:
-          description: The email address associated with this address.
-          $ref: '#/components/schemas/email'
-        first_name:
-          description: The given name of the person associated with this address.
-          example: Alan
-          type: string
-        id:
-          description: The unique Bolt ID associated with this address.
-          type: string
-        last_name:
-          description: The surname of the person associated with this address.
-          example: Watts
-          type: string
-        locality:
-          description: The city name details associated with this address.
-          example: Brooklyn
-          type: string
-        name:
-          description: The given and surname of the person associated with this address.
-          example: Alan Watts
-          type: string
-        phone_number:
-          description: The phone number associated with this address.
-          $ref: '#/components/schemas/phone'
-        postal_code:
-          description: The postal or zip code associated with this address.
-          example: '10044'
-          maxLength: 32
-          type: string
-        priority:
-          description: The shopper-indicated priority of this address compared to other addresses on their account.
-          example: primary
-          type:
-          - string
-          - 'null'
-          enum:
-          - primary
-          - listed
-        region:
-          description: The region details such as state or province associated with this address.
-          example: NY
-          type: string
-        region_code:
-          description: The the ISO 3166-2 region code associated with this address.
-          example: NY
-          type:
-          - string
-          - 'null'
-        street_address1:
-          description: The street number and street name of the address.
-          example: 888 main street
-          type: string
-        street_address2:
-          description: Any apartment, floor, or unit details.
-          example: apt 3021
-          type: string
-        street_address3:
-          description: Any additional street address details.
-          example: c/o Alicia Watts
-          type:
-          - string
-          - 'null'
-        street_address4:
-          description: Any additional street address details.
-          example: Bridge Street Apartment Building B
-          type:
-          - string
-          - 'null'
-      type: object
-    request_result:
-      description: Custom-defined Bolt result object.
-      properties:
-        success:
-          $ref: '#/components/schemas/request_failed'
-      type: object
-    message:
-      description: Human-readable description of the error for developers. Should not be shown to users and is not localized.
-      example: The input is missing a required parameter.
+    card_last4:
+      description: The card's last 4 digits. **Nullable** for Transactions Details.
+      example: '4021'
+      maxLength: 4
+      minLength: 4
       type: string
-    code:
-      description: Custom-defined Bolt error code. This can be used to programmatically react to specific errors.
-      example: 2001005
-      format: int64
-      type: integer
-    saved_credit_card_view:
-      properties:
-        billing_address:
-          $ref: '#/components/schemas/address_view'
-        id:
-          description: The ID of the payment method associated with the Shopper's account.
-          type: string
-        last4:
-          $ref: '#/components/schemas/card_last4'
-        exp_month:
-          description: The expiration month of the credit card.
-          example: 11
-          maxLength: 2
-          minLength: 1
-          type: integer
-        exp_year:
-          description: The expiration year of the credit card.
-          example: 2024
-          maxLength: 4
-          minLength: 4
-          type: integer
-        network:
-          $ref: '#/components/schemas/card_network'
-        default:
-          description: The default card payment method chosen by the shopper.
-          type: boolean
-        type:
-          description: The payment method type. If empty, the property defaults to `card`.
-          enum:
-          - card
-          - paypal
-          type: string
-        description:
-          description: The APM account identifier; usually the email address.
-          type: string
-        metadata:
-          $ref: '#/components/schemas/shopper_metadata'
+    payment-method-afterpay:
       type: object
-      description: Saved Credit Card Detail
-    address-reference:
-      oneOf:
-      - $ref: '#/components/schemas/address-reference-id'
-      - $ref: '#/components/schemas/address-reference-explicit'
-      - $ref: '#/components/schemas/address-reference-partial'
-      discriminator:
-        propertyName: .tag
-        mapping:
-          id: '#/components/schemas/address-reference-id'
-          explicit: '#/components/schemas/address-reference-explicit'
-          partial: '#/components/schemas/address-reference-partial'
+      required:
+      - .tag
+      - return_url
+      title: Afterpay Payment Method
+      properties:
+        .tag:
+          type: string
+          enum:
+          - afterpay
+          example: afterpay
+        return_url:
+          type: string
+          description: Return URL to return to after payment completion in Afterpay.
+          format: url
+          writeOnly: true
+          example: https://www.example.com/handle_afterpay_success
+    address-reference-explicit:
+      type: object
+      title: Explicit Address Reference
+      required:
+      - .tag
+      - first_name
+      - last_name
+      - street_address1
+      - locality
+      - postal_code
+      - country_code
+      properties:
+        .tag:
+          type: string
+          enum:
+          - explicit
+          description: The type of address reference
+          example: explicit
+          x-order: 0
+        id:
+          type: string
+          format: id
+          description: The address's unique identifier.
+          readOnly: true
+          example: D4g3h5tBuVYK9
+          x-order: 1
+        first_name:
+          type: string
+          description: The first name of the person associated with this address.
+          example: Alice
+          x-order: 2
+        last_name:
+          type: string
+          description: The last name of the person associated with this address.
+          example: Baker
+          x-order: 3
+        company:
+          type: string
+          description: The company associated with this address.
+          example: ACME Corporation
+          x-order: 4
+        street_address1:
+          type: string
+          description: The street address associated with this address.
+          example: 535 Mission St, Ste 1401
+          x-order: 5
+        street_address2:
+          type: string
+          description: Any additional, optional, street address information associated with this address.
+          example: c/o Shipping Department
+          x-order: 6
+        locality:
+          type: string
+          description: The locality (e.g. city, town, etc...) associated with this address.
+          example: San Francisco
+          x-order: 7
+        postal_code:
+          type: string
+          description: The postal code associated with this address.
+          example: '94105'
+          x-order: 8
+        region:
+          type: string
+          description: The region or administrative area (e.g. state, province, county, etc...) associated with this address.
+          example: CA
+          x-order: 9
+        country_code:
+          $ref: '#/components/schemas/country-code'
+        email:
+          type: string
+          format: email
+          description: The email address associated with this address.
+          example: alice@example.com
+          x-order: 11
+        phone:
+          type: string
+          format: phone
+          description: The phone number associated with this address.
+          example: '+14155550199'
+          x-order: 12
+    payment-method-credit-card:
+      title: Credit Card Payment Method
+      allOf:
+      - type: object
+        required:
+        - .tag
+        - type
+        - billing_address
+        properties:
+          .tag:
+            type: string
+            enum:
+            - credit_card
+            example: credit_card
+            x-order: 0
+          id:
+            type: string
+            format: id
+            readOnly: true
+            example: X5h6j8uLpVGK
+            x-order: 1
+          type:
+            type: string
+            description: The type of payment method
+            example: credit_card
+            x-order: 2
+          billing_address:
+            $ref: '#/components/schemas/address-reference'
+      - $ref: '#/components/schemas/credit-card'
+    address-reference-id:
+      type: object
+      title: Address ID Reference
+      required:
+      - .tag
+      - id
+      properties:
+        .tag:
+          type: string
+          enum:
+          - id
+          description: The type of address reference
+          example: id
+        id:
+          type: string
+          format: id
+          description: The address's ID
+          example: D4g3h5tBuVYK9
+    error:
+      type: object
+      required:
+      - .tag
+      - message
+      properties:
+        .tag:
+          type: string
+          enum:
+          - unauthorized
+          - forbidden
+          - unprocessable_request
+          - not_found
+          description: The type of error returned
+          example: unprocessable_request
+        message:
+          type: string
+          description: A human-readable error message, which might include information specific to the request that was made.
+          example: We were unable to process your request.
+    credit-card:
+      required:
+      - network
+      - bin
+      - last4
+      - expiration
+      - token
+      type: object
+      properties:
+        network:
+          $ref: '#/components/schemas/credit-card-network'
+        bin:
+          type: string
+          description: The Bank Identification Number (BIN). This is the first 4 to 8 digits of the account number.
+          pattern: ^\d+$
+          example: '411111'
+        last4:
+          type: string
+          description: The account number's last four digits.
+          pattern: ^\d{4}$
+          example: '1004'
+        expiration:
+          type: string
+          description: The expiration date, in YYYY-MM format.
+          pattern: ^\d{4}-\d{2}$
+          example: 2029-03
+        token:
+          type: string
+          description: The Bolt token associated with the credit card.
+          writeOnly: true
+          example: a1B2c3D4e5F6G7H8i9J0k1L2m3N4o5P6Q7r8S9t0
+        affirm_vcn_token:
+          type: string
+          description: The checkout token associated with Affirm VCN credit cards.
+          example: a1B2c3D4e5F6G7H8i9J0k1L2m3N4o5P6Q7r8S9t0
+        default:
+          type: boolean
+          description: Indicates whether this credit card is the default payment method.
+          example: true
+    payment-method-klarna:
+      type: object
+      required:
+      - .tag
+      - return_url
+      title: Klarna Payment Method
+      properties:
+        .tag:
+          type: string
+          enum:
+          - klarna
+          example: klarna
+        return_url:
+          type: string
+          description: Return URL to return to after payment completion in Klarna.
+          format: url
+          writeOnly: true
+          example: https://www.example.com/handle_klarna_success
+    address-reference-partial:
+      type: object
+      title: Partial Address Reference
+      required:
+      - .tag
+      - postal_code
+      properties:
+        .tag:
+          type: string
+          enum:
+          - partial
+          description: The type of address reference
+          example: partial
+          x-order: 0
+        postal_code:
+          type: string
+          description: The postal code associated with the credit card billing address.
+          example: '94105'
+          x-order: 1
+    address-listing:
+      type: object
+      description: An address saved on an account, i.e. a physical address plus any additional account-specific metadata.
+      required:
+      - first_name
+      - last_name
+      - street_address1
+      - locality
+      - postal_code
+      - country_code
+      properties:
+        id:
+          type: string
+          format: id
+          description: The address's unique identifier.
+          readOnly: true
+          example: D4g3h5tBuVYK9
+          x-order: 1
+        first_name:
+          type: string
+          description: The first name of the person associated with this address.
+          example: Alice
+          x-order: 2
+        last_name:
+          type: string
+          description: The last name of the person associated with this address.
+          example: Baker
+          x-order: 3
+        company:
+          type: string
+          description: The company associated with this address.
+          example: ACME Corporation
+          x-order: 4
+        street_address1:
+          type: string
+          description: The street address associated with this address.
+          example: 535 Mission St, Ste 1401
+          x-order: 5
+        street_address2:
+          type: string
+          description: Any additional, optional, street address information associated with this address.
+          example: c/o Shipping Department
+          x-order: 6
+        locality:
+          type: string
+          description: The locality (e.g. city, town, etc...) associated with this address.
+          example: San Francisco
+          x-order: 7
+        postal_code:
+          type: string
+          description: The postal code associated with this address.
+          example: '94105'
+          x-order: 8
+        region:
+          type: string
+          description: The region or administrative area (e.g. state, province, county, etc...) associated with this address.
+          example: CA
+          x-order: 9
+        country_code:
+          $ref: '#/components/schemas/country-code'
+        email:
+          type: string
+          format: email
+          description: The email address associated with this address.
+          example: alice@example.com
+          x-order: 11
+        phone:
+          type: string
+          format: phone
+          description: The phone number associated with this address.
+          example: '+14155550199'
+          x-oapi-codegen-extra-tags:
+            validate: phone=strict
+          x-order: 12
+        is_default:
+          type: boolean
+          description: Whether or not this is the default address saved.
+          readOnly: true
+          example: true
+    field-error:
+      type: object
+      description: An error that pertains to validation of a specific field in the request.
+      required:
+      - .tag
+      - message
+      - field
+      properties:
+        .tag:
+          type: string
+          enum:
+          - invalid_input_parameter
+          description: The type of error returned
+          example: invalid_input_parameter
+        message:
+          type: string
+          description: A human-readable error message, which might include information specific to the request that was made.
+          example: We were unable to process your request.
+        field:
+          type: string
+          description: The field (in its hierarchical form) that is failing validation.
+          example: address.phone
+    profile_2:
+      type: object
+      description: An account's identifying information.
+      required:
+      - first_name
+      - last_name
+      - email
+      properties:
+        first_name:
+          type: string
+          description: The given name of the person associated with this profile.
+          example: Alice
+          x-order: 1
+        last_name:
+          type: string
+          description: The last name of the person associated with this profile.
+          example: Baker
+          x-order: 2
+        email:
+          type: string
+          format: email
+          description: The email address asscoiated with this profile.
+          example: alice@example.com
+          x-order: 3
+        phone:
+          type: string
+          format: phone
+          description: The phone number associated with this profile.
+          example: '+14155550199'
+          x-order: 4
+    payment-method-klarna-paynow:
+      type: object
+      required:
+      - .tag
+      - return_url
+      title: Klarna Pay Now Payment Method
+      properties:
+        .tag:
+          type: string
+          enum:
+          - klarna_paynow
+          example: klarna_paynow
+        return_url:
+          type: string
+          description: Return URL to return to after payment completion in Klarna.
+          format: url
+          writeOnly: true
+          example: https://www.example.com/handle_klarna_paynow_success
+    payment-method-paypal:
+      type: object
+      title: PayPal Payment Method
+      required:
+      - .tag
+      - success_url
+      - cancel_url
+      properties:
+        .tag:
+          type: string
+          enum:
+          - paypal
+          example: paypal
+          x-order: 0
+        success_url:
+          type: string
+          description: Redirect URL for successful PayPal transaction.
+          format: url
+          writeOnly: true
+          example: https://www.example.com/paypal-callback/success
+        cancel_url:
+          type: string
+          description: Redirect URL for canceled PayPal transaction.
+          format: url
+          writeOnly: true
+          example: https://www.example.com/paypal-callback/cancel
     credit-card-network:
       type: string
       description: The credit card's network.
@@ -1186,6 +1590,58 @@ components:
       example: visa
       x-oapi-codegen-extra-tags:
         validate: required
+    payment-method:
+      oneOf:
+      - $ref: '#/components/schemas/payment-method-credit-card'
+      - $ref: '#/components/schemas/payment-method-googlepay'
+      - $ref: '#/components/schemas/payment-method-applepay'
+      - $ref: '#/components/schemas/payment-method-paypal'
+      - $ref: '#/components/schemas/payment-method-affirm'
+      - $ref: '#/components/schemas/payment-method-afterpay'
+      - $ref: '#/components/schemas/payment-method-klarna'
+      - $ref: '#/components/schemas/payment-method-klarna-account'
+      - $ref: '#/components/schemas/payment-method-klarna-paynow'
+      discriminator:
+        propertyName: .tag
+        mapping:
+          credit_card: '#/components/schemas/payment-method-credit-card'
+          googlepay: '#/components/schemas/payment-method-googlepay'
+          applepay: '#/components/schemas/payment-method-applepay'
+          paypal: '#/components/schemas/payment-method-paypal'
+          affirm: '#/components/schemas/payment-method-affirm'
+          afterpay: '#/components/schemas/payment-method-afterpay'
+          klarna: '#/components/schemas/payment-method-klarna'
+          klarna_account: '#/components/schemas/payment-method-klarna-account'
+          klarna_paynow: '#/components/schemas/payment-method-klarna-paynow'
+    address-reference:
+      oneOf:
+      - $ref: '#/components/schemas/address-reference-id'
+      - $ref: '#/components/schemas/address-reference-explicit'
+      - $ref: '#/components/schemas/address-reference-partial'
+      discriminator:
+        propertyName: .tag
+        mapping:
+          id: '#/components/schemas/address-reference-id'
+          explicit: '#/components/schemas/address-reference-explicit'
+          partial: '#/components/schemas/address-reference-partial'
+    payment-method-affirm:
+      type: object
+      required:
+      - .tag
+      - return_url
+      title: Affirm Payment Method
+      properties:
+        .tag:
+          type: string
+          enum:
+          - affirm
+          example: affirm
+        return_url:
+          type: string
+          description: Return URL to return to after payment completion in Affirm.
+          format: url
+          writeOnly: true
+          example: https://www.example.com/handle_affirm_success
     credit-card-error:
       type: object
       required:
@@ -1209,24 +1665,34 @@ components:
           type: string
           description: A human-readable error message, which might include information specific to the request that was made.
           example: The payment was declined because the CVV is not valid
-    payment-method-klarna-account:
-      type: object
-      required:
-      - .tag
-      - return_url
-      title: Klarna Account Payment Method
-      properties:
-        .tag:
-          type: string
-          enum:
-          - klarna_account
-          example: klarna_account
-        return_url:
-          type: string
-          description: Return URL to return to after payment completion in Klarna.
-          format: url
-          writeOnly: true
-          example: https://www.example.com/handle_klarna_account_success
+    payment-method-googlepay:
+      title: Googlepay Payment Method
+      allOf:
+      - type: object
+        required:
+        - .tag
+        - type
+        properties:
+          .tag:
+            type: string
+            enum:
+            - googlepay
+            example: googlepay
+            x-order: 0
+          id:
+            type: string
+            format: id
+            readOnly: true
+            example: X5h6j8uLpVGK
+            x-order: 1
+          type:
+            type: string
+            description: The type of payment method
+            example: googlepay
+            x-order: 2
+          billing_address:
+            $ref: '#/components/schemas/address-reference'
+      - $ref: '#/components/schemas/credit-card'
     country-code:
       type: string
       description: The country (in its ISO 3166 alpha-2 format) associated with this address.
@@ -1484,64 +1950,6 @@ components:
       x-oapi-codegen-extra-tags:
         validate: country,required
       x-order: 11
-    credit-card:
-      required:
-      - network
-      - bin
-      - last4
-      - expiration
-      - token
-      type: object
-      properties:
-        network:
-          $ref: '#/components/schemas/credit-card-network'
-        bin:
-          type: string
-          description: The Bank Identification Number (BIN). This is the first 4 to 8 digits of the account number.
-          pattern: ^\d+$
-          example: '411111'
-        last4:
-          type: string
-          description: The account number's last four digits.
-          pattern: ^\d{4}$
-          example: '1004'
-        expiration:
-          type: string
-          description: The expiration date, in YYYY-MM format.
-          pattern: ^\d{4}-\d{2}$
-          example: 2029-03
-        token:
-          type: string
-          description: The Bolt token associated with the credit card.
-          writeOnly: true
-          example: a1B2c3D4e5F6G7H8i9J0k1L2m3N4o5P6Q7r8S9t0
-        affirm_vcn_token:
-          type: string
-          description: The checkout token associated with Affirm VCN credit cards.
-          example: a1B2c3D4e5F6G7H8i9J0k1L2m3N4o5P6Q7r8S9t0
-        default:
-          type: boolean
-          description: Indicates whether this credit card is the default payment method.
-          example: true
-    error:
-      type: object
-      required:
-      - .tag
-      - message
-      properties:
-        .tag:
-          type: string
-          enum:
-          - unauthorized
-          - forbidden
-          - unprocessable_request
-          - not_found
-          description: The type of error returned
-          example: unprocessable_request
-        message:
-          type: string
-          description: A human-readable error message, which might include information specific to the request that was made.
-          example: We were unable to process your request.
     account:
       type: object
       required:
@@ -1560,86 +1968,24 @@ components:
             $ref: '#/components/schemas/payment-method'
         profile:
           $ref: '#/components/schemas/profile_2'
-    address-reference-explicit:
+    payment-method-klarna-account:
       type: object
-      title: Explicit Address Reference
       required:
       - .tag
-      - first_name
-      - last_name
-      - street_address1
-      - locality
-      - postal_code
-      - country_code
+      - return_url
+      title: Klarna Account Payment Method
       properties:
         .tag:
           type: string
           enum:
-          - explicit
-          description: The type of address reference
-          example: explicit
-          x-order: 0
-        id:
+          - klarna_account
+          example: klarna_account
+        return_url:
           type: string
-          format: id
-          description: The address's unique identifier.
-          readOnly: true
-          example: D4g3h5tBuVYK9
-          x-order: 1
-        first_name:
-          type: string
-          description: The first name of the person associated with this address.
-          example: Alice
-          x-order: 2
-        last_name:
-          type: string
-          description: The last name of the person associated with this address.
-          example: Baker
-          x-order: 3
-        company:
-          type: string
-          description: The company associated with this address.
-          example: ACME Corporation
-          x-order: 4
-        street_address1:
-          type: string
-          description: The street address associated with this address.
-          example: 535 Mission St, Ste 1401
-          x-order: 5
-        street_address2:
-          type: string
-          description: Any additional, optional, street address information associated with this address.
-          example: c/o Shipping Department
-          x-order: 6
-        locality:
-          type: string
-          description: The locality (e.g. city, town, etc...) associated with this address.
-          example: San Francisco
-          x-order: 7
-        postal_code:
-          type: string
-          description: The postal code associated with this address.
-          example: '94105'
-          x-order: 8
-        region:
-          type: string
-          description: The region or administrative area (e.g. state, province, county, etc...) associated with this address.
-          example: CA
-          x-order: 9
-        country_code:
-          $ref: '#/components/schemas/country-code'
-        email:
-          type: string
-          format: email
-          description: The email address associated with this address.
-          example: alice@example.com
-          x-order: 11
-        phone:
-          type: string
-          format: phone
-          description: The phone number associated with this address.
-          example: '+14155550199'
-          x-order: 12
+          description: Return URL to return to after payment completion in Klarna.
+          format: url
+          writeOnly: true
+          example: https://www.example.com/handle_klarna_account_success
     payment-method-applepay:
       title: ApplePay Payment Method
       allOf:
@@ -1674,353 +2020,14 @@ components:
             type: string
             description: Bolt generated Applepay token id needed for token life cycle management.
             example: a6f57b8c-3b12-4baf-9e77-0b9b2e3cb3d7
-    address-reference-partial:
-      type: object
-      title: Partial Address Reference
-      required:
-      - .tag
-      - postal_code
-      properties:
-        .tag:
-          type: string
-          enum:
-          - partial
-          description: The type of address reference
-          example: partial
-          x-order: 0
-        postal_code:
-          type: string
-          description: The postal code associated with the credit card billing address.
-          example: '94105'
-          x-order: 1
-    payment-method-klarna:
-      type: object
-      required:
-      - .tag
-      - return_url
-      title: Klarna Payment Method
-      properties:
-        .tag:
-          type: string
-          enum:
-          - klarna
-          example: klarna
-        return_url:
-          type: string
-          description: Return URL to return to after payment completion in Klarna.
-          format: url
-          writeOnly: true
-          example: https://www.example.com/handle_klarna_success
-    profile_2:
-      type: object
-      description: An account's identifying information.
-      required:
-      - first_name
-      - last_name
-      - email
-      properties:
-        first_name:
-          type: string
-          description: The given name of the person associated with this profile.
-          example: Alice
-          x-order: 1
-        last_name:
-          type: string
-          description: The last name of the person associated with this profile.
-          example: Baker
-          x-order: 2
-        email:
-          type: string
-          format: email
-          description: The email address asscoiated with this profile.
-          example: alice@example.com
-          x-order: 3
-        phone:
-          type: string
-          format: phone
-          description: The phone number associated with this profile.
-          example: '+14155550199'
-          x-order: 4
-    address-reference-id:
-      type: object
-      title: Address ID Reference
-      required:
-      - .tag
-      - id
-      properties:
-        .tag:
-          type: string
-          enum:
-          - id
-          description: The type of address reference
-          example: id
-        id:
-          type: string
-          format: id
-          description: The address's ID
-          example: D4g3h5tBuVYK9
-    payment-method-paypal:
-      type: object
-      title: PayPal Payment Method
-      required:
-      - .tag
-      - success_url
-      - cancel_url
-      properties:
-        .tag:
-          type: string
-          enum:
-          - paypal
-          example: paypal
-          x-order: 0
-        success_url:
-          type: string
-          description: Redirect URL for successful PayPal transaction.
-          format: url
-          writeOnly: true
-          example: https://www.example.com/paypal-callback/success
-        cancel_url:
-          type: string
-          description: Redirect URL for canceled PayPal transaction.
-          format: url
-          writeOnly: true
-          example: https://www.example.com/paypal-callback/cancel
-    field-error:
-      type: object
-      description: An error that pertains to validation of a specific field in the request.
-      required:
-      - .tag
-      - message
-      - field
-      properties:
-        .tag:
-          type: string
-          enum:
-          - invalid_input_parameter
-          description: The type of error returned
-          example: invalid_input_parameter
-        message:
-          type: string
-          description: A human-readable error message, which might include information specific to the request that was made.
-          example: We were unable to process your request.
-        field:
-          type: string
-          description: The field (in its hierarchical form) that is failing validation.
-          example: address.phone
-    payment-method:
-      oneOf:
-      - $ref: '#/components/schemas/payment-method-credit-card'
-      - $ref: '#/components/schemas/payment-method-googlepay'
-      - $ref: '#/components/schemas/payment-method-applepay'
-      - $ref: '#/components/schemas/payment-method-paypal'
-      - $ref: '#/components/schemas/payment-method-affirm'
-      - $ref: '#/components/schemas/payment-method-afterpay'
-      - $ref: '#/components/schemas/payment-method-klarna'
-      - $ref: '#/components/schemas/payment-method-klarna-account'
-      - $ref: '#/components/schemas/payment-method-klarna-paynow'
-      discriminator:
-        propertyName: .tag
-        mapping:
-          credit_card: '#/components/schemas/payment-method-credit-card'
-          googlepay: '#/components/schemas/payment-method-googlepay'
-          applepay: '#/components/schemas/payment-method-applepay'
-          paypal: '#/components/schemas/payment-method-paypal'
-          affirm: '#/components/schemas/payment-method-affirm'
-          afterpay: '#/components/schemas/payment-method-afterpay'
-          klarna: '#/components/schemas/payment-method-klarna'
-          klarna_account: '#/components/schemas/payment-method-klarna-account'
-          klarna_paynow: '#/components/schemas/payment-method-klarna-paynow'
-    payment-method-affirm:
-      type: object
-      required:
-      - .tag
-      - return_url
-      title: Affirm Payment Method
-      properties:
-        .tag:
-          type: string
-          enum:
-          - affirm
-          example: affirm
-        return_url:
-          type: string
-          description: Return URL to return to after payment completion in Affirm.
-          format: url
-          writeOnly: true
-          example: https://www.example.com/handle_affirm_success
-    payment-method-googlepay:
-      title: Googlepay Payment Method
-      allOf:
-      - type: object
-        required:
-        - .tag
-        - type
-        properties:
-          .tag:
-            type: string
-            enum:
-            - googlepay
-            example: googlepay
-            x-order: 0
-          id:
-            type: string
-            format: id
-            readOnly: true
-            example: X5h6j8uLpVGK
-            x-order: 1
-          type:
-            type: string
-            description: The type of payment method
-            example: googlepay
-            x-order: 2
-          billing_address:
-            $ref: '#/components/schemas/address-reference'
-      - $ref: '#/components/schemas/credit-card'
-    address-listing:
-      type: object
-      description: An address saved on an account, i.e. a physical address plus any additional account-specific metadata.
-      required:
-      - first_name
-      - last_name
-      - street_address1
-      - locality
-      - postal_code
-      - country_code
-      properties:
-        id:
-          type: string
-          format: id
-          description: The address's unique identifier.
-          readOnly: true
-          example: D4g3h5tBuVYK9
-          x-order: 1
-        first_name:
-          type: string
-          description: The first name of the person associated with this address.
-          example: Alice
-          x-order: 2
-        last_name:
-          type: string
-          description: The last name of the person associated with this address.
-          example: Baker
-          x-order: 3
-        company:
-          type: string
-          description: The company associated with this address.
-          example: ACME Corporation
-          x-order: 4
-        street_address1:
-          type: string
-          description: The street address associated with this address.
-          example: 535 Mission St, Ste 1401
-          x-order: 5
-        street_address2:
-          type: string
-          description: Any additional, optional, street address information associated with this address.
-          example: c/o Shipping Department
-          x-order: 6
-        locality:
-          type: string
-          description: The locality (e.g. city, town, etc...) associated with this address.
-          example: San Francisco
-          x-order: 7
-        postal_code:
-          type: string
-          description: The postal code associated with this address.
-          example: '94105'
-          x-order: 8
-        region:
-          type: string
-          description: The region or administrative area (e.g. state, province, county, etc...) associated with this address.
-          example: CA
-          x-order: 9
-        country_code:
-          $ref: '#/components/schemas/country-code'
-        email:
-          type: string
-          format: email
-          description: The email address associated with this address.
-          example: alice@example.com
-          x-order: 11
-        phone:
-          type: string
-          format: phone
-          description: The phone number associated with this address.
-          example: '+14155550199'
-          x-oapi-codegen-extra-tags:
-            validate: phone=strict
-          x-order: 12
-        is_default:
-          type: boolean
-          description: Whether or not this is the default address saved.
-          readOnly: true
-          example: true
-    payment-method-klarna-paynow:
-      type: object
-      required:
-      - .tag
-      - return_url
-      title: Klarna Pay Now Payment Method
-      properties:
-        .tag:
-          type: string
-          enum:
-          - klarna_paynow
-          example: klarna_paynow
-        return_url:
-          type: string
-          description: Return URL to return to after payment completion in Klarna.
-          format: url
-          writeOnly: true
-          example: https://www.example.com/handle_klarna_paynow_success
-    payment-method-afterpay:
-      type: object
-      required:
-      - .tag
-      - return_url
-      title: Afterpay Payment Method
-      properties:
-        .tag:
-          type: string
-          enum:
-          - afterpay
-          example: afterpay
-        return_url:
-          type: string
-          description: Return URL to return to after payment completion in Afterpay.
-          format: url
-          writeOnly: true
-          example: https://www.example.com/handle_afterpay_success
-    payment-method-credit-card:
-      title: Credit Card Payment Method
-      allOf:
-      - type: object
-        required:
-        - .tag
-        - type
-        - billing_address
-        properties:
-          .tag:
-            type: string
-            enum:
-            - credit_card
-            example: credit_card
-            x-order: 0
-          id:
-            type: string
-            format: id
-            readOnly: true
-            example: X5h6j8uLpVGK
-            x-order: 1
-          type:
-            type: string
-            description: The type of payment method
-            example: credit_card
-            x-order: 2
-          billing_address:
-            $ref: '#/components/schemas/address-reference'
-      - $ref: '#/components/schemas/credit-card'
   parameters:
+    email:
+      description: The shopper's email address is the primary mechanism for detecting an account. You **must** provide either a value for this parameter or for `sha256_email`.
+      in: query
+      name: email
+      required: false
+      schema:
+        type: string
     phone:
       description: The shopper's phone number. Includes country code (e.g. +1); does not include dashes or spaces. Can be used to detect an account instead of `sha256_email` or `email`.
       in: query
@@ -2028,17 +2035,24 @@ components:
       required: false
       schema:
         type: string
-    idempotency_key:
-      description: A key created by merchants that ensures `POST` and `PATCH` requests are only performed once. [Read more about Idempotent Requests here](/developers/references/idempotency/).
-      in: header
-      name: Idempotency-Key
-      required: false
+    shopper_address_id_path_param:
+      description: The ID for an address in the shopper's Address Book.
+      in: path
+      name: id
+      required: true
       schema:
         type: string
     shopper_payment_method_id_path_param:
       description: The ID for a payment method in the shopper's Bolt account Wallet. This ID can be obtained using [Get Account Details](#tag/Account/operation/GetAccountDetails).
       in: path
       name: payment_method_id
+      required: true
+      schema:
+        type: string
+    x_publishable_key_required:
+      description: The publicly viewable identifier used to identify a merchant division. This key is found in the Developer > API section of the Bolt Merchant Dashboard.
+      in: header
+      name: X-Publishable-Key
       required: true
       schema:
         type: string
@@ -2049,32 +2063,18 @@ components:
       required: false
       schema:
         type: string
+    idempotency_key:
+      description: A key created by merchants that ensures `POST` and `PATCH` requests are only performed once. [Read more about Idempotent Requests here](/developers/references/idempotency/).
+      in: header
+      name: Idempotency-Key
+      required: false
+      schema:
+        type: string
     sha256_email:
       description: The sha256 hash of the shopper's normalized email address can be used to detect an account instead of `email`.
       in: query
       name: sha256_email
       required: false
-      schema:
-        type: string
-    email:
-      description: The shopper's email address is the primary mechanism for detecting an account. You **must** provide either a value for this parameter or for `sha256_email`.
-      in: query
-      name: email
-      required: false
-      schema:
-        type: string
-    x_publishable_key_required:
-      description: The publicly viewable identifier used to identify a merchant division. This key is found in the Developer > API section of the Bolt Merchant Dashboard.
-      in: header
-      name: X-Publishable-Key
-      required: true
-      schema:
-        type: string
-    shopper_address_id_path_param:
-      description: The ID for an address in the shopper's Address Book.
-      in: path
-      name: id
-      required: true
       schema:
         type: string
     x-merchant-client-id:
@@ -2091,64 +2091,17 @@ components:
       required: true
       schema:
         type: string
-  examples:
-    credit-card-with-address-id:
-      summary: Add a credit card, providing a billing address ID corresponding to an existing address on the shopper's account
-      value:
-        .tag: credit_card
-        type: credit
-        network: visa
-        bin: '411111'
-        last4: '1004'
-        expiration: 2025-03
-        token: a1B2c3D4e5F6G7H8i9J0k1L2m3N4o5P6Q7r8S9t0
-        billing_address:
-          .tag: id
-          id: D4g3h5tBuVYK9
-    address-some-fields:
-      summary: A sample address where only required fields are set
-      value:
-        first_name: Jean
-        last_name: Blanc
-        street_address1: 77 Rue Frédéric Chopin
-        locality: Versailles
-        postal_code: '78000'
-        country_code: FR
-    credit-card-with-address-explicit:
-      summary: Add a credit card, providing an explicit billing address
-      value:
-        .tag: credit_card
-        type: credit
-        network: visa
-        bin: '411111'
-        last4: '1004'
-        expiration: 2025-03
-        token: a1B2c3D4e5F6G7H8i9J0k1L2m3N4o5P6Q7r8S9t0
-        billing_address:
-          .tag: explicit
-          first_name: Charlie
-          last_name: Dunn
-          street_address1: 535 Mission St
-          locality: San Francisco
-          postal_code: '94105'
-          region: CA
-          country_code: US
-    address-all-fields:
-      summary: A sample address where all fields, including optional fields, are set
-      value:
-        first_name: Alice
-        last_name: Baker
-        company: ACME Corporation
-        street_address1: 535 Mission St, Ste 1401
-        street_address2: c/o Shipping Department
-        locality: San Francisco
-        postal_code: '94105'
-        region: CA
-        country_code: US
-        email: alice@example.com
-        phone: '+14155550199'
-        is_default: true
   responses:
+    response-4xx:
+      description: An error has occurred, and further details are contained in the response
+      content:
+        application/json:
+          schema:
+            oneOf:
+            - $ref: '#/components/schemas/error'
+            - $ref: '#/components/schemas/field-error'
+    response-default:
+      description: An error has occurred, and no further details are provided (e.g. 5xx errors)
     response-address-error:
       description: The address is invalid and cannot be added, or some other error has occurred
       content:
@@ -2209,16 +2162,63 @@ components:
               value:
                 .tag: declined_invalid_cvv
                 message: The payment was declined because the CVV is not valid
-    response-default:
-      description: An error has occurred, and no further details are provided (e.g. 5xx errors)
-    response-4xx:
-      description: An error has occurred, and further details are contained in the response
-      content:
-        application/json:
-          schema:
-            oneOf:
-            - $ref: '#/components/schemas/error'
-            - $ref: '#/components/schemas/field-error'
+  examples:
+    credit-card-with-address-explicit:
+      summary: Add a credit card, providing an explicit billing address
+      value:
+        .tag: credit_card
+        type: credit
+        network: visa
+        bin: '411111'
+        last4: '1004'
+        expiration: 2025-03
+        token: a1B2c3D4e5F6G7H8i9J0k1L2m3N4o5P6Q7r8S9t0
+        billing_address:
+          .tag: explicit
+          first_name: Charlie
+          last_name: Dunn
+          street_address1: 535 Mission St
+          locality: San Francisco
+          postal_code: '94105'
+          region: CA
+          country_code: US
+    address-all-fields:
+      summary: A sample address where all fields, including optional fields, are set
+      value:
+        first_name: Alice
+        last_name: Baker
+        company: ACME Corporation
+        street_address1: 535 Mission St, Ste 1401
+        street_address2: c/o Shipping Department
+        locality: San Francisco
+        postal_code: '94105'
+        region: CA
+        country_code: US
+        email: alice@example.com
+        phone: '+14155550199'
+        is_default: true
+    credit-card-with-address-id:
+      summary: Add a credit card, providing a billing address ID corresponding to an existing address on the shopper's account
+      value:
+        .tag: credit_card
+        type: credit
+        network: visa
+        bin: '411111'
+        last4: '1004'
+        expiration: 2025-03
+        token: a1B2c3D4e5F6G7H8i9J0k1L2m3N4o5P6Q7r8S9t0
+        billing_address:
+          .tag: id
+          id: D4g3h5tBuVYK9
+    address-some-fields:
+      summary: A sample address where only required fields are set
+      value:
+        first_name: Jean
+        last_name: Blanc
+        street_address1: 77 Rue Frédéric Chopin
+        locality: Versailles
+        postal_code: '78000'
+        country_code: FR
   securitySchemes:
     OAuth:
       description: 'Bolt utilizes the OAuth flow that developers can use to attain access to Bolt Account data via APIs.
