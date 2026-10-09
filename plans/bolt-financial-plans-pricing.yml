@@ -1,3 +1,7 @@
+# Provenance stamped 2026-10-07 (roadmap#943): written by an API Evangelist sweep (undated — the file carries no date and git cannot supply one), not
+# harvested from the provider. `method: generated` so the economics campaign may replace it with a
+# dated, verbatim transcription; every figure below is unverified until it does.
+method: generated
 name: Bolt Plans and Pricing
 description: >
   Bolt uses a contract-based pricing model tailored per merchant. There are no
@@ -57,3 +61,16 @@ notes:
   - Bolt Payments merchants receive daily settlement via funding statements.
   - Gateway-model merchants receive monthly email invoices.
   - Contact your Customer Success Manager for your specific fee schedule.
+x-canonical:
+  generated: '2026-10-08'
+  vocabulary: all/0-working/economics/plans-canonical.yml
+  models:
+  - negotiated
+  units: []
+  plans:
+  - name: Bundled Pricing
+    access: negotiated
+    model: negotiated
+    model_how: stated
+    units: []
+    periods: []
