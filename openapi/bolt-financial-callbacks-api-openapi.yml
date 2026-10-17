@@ -46,24 +46,22 @@ paths:
           description: An error has occurred, and further details are contained in the response.
 components:
   schemas:
-    payment-method-afterpay:
-      type: object
-      required:
-      - .tag
-      - return_url
-      title: Afterpay Payment Method
-      properties:
-        .tag:
-          type: string
-          enum:
-          - afterpay
-          example: afterpay
-        return_url:
-          type: string
-          description: Return URL to return to after payment completion in Afterpay.
-          format: url
-          writeOnly: true
-          example: https://www.example.com/handle_afterpay_success
+    credit-card-network:
+      type: string
+      description: The credit card's network.
+      enum:
+      - visa
+      - mastercard
+      - amex
+      - discover
+      - jcb
+      - dinersclub
+      - unionpay
+      - alliancedata
+      - citiplcc
+      example: visa
+      x-oapi-codegen-extra-tags:
+        validate: required
     address-reference-explicit:
       type: object
       title: Explicit Address Reference
@@ -144,35 +142,35 @@ components:
           description: The phone number associated with this address.
           example: '+14155550199'
           x-order: 12
-    payment-method-credit-card:
-      title: Credit Card Payment Method
-      allOf:
-      - type: object
-        required:
-        - .tag
-        - type
-        - billing_address
-        properties:
-          .tag:
-            type: string
-            enum:
-            - credit_card
-            example: credit_card
-            x-order: 0
-          id:
-            type: string
-            format: id
-            readOnly: true
-            example: X5h6j8uLpVGK
-            x-order: 1
-          type:
-            type: string
-            description: The type of payment method
-            example: credit_card
-            x-order: 2
-          billing_address:
-            $ref: '#/components/schemas/address-reference'
-      - $ref: '#/components/schemas/credit-card'
+    address-reference:
+      oneOf:
+      - $ref: '#/components/schemas/address-reference-id'
+      - $ref: '#/components/schemas/address-reference-explicit'
+      - $ref: '#/components/schemas/address-reference-partial'
+      discriminator:
+        propertyName: .tag
+        mapping:
+          id: '#/components/schemas/address-reference-id'
+          explicit: '#/components/schemas/address-reference-explicit'
+          partial: '#/components/schemas/address-reference-partial'
+    payment-method-klarna-paynow:
+      type: object
+      required:
+      - .tag
+      - return_url
+      title: Klarna Pay Now Payment Method
+      properties:
+        .tag:
+          type: string
+          enum:
+          - klarna_paynow
+          example: klarna_paynow
+        return_url:
+          type: string
+          description: Return URL to return to after payment completion in Klarna.
+          format: url
+          writeOnly: true
+          example: https://www.example.com/handle_klarna_paynow_success
     credit-card:
       required:
       - network
@@ -212,61 +210,72 @@ components:
           type: boolean
           description: Indicates whether this credit card is the default payment method.
           example: true
-    address-reference-id:
-      type: object
-      title: Address ID Reference
-      required:
-      - .tag
-      - id
-      properties:
-        .tag:
-          type: string
-          enum:
-          - id
-          description: The type of address reference
-          example: id
-        id:
-          type: string
-          format: id
-          description: The address's ID
-          example: D4g3h5tBuVYK9
-    payment-method-klarna:
+    payment-method-klarna-account:
       type: object
       required:
       - .tag
       - return_url
-      title: Klarna Payment Method
+      title: Klarna Account Payment Method
       properties:
         .tag:
           type: string
           enum:
-          - klarna
-          example: klarna
+          - klarna_account
+          example: klarna_account
         return_url:
           type: string
           description: Return URL to return to after payment completion in Klarna.
           format: url
           writeOnly: true
-          example: https://www.example.com/handle_klarna_success
-    address-reference-partial:
+          example: https://www.example.com/handle_klarna_account_success
+    payment-method-affirm:
       type: object
-      title: Partial Address Reference
       required:
       - .tag
-      - postal_code
+      - return_url
+      title: Affirm Payment Method
       properties:
         .tag:
           type: string
           enum:
-          - partial
-          description: The type of address reference
-          example: partial
-          x-order: 0
-        postal_code:
+          - affirm
+          example: affirm
+        return_url:
           type: string
-          description: The postal code associated with the credit card billing address.
-          example: '94105'
+          description: Return URL to return to after payment completion in Affirm.
+          format: url
+          writeOnly: true
+          example: https://www.example.com/handle_affirm_success
+    profile:
+      type: object
+      description: An account's identifying information.
+      required:
+      - first_name
+      - last_name
+      - email
+      properties:
+        first_name:
+          type: string
+          description: The given name of the person associated with this profile.
+          example: Alice
           x-order: 1
+        last_name:
+          type: string
+          description: The last name of the person associated with this profile.
+          example: Baker
+          x-order: 2
+        email:
+          type: string
+          format: email
+          description: The email address asscoiated with this profile.
+          example: alice@example.com
+          x-order: 3
+        phone:
+          type: string
+          format: phone
+          description: The phone number associated with this profile.
+          example: '+14155550199'
+          x-order: 4
     address-listing:
       type: object
       description: An address saved on an account, i.e. a physical address plus any additional account-specific metadata.
@@ -346,36 +355,24 @@ components:
           description: Whether or not this is the default address saved.
           readOnly: true
           example: true
-    profile:
+    payment-method-klarna:
       type: object
-      description: An account's identifying information.
       required:
-      - first_name
-      - last_name
-      - email
+      - .tag
+      - return_url
+      title: Klarna Payment Method
       properties:
-        first_name:
+        .tag:
           type: string
-          description: The given name of the person associated with this profile.
-          example: Alice
-          x-order: 1
-        last_name:
+          enum:
+          - klarna
+          example: klarna
+        return_url:
           type: string
-          description: The last name of the person associated with this profile.
-          example: Baker
-          x-order: 2
-        email:
-          type: string
-          format: email
-          description: The email address asscoiated with this profile.
-          example: alice@example.com
-          x-order: 3
-        phone:
-          type: string
-          format: phone
-          description: The phone number associated with this profile.
-          example: '+14155550199'
-          x-order: 4
+          description: Return URL to return to after payment completion in Klarna.
+          format: url
+          writeOnly: true
+          example: https://www.example.com/handle_klarna_success
     payment-method-paypal:
       type: object
       title: PayPal Payment Method
@@ -402,147 +399,6 @@ components:
           format: url
           writeOnly: true
           example: https://www.example.com/paypal-callback/cancel
-    payment-method-klarna-paynow:
-      type: object
-      required:
-      - .tag
-      - return_url
-      title: Klarna Pay Now Payment Method
-      properties:
-        .tag:
-          type: string
-          enum:
-          - klarna_paynow
-          example: klarna_paynow
-        return_url:
-          type: string
-          description: Return URL to return to after payment completion in Klarna.
-          format: url
-          writeOnly: true
-          example: https://www.example.com/handle_klarna_paynow_success
-    credit-card-network:
-      type: string
-      description: The credit card's network.
-      enum:
-      - visa
-      - mastercard
-      - amex
-      - discover
-      - jcb
-      - dinersclub
-      - unionpay
-      - alliancedata
-      - citiplcc
-      example: visa
-      x-oapi-codegen-extra-tags:
-        validate: required
-    payment-method:
-      oneOf:
-      - $ref: '#/components/schemas/payment-method-credit-card'
-      - $ref: '#/components/schemas/payment-method-googlepay'
-      - $ref: '#/components/schemas/payment-method-applepay'
-      - $ref: '#/components/schemas/payment-method-paypal'
-      - $ref: '#/components/schemas/payment-method-affirm'
-      - $ref: '#/components/schemas/payment-method-afterpay'
-      - $ref: '#/components/schemas/payment-method-klarna'
-      - $ref: '#/components/schemas/payment-method-klarna-account'
-      - $ref: '#/components/schemas/payment-method-klarna-paynow'
-      discriminator:
-        propertyName: .tag
-        mapping:
-          credit_card: '#/components/schemas/payment-method-credit-card'
-          googlepay: '#/components/schemas/payment-method-googlepay'
-          applepay: '#/components/schemas/payment-method-applepay'
-          paypal: '#/components/schemas/payment-method-paypal'
-          affirm: '#/components/schemas/payment-method-affirm'
-          afterpay: '#/components/schemas/payment-method-afterpay'
-          klarna: '#/components/schemas/payment-method-klarna'
-          klarna_account: '#/components/schemas/payment-method-klarna-account'
-          klarna_paynow: '#/components/schemas/payment-method-klarna-paynow'
-    address-reference:
-      oneOf:
-      - $ref: '#/components/schemas/address-reference-id'
-      - $ref: '#/components/schemas/address-reference-explicit'
-      - $ref: '#/components/schemas/address-reference-partial'
-      discriminator:
-        propertyName: .tag
-        mapping:
-          id: '#/components/schemas/address-reference-id'
-          explicit: '#/components/schemas/address-reference-explicit'
-          partial: '#/components/schemas/address-reference-partial'
-    payment-method-affirm:
-      type: object
-      required:
-      - .tag
-      - return_url
-      title: Affirm Payment Method
-      properties:
-        .tag:
-          type: string
-          enum:
-          - affirm
-          example: affirm
-        return_url:
-          type: string
-          description: Return URL to return to after payment completion in Affirm.
-          format: url
-          writeOnly: true
-          example: https://www.example.com/handle_affirm_success
-    payment-method-googlepay:
-      title: Googlepay Payment Method
-      allOf:
-      - type: object
-        required:
-        - .tag
-        - type
-        properties:
-          .tag:
-            type: string
-            enum:
-            - googlepay
-            example: googlepay
-            x-order: 0
-          id:
-            type: string
-            format: id
-            readOnly: true
-            example: X5h6j8uLpVGK
-            x-order: 1
-          type:
-            type: string
-            description: The type of payment method
-            example: googlepay
-            x-order: 2
-          billing_address:
-            $ref: '#/components/schemas/address-reference'
-      - $ref: '#/components/schemas/credit-card'
-    create-full-account:
-      type: object
-      properties:
-        account_details:
-          $ref: '#/components/schemas/account'
-        customer_data_id:
-          type: string
-          description: A unique identifier for this account on your cart platform.
-          example: 5FEB9028D
-    account:
-      type: object
-      required:
-      - addresses
-      - payment_methods
-      properties:
-        addresses:
-          type: array
-          description: A list of addresses associated with this account. These can be considered the "shipping addresses". The account's visible addresses are filtered according to the configured shipping destinations in your Bolt merchant dashboard. If no account addresses are available, use the billing address of the selected payment method.
-          items:
-            $ref: '#/components/schemas/address-listing'
-        payment_methods:
-          type: array
-          description: A list of payment methods associated with this account. The account's visible payment methods are filtered to include only cards that are chargeable.
-          items:
-            $ref: '#/components/schemas/payment-method'
-        profile:
-          $ref: '#/components/schemas/profile'
     country-code:
       type: string
       description: The country (in its ISO 3166 alpha-2 format) associated with this address.
@@ -800,24 +656,77 @@ components:
       x-oapi-codegen-extra-tags:
         validate: country,required
       x-order: 11
-    payment-method-klarna-account:
+    payment-method:
+      oneOf:
+      - $ref: '#/components/schemas/payment-method-credit-card'
+      - $ref: '#/components/schemas/payment-method-googlepay'
+      - $ref: '#/components/schemas/payment-method-applepay'
+      - $ref: '#/components/schemas/payment-method-paypal'
+      - $ref: '#/components/schemas/payment-method-affirm'
+      - $ref: '#/components/schemas/payment-method-afterpay'
+      - $ref: '#/components/schemas/payment-method-klarna'
+      - $ref: '#/components/schemas/payment-method-klarna-account'
+      - $ref: '#/components/schemas/payment-method-klarna-paynow'
+      discriminator:
+        propertyName: .tag
+        mapping:
+          credit_card: '#/components/schemas/payment-method-credit-card'
+          googlepay: '#/components/schemas/payment-method-googlepay'
+          applepay: '#/components/schemas/payment-method-applepay'
+          paypal: '#/components/schemas/payment-method-paypal'
+          affirm: '#/components/schemas/payment-method-affirm'
+          afterpay: '#/components/schemas/payment-method-afterpay'
+          klarna: '#/components/schemas/payment-method-klarna'
+          klarna_account: '#/components/schemas/payment-method-klarna-account'
+          klarna_paynow: '#/components/schemas/payment-method-klarna-paynow'
+    payment-method-credit-card:
+      title: Credit Card Payment Method
+      allOf:
+      - type: object
+        required:
+        - .tag
+        - type
+        - billing_address
+        properties:
+          .tag:
+            type: string
+            enum:
+            - credit_card
+            example: credit_card
+            x-order: 0
+          id:
+            type: string
+            format: id
+            readOnly: true
+            example: X5h6j8uLpVGK
+            x-order: 1
+          type:
+            type: string
+            description: The type of payment method
+            example: credit_card
+            x-order: 2
+          billing_address:
+            $ref: '#/components/schemas/address-reference'
+      - $ref: '#/components/schemas/credit-card'
+    address-reference-partial:
       type: object
+      title: Partial Address Reference
       required:
       - .tag
-      - return_url
-      title: Klarna Account Payment Method
+      - postal_code
       properties:
         .tag:
           type: string
           enum:
-          - klarna_account
-          example: klarna_account
-        return_url:
+          - partial
+          description: The type of address reference
+          example: partial
+          x-order: 0
+        postal_code:
           type: string
-          description: Return URL to return to after payment completion in Klarna.
-          format: url
-          writeOnly: true
-          example: https://www.example.com/handle_klarna_account_success
+          description: The postal code associated with the credit card billing address.
+          example: '94105'
+          x-order: 1
     payment-method-applepay:
       title: ApplePay Payment Method
       allOf:
@@ -852,6 +761,97 @@ components:
             type: string
             description: Bolt generated Applepay token id needed for token life cycle management.
             example: a6f57b8c-3b12-4baf-9e77-0b9b2e3cb3d7
+    payment-method-googlepay:
+      title: Googlepay Payment Method
+      allOf:
+      - type: object
+        required:
+        - .tag
+        - type
+        properties:
+          .tag:
+            type: string
+            enum:
+            - googlepay
+            example: googlepay
+            x-order: 0
+          id:
+            type: string
+            format: id
+            readOnly: true
+            example: X5h6j8uLpVGK
+            x-order: 1
+          type:
+            type: string
+            description: The type of payment method
+            example: googlepay
+            x-order: 2
+          billing_address:
+            $ref: '#/components/schemas/address-reference'
+      - $ref: '#/components/schemas/credit-card'
+    account:
+      type: object
+      required:
+      - addresses
+      - payment_methods
+      properties:
+        addresses:
+          type: array
+          description: A list of addresses associated with this account. These can be considered the "shipping addresses". The account's visible addresses are filtered according to the configured shipping destinations in your Bolt merchant dashboard. If no account addresses are available, use the billing address of the selected payment method.
+          items:
+            $ref: '#/components/schemas/address-listing'
+        payment_methods:
+          type: array
+          description: A list of payment methods associated with this account. The account's visible payment methods are filtered to include only cards that are chargeable.
+          items:
+            $ref: '#/components/schemas/payment-method'
+        profile:
+          $ref: '#/components/schemas/profile'
+    address-reference-id:
+      type: object
+      title: Address ID Reference
+      required:
+      - .tag
+      - id
+      properties:
+        .tag:
+          type: string
+          enum:
+          - id
+          description: The type of address reference
+          example: id
+        id:
+          type: string
+          format: id
+          description: The address's ID
+          example: D4g3h5tBuVYK9
+    payment-method-afterpay:
+      type: object
+      required:
+      - .tag
+      - return_url
+      title: Afterpay Payment Method
+      properties:
+        .tag:
+          type: string
+          enum:
+          - afterpay
+          example: afterpay
+        return_url:
+          type: string
+          description: Return URL to return to after payment completion in Afterpay.
+          format: url
+          writeOnly: true
+          example: https://www.example.com/handle_afterpay_success
+    create-full-account:
+      type: object
+      properties:
+        account_details:
+          $ref: '#/components/schemas/account'
+        customer_data_id:
+          type: string
+          description: A unique identifier for this account on your cart platform.
+          example: 5FEB9028D
   parameters:
     x-bolt-hmac-sha256:
       description: A Bolt-signed hash-based message authentication code (HMAC) to verify that the sender is Bolt.

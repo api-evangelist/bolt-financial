@@ -90,66 +90,16 @@ paths:
       - Configuration
 components:
   schemas:
-    errors_bolt_api_response:
-      properties:
-        errors:
-          $ref: '#/components/schemas/errors_bolt_api'
-        result:
-          $ref: '#/components/schemas/request_result'
-      type: object
-    merchant_identifiers_view:
-      properties:
-        merchant_divisions:
-          $ref: '#/components/schemas/merchant_divisions_identifiers_view'
-        merchant_id:
-          description: The public ID of this merchant.
-          example: 8fd9diIy59sj
-          type: string
-        signing_secret:
-          description: Bolt generates one secret key per merchant and uses it to securely sign requests.
-          example: xf833434fg2cffos92632aa6e1e4fc627a9385045gdj937fg2a127gi93cgos873
-          type: string
-      type: object
-    merchant_callbacks_view:
-      properties:
-        callback_urls:
-          description: List of callback URLs retrieved
-          example:
-          - type: oauth_redirect
-            url: https://example.com/1
-          - type: oauth_logout
-            url: https://example.com/2
-          - type: get_account
-            url: https://example.com/3
-          items:
-            properties:
-              type:
-                $ref: '#/components/schemas/merchant_callback_url_type'
-              url:
-                description: The full callback URL.
-                type: string
-            type: object
-          type: array
-      type: object
     request_result:
       description: Custom-defined Bolt result object.
       properties:
         success:
           $ref: '#/components/schemas/request_failed'
       type: object
-    code:
-      description: Custom-defined Bolt error code. This can be used to programmatically react to specific errors.
-      example: 2001005
-      format: int64
-      type: integer
     message:
       description: Human-readable description of the error for developers. Should not be shown to users and is not localized.
       example: The input is missing a required parameter.
       type: string
-    request_failed:
-      example: false
-      type: boolean
-      description: Indicates that the request failed. This value is always false.
     error_bolt_api:
       properties:
         code:
@@ -158,6 +108,29 @@ components:
           $ref: '#/components/schemas/message'
       type: object
       description: Error object containing custom error information
+    merchant_callback_url_type:
+      description: Bolt merchant division callback URL type
+      enum:
+      - oauth_redirect
+      - oauth_logout
+      - get_account
+      - create_order
+      - universal_merchant_api
+      - shipping
+      - tax
+      - update_cart
+      - debug
+      - remote_api
+      - product_info
+      - support_page
+      - account_page
+      - mobile_app_domain
+      - validate_additional_account_data
+      - terms_of_service
+      - privacy_policy
+      - base_domain
+      - confirmation_redirect
+      type: string
     merchant_callbacks_input:
       properties:
         callback_urls:
@@ -189,10 +162,56 @@ components:
       - division_id
       - callback_urls
       type: object
-    errors_bolt_api:
-      items:
-        $ref: '#/components/schemas/error_bolt_api'
-      type: array
+    merchant_identifiers_view:
+      properties:
+        merchant_divisions:
+          $ref: '#/components/schemas/merchant_divisions_identifiers_view'
+        merchant_id:
+          description: The public ID of this merchant.
+          example: 8fd9diIy59sj
+          type: string
+        signing_secret:
+          description: Bolt generates one secret key per merchant and uses it to securely sign requests.
+          example: xf833434fg2cffos92632aa6e1e4fc627a9385045gdj937fg2a127gi93cgos873
+          type: string
+      type: object
+    code:
+      description: Custom-defined Bolt error code. This can be used to programmatically react to specific errors.
+      example: 2001005
+      format: int64
+      type: integer
+    errors_bolt_api_response:
+      properties:
+        errors:
+          $ref: '#/components/schemas/errors_bolt_api'
+        result:
+          $ref: '#/components/schemas/request_result'
+      type: object
+    merchant_callbacks_view:
+      properties:
+        callback_urls:
+          description: List of callback URLs retrieved
+          example:
+          - type: oauth_redirect
+            url: https://example.com/1
+          - type: oauth_logout
+            url: https://example.com/2
+          - type: get_account
+            url: https://example.com/3
+          items:
+            properties:
+              type:
+                $ref: '#/components/schemas/merchant_callback_url_type'
+              url:
+                description: The full callback URL.
+                type: string
+            type: object
+          type: array
+      type: object
+    request_failed:
+      example: false
+      type: boolean
+      description: Indicates that the request failed. This value is always false.
     merchant_divisions_identifiers_view:
       items:
         properties:
@@ -206,31 +225,12 @@ components:
             type: string
         type: object
       type: array
-    merchant_callback_url_type:
-      description: Bolt merchant division callback URL type
-      enum:
-      - oauth_redirect
-      - oauth_logout
-      - get_account
-      - create_order
-      - universal_merchant_api
-      - shipping
-      - tax
-      - update_cart
-      - debug
-      - remote_api
-      - product_info
-      - support_page
-      - account_page
-      - mobile_app_domain
-      - validate_additional_account_data
-      - terms_of_service
-      - privacy_policy
-      - base_domain
-      - confirmation_redirect
-      type: string
+    errors_bolt_api:
+      items:
+        $ref: '#/components/schemas/error_bolt_api'
+      type: array
   responses:
-    merchant_identifier_error_403:
+    merchant_callbacks_error_403:
       content:
         application/json:
           schema:
@@ -242,7 +242,7 @@ components:
           schema:
             $ref: '#/components/schemas/errors_bolt_api_response'
       description: BAD REQUEST. Request is malformed or invalid value types are detected. division_id could be invalid.
-    merchant_callbacks_error_403:
+    merchant_identifier_error_403:
       content:
         application/json:
           schema:

@@ -89,6 +89,19 @@ components:
       example: T5m0ig7ROC/6WVJ9f8NcKRPhjEmn9833i3T4lZiTTNbZgOXM8gRXKeNDSH9BrzicqgjEXNriuZn9E8/xL5mb3lpIPAtX0L0dBDpojb/xa/QNi9/zEiZ6+MmBa6EQCEfKZxiOG9l9BMi3gS+UZxGcF18yfra/UXdhnvQW7PGk0Ex2F6MggwjdJOWoPgKG8UROTBMstoL23plFwfGScyZ+g0uo
       format: base64
       type: string
+    post_token_api_response:
+      description: Token Successfully Created
+      properties:
+        nonce:
+          description: 'An artificial random string used to decrypt the `payload`.
+
+            '
+          example: ObJS+95BqxwqGgPMrvg//XAogXeBsMdP
+          format: base64
+          type: string
+        payload:
+          $ref: '#/components/schemas/payload_response'
+      type: object
     post_token_request:
       description: Post Token
       properties:
@@ -112,16 +125,3 @@ components:
       example: /v7FsRGXEErA7f9y1uyMW0ApMUnC32RenDPpueLcYV8=
       format: base64
       type: string
-    post_token_api_response:
-      description: Token Successfully Created
-      properties:
-        nonce:
-          description: 'An artificial random string used to decrypt the `payload`.
-
-            '
-          example: ObJS+95BqxwqGgPMrvg//XAogXeBsMdP
-          format: base64
-          type: string
-        payload:
-          $ref: '#/components/schemas/payload_response'
-      type: object
