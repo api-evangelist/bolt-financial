@@ -1,16 +1,83 @@
 generated: '2026-10-12'
-method: none
+method: searched
 source:
 - https://zapier.com/apps/bolt-financial/integrations
 - https://n8n.io/integrations/bolt-financial/
 - https://composio.dev/toolkits/bolt-financial
 - https://monid.ai/tools/bolt-financial
 checked:
+- https://api.nuget.org/v3
 - https://composio.dev/toolkits/bolt-financial
+- https://crates.io/api/v1
 - https://monid.ai/tools/bolt-financial
 - https://n8n.io/integrations/bolt-financial/
+- https://proxy.golang.org
+- https://pypi.org/pypi
+- https://registry.npmjs.org
+- https://repo1.maven.org/maven2
+- https://rubygems.org/api/v1
 - https://zapier.com/apps/bolt-financial/integrations
 summary: null
 marketplace_apps: []
-edges: []
+edges:
+- partner_name: Go module proxy
+  partner: null
+  partner_match: null
+  type: register
+  direction: provider-built
+  category: official SDK (Go)
+  evidence: https://pkg.go.dev/github.com/BoltApp/bolt-go
+  channel: package-registry
+  relationship: distribution-channel
+  contract_reference:
+    register: Go module proxy (public registry JSON)
+    spec_file: null
+    language: Go
+    packages:
+    - name: github.com/BoltApp/bolt-go
+      version: v1.6.0
+      released: '2024-12-15'
+      released_field: Time
+      lapsed: false
+      page: https://pkg.go.dev/github.com/BoltApp/bolt-go
+      repo_leg: github-org:boltapp
+      publisher_leg: org:boltapp
+      matched_by: github-org
+    current: true
+    signal_note: 'an official package on the registry: distribution, not an integration; lapsed = no release in
+      24 months'
+    detected_by: sweep-official-sdks.py
+    detected: '2026-10-18'
+  detected_by: sweep-official-sdks.py
+  first_seen: '2026-10-18'
+- partner_name: npm registry
+  partner: npm
+  partner_match: register
+  type: register
+  direction: provider-built
+  category: official SDK (JavaScript/TypeScript)
+  evidence: https://www.npmjs.com/package/@boltpay/bolt-js
+  channel: package-registry
+  relationship: distribution-channel
+  contract_reference:
+    register: npm registry (public registry JSON)
+    spec_file: null
+    language: JavaScript/TypeScript
+    packages:
+    - name: '@boltpay/bolt-js'
+      version: 0.2.9
+      released: '2026-03-30'
+      released_field: modified
+      lapsed: false
+      page: https://www.npmjs.com/package/@boltpay/bolt-js
+      repo_leg: github-org:boltapp
+      publisher_leg: email:bolt.com
+      matched_by: domain
+    current: true
+    signal_note: 'an official package on the registry: distribution, not an integration; lapsed = no release in
+      24 months'
+    detected_by: sweep-official-sdks.py
+    detected: '2026-10-18'
+  detected_by: sweep-official-sdks.py
+  first_seen: '2026-10-18'
 templates: []
