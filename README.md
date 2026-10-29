@@ -64,36 +64,170 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Bolt Financial, Inc. gives retailers a one-click, identity-powered checkout backed by a
-shopper account network, payments processing, card tokenization and fraud protection.
+Bolt Financial, Inc. is an American commerce technology company that gives retailers a one-click, identity-powered checkout backed by a shopper account network, payments processing, tokenization and fraud protection. Merchants integrate Bolt either through platform plugins (Adobe Commerce/Magento, BigCommerce, Salesforce Commerce Cloud, Shopify, WooCommerce) or directly against a REST API surface that covers shopper accounts, order tokens, transaction authorize/capture/refund/void, subscriptions, product catalog, merchant statements, webhooks and a hosted card tokenizer. Bolt publishes OpenAPI 3.0 definitions for its Bolt API, Embeddable Checkout v1 and v3, and Tokenizer endpoints, ships first-party SDKs for TypeScript, Python, C#, Go, PHP, iOS/Swift, Android/Kotlin, React Native, Unity and Unreal, and maintains an explicit agent-facing surface: an llms.txt index, a hosted documentation MCP server and two published agent skills.
 
-- Website: https://www.bolt.com
-- Documentation: https://help.boltapp.com/
-- Developer resources: https://help.boltapp.com/developers/
-- API reference: https://help.boltapp.com/api-bolt/
-- GitHub: https://github.com/BoltApp
-- Status: https://status.bolt.com
+**Areas:** Company · Payments · Checkout · E-Commerce · Fintech · Subscription · Tokenization · Fraud Prevention · Identity · Webhook
 
-## APIs
+## Bolt Financial on APIs.io
 
-| API | Spec | Operations | Base URL |
-|---|---|---|---|
-| Bolt API | OpenAPI 3.0.0, v1.0.1 | 39 | https://api.boltapp.com |
-| Embeddable Checkout v1 | OpenAPI 3.0.0, v1.0.1 | 20 | https://api.boltapp.com |
-| Embeddable Checkout v3 | OpenAPI 3.0.0, v3.3.22 | 16 | https://api.boltapp.com/v3 |
-| Tokenizer | OpenAPI 3.0.0, v1.0.0 | 2 | https://production.bolttk.com |
+Everything profiled for Bolt Financial is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/bolt-financial/](https://apis.io/providers/bolt-financial/)** — or go straight to one of the APIs or properties below.
 
-## Artifacts
+### APIs (13)
 
-`openapi/` · `overlays/` · `authentication/` · `scopes/` · `conventions/` · `errors/` ·
-`lifecycle/` · `sandbox/` · `changelog/` · `components/` · `data-model/` · `conformance/` ·
-`asyncapi/` (webhook catalog) · `mcp/` (server + tool crosswalk) · `packages/` ·
-`well-known/` · `llms/` · `skills/` · `security/` (domain security)
+- [Bolt MCP Servers](https://apis.io/apis/bolt-financial/mcp/) — Bolt exposes two Model Context Protocol surfaces: a hosted documentation MCP server advertised at help.boltapp.com/mcp with search_docs, get_doc_page and…
+- [Bolt Financial Account API](https://apis.io/apis/bolt-financial/bolt-financial-account-api/) — Use the Account endpoint to view and manage customer accounts. Perform actions such as creating an account, updating an address, or adding a payment method.…
+- [Bolt Financial Callbacks API](https://apis.io/apis/bolt-financial/bolt-financial-callbacks-api/) — Implement Callback endpoints on your servers to power Bolt experiences. Different Bolt packages require different callbacks to be implemented. Consult your…
+- [Bolt Financial Configuration API](https://apis.io/apis/bolt-financial/bolt-financial-configuration-api/) — Use this resource to retrieve and set Merchant Callback URLs. Bolt uses these URLs to exchange information with your commerce server. See our related guide…
+- [Bolt Financial Orders API](https://apis.io/apis/bolt-financial/bolt-financial-orders-api/) — Use the Orders API to interact with the customer's cart throughout the checkout process. Pre-checkout, perform actions such as validating inventory,…
+- [Bolt Financial Payments API](https://apis.io/apis/bolt-financial/bolt-financial-payments-api/) — Use the Payments API to process credit card and alternative payment methods with Bolt.
+- [Bolt Financial Statements API](https://apis.io/apis/bolt-financial/bolt-financial-statements-api/) — [Statements](/merchants/references/financials/statements/) are available in the Merchant Dashboard for merchants who use Bolt Payments as their processor.…
+- [Bolt Financial Subscriptions API](https://apis.io/apis/bolt-financial/bolt-financial-subscriptions-api/) — Use the Subscriptions endpoint to manage merchant-side recurring subscriptions created through Bolt Charge: list and retrieve subscriptions, cancel or…
+- [Bolt Financial Testing API](https://apis.io/apis/bolt-financial/bolt-financial-testing-api/) — The testing endpoint allows you to test various functionality within Bolt. Create a test credit card to process a test payment in your store. You can also…
+- [Bolt Financial Tokenizer API](https://apis.io/apis/bolt-financial/bolt-financial-tokenizer-api/) — The Tokenizer API from Bolt Financial — 2 operation(s) for tokenizer.
+- [Bolt Financial Transactions API](https://apis.io/apis/bolt-financial/bolt-financial-transactions-api/) — Use the Transactions endpoint to authorize payments when the shopper checks out and handle post authorization actions such as captures and refunds. You can…
+- [Bolt Financial Webhooks API](https://apis.io/apis/bolt-financial/bolt-financial-webhooks-api/) — Set up webhooks to notify your backend of events within Bolt. These webhooks can communicate with your OMS or other systems to keep them up to date with…
+- [Bolt Financial O Auth API](https://apis.io/apis/bolt-financial/bolt-financial-oauth-api/) — Use this endpoint to retrieve an OAuth token. Use the token to allow your ecommerce server to make calls to the Account endpoint and create a one-click…
 
-## Notes
+### Published properties
 
-- Bolt maintains a deliberate agent surface: an `llms.txt` index, a hosted documentation MCP
-  server, two published agent skills, and a Speakeasy-generated API MCP server with 22 tools.
-- Bolt publishes no AsyncAPI document; the webhook catalog was captured from the docs.
-- Bolt publishes no A2A agent card, no `security.txt`, and no decline-code reference of its
-  own (it defers to the merchant's configured processor).
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### AsyncAPI (1)
+
+Event-driven and webhook contracts.
+
+- [Bolt Financial Webhooks](https://apis.io/asyncapis/bolt-financial/bolt-financial-webhooks/)
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [bolt-financial-mcp.yml](https://apis.io/servers/bolt-financial/bolt-financial-mcp-yml/)
+
+#### Agentic access (1)
+
+Which operations an agent can call, which act, and which need a human in the loop.
+
+- [Bolt Financial Agentic Access](https://apis.io/agentic-access/bolt-financial/bolt-financial-agentic-access/)
+
+#### Collections (4)
+
+Postman and Open Collection request collections.
+
+- [Bolt API Reference](https://apis.io/collections/bolt-financial/open-bolt-financial-bolt-api/)
+- [Embedded API Reference](https://apis.io/collections/bolt-financial/open-bolt-financial-embeddable-checkout-v1/)
+- [Bolt API Reference](https://apis.io/collections/bolt-financial/open-bolt-financial-embeddable-checkout-v3/)
+- [Tokenizer Endpoint](https://apis.io/collections/bolt-financial/open-bolt-financial-tokenizer/)
+
+#### Overlays (4)
+
+OpenAPI overlays, including conversational phrasing for each operation.
+
+- [Bolt Financial Bolt Api Overlay](https://apis.io/overlays/bolt-financial/bolt-financial-bolt-api-overlay/)
+- [Bolt Financial Embeddable Checkout V1 Overlay](https://apis.io/overlays/bolt-financial/bolt-financial-embeddable-checkout-v1-overlay/)
+- [Bolt Financial Embeddable Checkout V3 Overlay](https://apis.io/overlays/bolt-financial/bolt-financial-embeddable-checkout-v3-overlay/)
+- [Bolt Financial Tokenizer Overlay](https://apis.io/overlays/bolt-financial/bolt-financial-tokenizer-overlay/)
+
+#### Security (3)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Bolt Financial Authentication](https://apis.io/security/bolt-financial/bolt-financial-authentication/)
+- [Bolt Financial Domain Security](https://apis.io/security/bolt-financial/bolt-financial-domain-security/)
+- [Bolt Financial Trust Center](https://apis.io/security/bolt-financial/bolt-financial-trust-center/)
+
+#### OAuth scopes (1)
+
+The permissions the API asks for.
+
+- [Bolt Financial Scopes](https://apis.io/scopes/bolt-financial/bolt-financial-scopes/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Bolt Financial Plans Pricing](https://apis.io/plans/bolt-financial/bolt-financial-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Bolt Financial Rate Limits](https://apis.io/rate-limits/bolt-financial/bolt-financial-rate-limits/)
+
+#### FinOps (1)
+
+What the API costs to run, by operation.
+
+- [Bolt Financial Finops](https://apis.io/finops/bolt-financial/bolt-financial-finops/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://www.bolt.com)
+- [Documentation](https://help.boltapp.com/)
+- [Getting started](https://help.boltapp.com/getting-started/introduction/)
+- [API reference](https://help.boltapp.com/api-bolt/)
+- [Pricing](https://help.boltapp.com/dashboard/billing/fees/)
+- [Sign up](https://merchant.boltapp.com/onboarding)
+- [Support](https://help.boltapp.com/support)
+- [Blog](https://boltapp.com/blog)
+- [Terms of service](https://boltapp.com/end-user-terms)
+- [Privacy policy](https://boltapp.com/privacy)
+- [GitHub](https://github.com/BoltApp)
+- [Status](https://status.bolt.com)
+
+## API Evangelist rating
+
+**Kin Score 60.7** — strong · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 78.6 |
+| Contract quality | 57.5 |
+| Contract governance | 18.2 |
+| Operational transparency | 42.1 |
+| Developer ergonomics | 79.8 |
+| Access clarity | 42.1 |
+
+**Agent readiness 50.5** — agent-native
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | derived (partial credit) |
+| Reversibility Documented | documented (partial credit) |
+| MCP Server | — |
+| Auth Clarity | served (partial credit) |
+| Idempotency | verified |
+| Error Semantics | verified |
+| OpenAPI Examples | partial |
+| Rate Limit Signal | derived (partial credit) |
+| Event Surface Described | yes |
+| Agent Skills | yes |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | served (partial credit) |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | na |
+| Operation Distinctiveness | mostly |
+
+**Regulatory alignment 44.6** — Payments
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/bolt-financial/](https://apis.io/providers/bolt-financial/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Bolt Financial: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/bolt-financial/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
